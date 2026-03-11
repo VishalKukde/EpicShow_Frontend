@@ -1,0 +1,132 @@
+[
+  {
+    "id": "mv_001",
+    "title": "Interstellar",
+    "alternateTitle": "Interstellar (2014)",
+    "description": "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
+    "url": "/dummy.webp",
+    "duration": "2h 49m",
+    "runtimeMinutes": 169,
+    "languages": [
+      "English"
+    ],
+    "genres": [
+      "Sci-Fi",
+      "Adventure",
+      "Drama"
+    ],
+    "releaseDate": "2014-11-07",
+    "status": "Now Showing",
+    "rating": 8.6,
+    "formats": [
+      "2D",
+      "IMAX"
+    ],
+    "isTrending": true,
+    "isRecommended": true
+  },
+  {
+    "id": "mv_002",
+    "title": "The Dark Knight",
+    "alternateTitle": "The Dark Knight (2008)",
+    "description": "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.",
+    "url": "/dummy.webp",
+    "duration": "2h 32m",
+    "runtimeMinutes": 169,
+    "languages": [
+      "English"
+    ],
+    "genres": [
+      "Sci-Fi",
+      "Adventure",
+      "Drama"
+    ],
+    "releaseDate": "2014-11-07",
+    "status": "Now Showing",
+    "rating": 8.6,
+    "formats": [
+      "2D",
+      "IMAX"
+    ],
+    "isTrending": true,
+    "isRecommended": true
+  },
+  {
+    "id": "mv_005",
+    "title": "Interstellar",
+    "alternateTitle": "Interstellar (2014)",
+    "description": "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
+    "url": "/dummy.webp",
+    "duration": "2h 49m",
+    "runtimeMinutes": 169,
+    "languages": [
+      "English"
+    ],
+    "genres": [
+      "Sci-Fi",
+      "Adventure",
+      "Drama"
+    ],
+    "releaseDate": "2014-11-07",
+    "status": "Now Showing",
+    "rating": 8.6,
+    "formats": [
+      "2D",
+      "IMAX"
+    ],
+    "isTrending": true,
+    "isRecommended": true
+  },
+  {
+    "id": "mv_004",
+    "title": "Inception",
+    "alternateTitle": "Inception (2010)",
+    "description": "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.",
+    "url": "/dummy.webp",
+    "duration": "2h 28m",
+    "runtimeMinutes": 169,
+    "languages": [
+      "English"
+    ],
+    "genres": [
+      "Sci-Fi",
+      "Adventure",
+      "Drama"
+    ],
+    "releaseDate": "2014-11-07",
+    "status": "Now Showing",
+    "rating": 8.6,
+    "formats": [
+      "2D",
+      "IMAX"
+    ],
+    "isTrending": true,
+    "isRecommended": true
+  },
+  {
+    "id": "mv_003",
+    "title": "Interstellar",
+    "alternateTitle": "Interstellar (2014)",
+    "description": "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
+    "url": "/dummy.webp",
+    "duration": "2h 49m",
+    "runtimeMinutes": 169,
+    "languages": [
+      "English"
+    ],
+    "genres": [
+      "Sci-Fi",
+      "Adventure",
+      "Drama"
+    ],
+    "releaseDate": "2014-11-07",
+    "status": "Now Showing",
+    "rating": 8.6,
+    "formats": [
+      "2D",
+      "IMAX"
+    ],
+    "isTrending": true,
+    "isRecommended": true
+  }
+]
