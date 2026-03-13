@@ -53,7 +53,7 @@ export default function RootLayout({
           <ThemeBridge />
           {/* <SmoothScroll> */}
           <Navbar />
-          <FloatingChatButton />
+          {/* <FloatingChatButton /> */}
           <MobileBottomNav />
           <ScrollToTop />
           {children}

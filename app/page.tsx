@@ -6,6 +6,8 @@ import { useThemeStore } from "@/store/themeStore";
 import dynamic from "next/dynamic";
 import { HERO_PAGE_BG } from "@/components/heroTheme";
 import CinematicHeroSpotlight from "@/components/HeroSection";
+import TrendingFooter from "./components/TrendingFooter";
+import HeroSectionNewAgain from "@/components/HeroSectionNewAgain";
 
 
 // page.tsx (or wherever you use the component)
@@ -25,7 +27,6 @@ const CinematicHeroSpotlightNew = dynamic(
     ),
   }
 );
-
 
 export default function LandingPage() {
   const mode = useThemeStore((s) => s.mode);
@@ -52,13 +53,15 @@ export default function LandingPage() {
         backgroundColor: dark ? HERO_PAGE_BG.dark : "#FFFFFF",
       }}
     >
+      {/* <LandingIntroModal /> */}
       {/* <AmbientBlobs /> */}
 
       <div className="relative z-10 flex flex-col pb-[calc(env(safe-area-inset-bottom)+3rem)] sm:pb-0">
         {/* <CinematicHeroSpotlight /> */} 
-        <CinematicHeroSpotlightNew/>
+        {/* <CinematicHeroSpotlightNew/> */}
+        <HeroSectionNewAgain/>
 
-        <div className="mx-auto w-full max-w-7xl space-y-16 px-4 pb-0 pt-20 sm:space-y-20 sm:px-6 sm:pb-0 sm:pt-24 lg:px-8">
+        <div className="mx-auto w-full max-w-7xl space-y-20 px-4 pb-20 pt-12 sm:space-y-24 sm:px-6 sm:pb-24 sm:pt-16 lg:space-y-28 lg:px-8 lg:pb-28 lg:pt-32">
           <MovieRow
             title="Now Showing"
             movies={["Interstellar", "Inception", "Dune", "Avatar", "Tenet"]}
@@ -78,10 +81,7 @@ export default function LandingPage() {
           />
         </div>
 
-        {/* Footer */}
-        <footer className={`px-4 py-10 text-center text-sm sm:px-6 lg:px-8 ${dark ? "text-zinc-400" : "text-gray-500"}`}>
-          © 2026 MovieBook. Inspired by great cinema.
-        </footer>
+        <TrendingFooter />
       </div>
     </div>
   );
