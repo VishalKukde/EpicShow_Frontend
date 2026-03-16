@@ -12,7 +12,6 @@ import {
   ChevronRight,
   Ticket,
   Crown,
-  Wallet,
   Bug,
   MessageCircle,
   BadgeCheck,
@@ -26,33 +25,6 @@ type NavAction = {
   href: string;
   hint?: string;
 };
-
-const QUICK_ACTIONS: NavAction[] = [
-  {
-    icon: Ticket,
-    label: "My Tickets",
-    hint: "Upcoming shows",
-    href: "/profile/bookings/movies",
-  },
-  {
-    icon: Wallet,
-    label: "Wallet",
-    hint: "Manage balance",
-    href: "/profile/wallet",
-  },
-  {
-    icon: Bug,
-    label: "Report Issue",
-    hint: "Send bug report",
-    href: "/profile/report-issue",
-  },
-  {
-    icon: MessageCircle,
-    label: "Support Chat",
-    hint: "Get help quickly",
-    href: "/profile/chat",
-  },
-];
 
 const MENU_ACTIONS: NavAction[] = [
   { icon: User, label: "My Profile", href: "/profile" },
@@ -113,8 +85,6 @@ export default function ProfileDropdown() {
 
   const membershipLabel = user.membership || "Free";
   const isProMember = String(membershipLabel).toLowerCase() === "pro";
-  const walletBalance = Number(user.walletBalance ?? 0);
-  const rewardPoints = Number(user.rewardPoints ?? 0);
 
   return (
     <div
@@ -208,56 +178,7 @@ export default function ProfileDropdown() {
                 </span>
               </div>
 
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                <div
-                  className={`rounded-xl border px-2.5 py-2 ${
-                    dark ? "border-zinc-700 bg-zinc-900/85" : "border-slate-200 bg-white/90"
-                  }`}
-                >
-                  <p className={`text-[10px] uppercase tracking-[0.12em] ${dark ? "text-zinc-500" : "text-slate-500"}`}>
-                    Wallet
-                  </p>
-                  <p className={`mt-1 text-sm font-semibold ${dark ? "text-zinc-100" : "text-slate-900"}`}>
-                    Rs {walletBalance.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
-                  </p>
-                </div>
-
-                <div
-                  className={`rounded-xl border px-2.5 py-2 ${
-                    dark ? "border-zinc-700 bg-zinc-900/85" : "border-slate-200 bg-white/90"
-                  }`}
-                >
-                  <p className={`text-[10px] uppercase tracking-[0.12em] ${dark ? "text-zinc-500" : "text-slate-500"}`}>
-                    Rewards
-                  </p>
-                  <p className={`mt-1 text-sm font-semibold ${dark ? "text-zinc-100" : "text-slate-900"}`}>
-                    {rewardPoints.toLocaleString("en-IN")} pts
-                  </p>
-                </div>
-              </div>
             </div>
-
-            <div className={`h-px ${dark ? "bg-zinc-800" : "bg-slate-200"}`} />
-
-            <div className="px-3 py-3">
-              <p className={`px-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${dark ? "text-zinc-500" : "text-slate-400"}`}>
-                Quick Actions
-              </p>
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                {QUICK_ACTIONS.map((action) => (
-                  <QuickActionCard
-                    key={action.label}
-                    dark={dark}
-                    icon={<action.icon className="h-4 w-4" />}
-                    label={action.label}
-                    hint={action.hint || ""}
-                    onClick={() => handleNavigate(action.href)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className={`h-px ${dark ? "bg-zinc-800" : "bg-slate-200"}`} />
 
             <div className="p-2">
               {MENU_ACTIONS.map((item) => (
@@ -321,37 +242,6 @@ function MenuItem({
           dark ? "text-zinc-600" : "text-slate-300"
         }`}
       />
-    </button>
-  );
-}
-
-function QuickActionCard({
-  icon,
-  label,
-  hint,
-  onClick,
-  dark,
-}: {
-  icon: ReactNode;
-  label: string;
-  hint: string;
-  onClick?: () => void;
-  dark: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`rounded-xl border p-2.5 text-left transition-all duration-200 cursor-pointer ${
-        dark
-          ? "border-zinc-700 bg-zinc-900/75 hover:border-zinc-600 hover:bg-zinc-900"
-          : "border-slate-200 bg-white hover:border-indigo-200 hover:bg-indigo-50/35"
-      }`}
-    >
-      <div className={`inline-flex items-center gap-2 text-xs font-semibold ${dark ? "text-zinc-100" : "text-slate-900"}`}>
-        <span className={`${dark ? "text-indigo-300" : "text-indigo-600"}`}>{icon}</span>
-        {label}
-      </div>
-      <p className={`mt-1 text-[11px] leading-4 ${dark ? "text-zinc-400" : "text-slate-500"}`}>{hint}</p>
     </button>
   );
 }

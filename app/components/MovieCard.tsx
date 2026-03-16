@@ -11,7 +11,7 @@ export default function MovieCard({ title }: { title: string }) {
       transition={{ duration: 0.25 }}
     >
       {/* POSTER */}
-      <div className="relative h-[260px] sm:h-[300px] lg:h-[320px] rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.08)]">
+      <div className="relative h-[440px] sm:h-[300px] lg:h-[320px] rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.08)]">
         <Image
           src="/dummy.webp"
           alt={title}

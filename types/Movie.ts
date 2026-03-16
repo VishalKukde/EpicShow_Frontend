@@ -7,6 +7,7 @@ export interface Movie {
   language: string;
   runtimeMinutes: number;
   rating: number;
+  releaseDate?: string; // ✅ add this
   createdAt?: string;
   updatedAt?: string;
 }

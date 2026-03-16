@@ -5,19 +5,24 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import ProfileDropdown from "./ProfileDropdown";
+import MovieSearchModal from "./MovieSearchModal";
 import { useBookingStore } from "@/store/bookingStore";
 import { usePaymentStore } from "@/store/paymentStore";
 import { unlockAllSeatsForCurrentShow } from "@/hooks/useSeatActions";
 // import { useSeatSession } from "@/hooks/useSeatSession";
 import { useSeatLayout } from "@/hooks/useSeatLayout";
 import { motion } from "framer-motion";
+import { Search } from "lucide-react";
+import { useThemeStore } from "@/store/themeStore";
 
 export default function Navbar() {
   const { user } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+  const mode = useThemeStore((s) => s.mode);
   const [scrolled, setScrolled] = useState(false);
   const [isNavbarVisible, setIsNavbarVisible] = useState(true);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
@@ -76,46 +81,47 @@ export default function Navbar() {
 
   const hiddenRoutes = ["/profile", "/payment", "/review"];
   const isAuthEntryPage = pathname === "/login" || pathname === "/register";
+  const dark = mode === "dark";
 
   const hideNavbar = hiddenRoutes.some((route) => pathname.includes(route));
 
   if (hideNavbar) return null;
 
   return (
-    <motion.nav
-      initial={false}
-      animate={{
-        opacity: isNavbarVisible ? 1 : 0.02,
-        y: isNavbarVisible ? 0 : -120,
-      }}
-      transition={{
-        type: "spring",
-        stiffness: 190,
-        damping: 26,
-        mass: 0.9,
-      }}
-      className={`fixed left-1/2 -translate-x-1/2 z-50 transform-gpu will-change-transform
-  ${isNavbarVisible ? "pointer-events-auto" : "pointer-events-none"}
-  ${scrolled ? "top-2" : "top-3"}
-  w-[calc(100%-2rem)] sm:w-[calc(100%-3rem)] lg:w-[calc(100%-4rem)] max-w-[100rem] rounded-2xl
-  bg-transparent shadow-none 
-`}
-    >
-      <div
-        className={`relative flex justify-between items-center px-3 sm:px-6 lg:px-3 transition-all duration-500
-    ${scrolled ? "py-2 sm:py-2" : "py-3 sm:py-2"}`}
+    <>
+      <motion.nav
+        initial={false}
+        animate={{
+          opacity: isNavbarVisible ? 1 : 0.02,
+          y: isNavbarVisible ? 0 : -120,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 190,
+          damping: 26,
+          mass: 0.9,
+        }}
+        className={`fixed left-1/2 -translate-x-1/2 z-50 transform-gpu will-change-transform
+    ${isNavbarVisible ? "pointer-events-auto" : "pointer-events-none"}
+    ${scrolled ? "top-2" : "top-3"}
+    w-[calc(100%-2rem)] sm:w-[calc(100%-3rem)] lg:w-[calc(100%-4rem)] max-w-[100rem] rounded-2xl
+    bg-transparent shadow-none 
+  `}
       >
-        {/* Logo */}
         <div
-          className="text-xl sm:text-2xl font-bold tracking-tight lg:pl-2 text-gray-900 cursor-pointer hover:opacity-80 transition"
-          onClick={handleHome}
-
+          className={`relative flex justify-between items-center px-3 sm:px-6 lg:px-3 transition-all duration-500
+      ${scrolled ? "py-2 sm:py-2" : "py-3 sm:py-2"}`}
         >
-          MovieBook
-        </div>
+          {/* Logo */}
+          <div
+            className="text-xl sm:text-2xl font-bold tracking-tight lg:pl-2 text-gray-900 cursor-pointer hover:opacity-80 transition"
+            onClick={handleHome}
+          >
+            MovieBook
+          </div>
 
-        {/* Right */}
-        <div className="flex items-center gap-3 ">
+          {/* Right */}
+          <div className="flex items-center gap-3 ">
           {/* <button
             type="button"
             onClick={handleMobileChat}
@@ -129,6 +135,20 @@ export default function Navbar() {
           >
             <BotMessageSquare className="h-4 w-4" />
           </button> */}
+
+          <button
+            type="button"
+            onClick={() => setIsSearchOpen(true)}
+            aria-label="Open search"
+            className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition sm:text-sm ${
+              dark
+                ? "border-zinc-700 bg-zinc-900/80 text-zinc-100 hover:border-zinc-500 hover:bg-zinc-800"
+                : "border-gray-200 bg-white/90 text-gray-700 hover:border-gray-300 hover:bg-white"
+            }`}
+          >
+            <Search className="h-4 w-4" />
+            <span className="hidden sm:inline">Search</span>
+          </button>
 
           {user ? (
             <div className="hidden sm:block">
@@ -161,7 +181,9 @@ export default function Navbar() {
             </>
           )}
         </div>
-      </div>
-    </motion.nav>
+        </div>
+      </motion.nav>
+      <MovieSearchModal open={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+    </>
   );
 }

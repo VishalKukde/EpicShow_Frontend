@@ -36,26 +36,18 @@ export default function MobileBottomNav() {
     return null;
   }
 
-  const navBackgroundColor = isLandingPage
-    ? dark
-      ? HERO_PAGE_BG.dark
-      : HERO_PAGE_BG.light
-    : dark
-      ? "rgba(24,24,27,0.92)"
-      : "rgba(255,255,255,0.82)";
+  const navBackgroundColor = "rgba(255,255,255,0.82)";
 
   return (
     <nav
-      className={`pointer-events-none fixed inset-x-0 bottom-2 z-50 transition-all duration-300 ease-out lg:hidden ${
+      className={`pointer-events-none fixed inset-x-0 bottom-0 z-50 transition-all duration-300 ease-out lg:hidden ${
         showNav ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0"
       }`}
     >
-      <div className={`${showNav ? "pointer-events-auto" : "pointer-events-none"} mx-auto w-[calc(100%-1rem)] max-w-md`}>
+      <div className={`${showNav ? "pointer-events-auto" : "pointer-events-none"} w-full`}>
         <div
-          className={`relative grid grid-cols-5 rounded-2xl border p-1.5 ${
-            dark
-              ? "border-[#1b2540]/80 shadow-[0_18px_45px_rgba(0,0,0,0.55)] backdrop-blur-2xl"
-              : "border-[#cfdaf6]/95 shadow-[0_18px_40px_rgba(15,23,42,0.14)] backdrop-blur-2xl"
+          className={`relative grid grid-cols-5 border-t px-2 py-2 shadow-[0_-12px_30px_rgba(15,23,42,0.18)] backdrop-blur-2xl ${
+            dark ? "border-[#1b2540]/80" : "border-[#cfdaf6]/95"
           }`}
           style={{ backgroundColor: navBackgroundColor }}
         >

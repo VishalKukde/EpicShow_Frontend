@@ -8,6 +8,7 @@ import { HERO_PAGE_BG } from "@/components/heroTheme";
 import CinematicHeroSpotlight from "@/components/HeroSection";
 import TrendingFooter from "./components/TrendingFooter";
 import HeroSectionNewAgain from "@/components/HeroSectionNewAgain";
+import HeroCategoryCards from "@/components/hero/HeroCategoryCards";
 
 
 // page.tsx (or wherever you use the component)
@@ -31,6 +32,10 @@ const CinematicHeroSpotlightNew = dynamic(
 export default function LandingPage() {
   const mode = useThemeStore((s) => s.mode);
   const dark = mode === "dark";
+  const nowShowing = ["Interstellar", "Inception", "Dune", "Avatar", "Tenet"];
+  const comingSoon = ["Oppenheimer", "Joker 2", "Batman", "Matrix", "Blade Runner"];
+  const nowShowingList = Array.from({ length: 5 }, (_, i) => nowShowing[i % nowShowing.length]);
+  const comingSoonList = Array.from({ length: 5 }, (_, i) => comingSoon[i % comingSoon.length]);
 
   useEffect(() => {
     const blockBack = () => {
@@ -61,23 +66,19 @@ export default function LandingPage() {
         {/* <CinematicHeroSpotlightNew/> */}
         <HeroSectionNewAgain/>
 
-        <div className="mx-auto w-full max-w-7xl space-y-20 px-4 pb-20 pt-12 sm:space-y-24 sm:px-6 sm:pb-24 sm:pt-16 lg:space-y-28 lg:px-8 lg:pb-28 lg:pt-32">
+        <div className="mx-auto w-full max-w-7xl space-y-20 px-4 pb-20 pt-12 sm:space-y-24 sm:px-6 sm:pb-24 sm:pt-16 lg:space-y-28 lg:px-2 lg:pb-28 lg:pt-12">
           <MovieRow
             title="Now Showing"
-            movies={["Interstellar", "Inception", "Dune", "Avatar", "Tenet"]}
+            movies={nowShowingList}
           />
 
-          <CategoryGateway />
+          <HeroCategoryCards className="mt-6" />
+
+          {/* <CategoryGateway /> */}
 
           <MovieRow
             title="Coming Soon"
-            movies={[
-              "Oppenheimer",
-              "Joker 2",
-              "Batman",
-              "Matrix",
-              "Blade Runner",
-            ]}
+            movies={comingSoonList}
           />
         </div>
 

@@ -46,7 +46,7 @@ export default function MovieRow({ title, movies }: MovieRowProps) {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.07, duration: 0.5 }}
               viewport={{ once: true }}
-              className="min-w-[200px] sm:min-w-0"
+              className="min-w-[280px] sm:min-w-0"
               whileHover={{ y: -6 }}
             >
               <MovieCard title={m} />
