@@ -10,7 +10,6 @@ import { useRouter } from "next/navigation";
 import { useBookingStore } from "@/store/bookingStore";
 import { useSeatLayout } from "@/hooks/useSeatLayout";
 import { useSeatActions } from "@/hooks/useSeatActions";
-import SeatTimer from "@/app/components/SeatTimer";
 import { toast } from "@/lib/toast";
 
 export default function SeatLayout() {
@@ -53,7 +52,6 @@ export default function SeatLayout() {
       <div className="relative bg-background sm:px-28 pt-18 pb-20 select-none">
 
         {/* 🎬 Screen */}
-        <SeatTimer />
         <ScreenIndicator />
 
         {/* 🪑 Seats */}

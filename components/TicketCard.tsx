@@ -4,6 +4,7 @@ import { useSeatLayout } from '@/hooks/useSeatLayout';
 // import { useSeatSession } from '@/hooks/useSeatSession';
 import { useBookingStore } from '@/store/bookingStore';
 import { useThemeStore } from '@/store/themeStore';
+import { useAuth } from '@/context/AuthContext';
 import { Movie } from '@/types/Movie';
 import { Seat } from '@/types/Seat';
 import { motion } from 'framer-motion';
@@ -19,6 +20,7 @@ type ITicketCardProps = {
 }
 const TicketCard = ({ item, date: _date, seats, slot: _slot, venue }: ITicketCardProps) => {
     const router = useRouter();
+    const { user } = useAuth();
     const booking = useBookingStore();
     const mode = useThemeStore((s) => s.mode);
     const { setSeats } = useSeatLayout(booking);
@@ -26,7 +28,7 @@ const TicketCard = ({ item, date: _date, seats, slot: _slot, venue }: ITicketCar
     void _slot;
 
     const handleUnlockSeats = () => {
-        unlockAllSeatsForCurrentShow(setSeats);
+        unlockAllSeatsForCurrentShow(setSeats, user?.id);
         router.replace(`/movies/${item?._id}`);
     }
 

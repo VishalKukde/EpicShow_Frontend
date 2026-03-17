@@ -58,7 +58,7 @@ export default function Sidebar() {
       {/* HEADER */}
       <div className="px-6 py-4 border-b border-gray-200 cursor-pointer" onClick={() => route.push("/")}>
         <span className="font-semibold text-2xl text-gray-900 tracking-tight">
-          MovieBook
+          EpicShow
         </span>
       </div>
 
@@ -296,14 +296,14 @@ export default function Sidebar() {
             <button
               onClick={() => setShowLogoutConfirm(false)}
               disabled={isLoggingOut}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-60"
+              className="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-60"
             >
               Cancel
             </button>
             <button
               onClick={handleConfirmLogout}
               disabled={isLoggingOut}
-              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
+              className=" cursor-pointer  rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
             >
               {isLoggingOut ? "Logging out..." : "Logout"}
             </button>

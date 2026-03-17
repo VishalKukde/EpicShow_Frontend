@@ -3,14 +3,11 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { useThemeStore } from "@/store/themeStore";
 import { toast } from "@/lib/toast";
 
 export default function RegisterPage() {
   const router = useRouter();
   const { register } = useAuth();
-  const mode = useThemeStore((state) => state.mode);
-  const dark = mode === "dark";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -94,22 +91,23 @@ export default function RegisterPage() {
 
   return (
     <div
-      className={`min-h-screen flex items-center justify-center px-4 ${
-        dark ? "bg-zinc-950" : "bg-[#f7f8fa]"
-      }`}
+      className="min-h-screen flex items-center justify-center px-4"
+      style={{ background: "var(--auth-page-bg)" }}
     >
 
       {/* Card */}
       <div
-        className={`w-full max-w-md rounded-2xl backdrop-blur-lg border shadow-lg p-8 ${
-          dark ? "bg-zinc-900/80 border-zinc-700" : "bg-white/70 border-gray-200"
-        }`}
+        className="w-full max-w-md rounded-2xl backdrop-blur-lg border shadow-lg p-8"
+        style={{
+          background: "var(--auth-card-bg)",
+          borderColor: "var(--auth-card-border)",
+        }}
       >
 
-        <h1 className={`text-2xl font-semibold text-center mb-2 ${dark ? "text-white" : "text-gray-800"}`}>
+        <h1 className="text-2xl font-semibold text-center mb-2" style={{ color: "var(--text-primary)" }}>
           Create account
         </h1>
-        <p className={`text-sm text-center mb-6 ${dark ? "text-zinc-300" : "text-gray-500"}`}>
+        <p className="text-sm text-center mb-6" style={{ color: "var(--text-secondary)" }}>
           Sign up to get started
         </p>
 
@@ -127,11 +125,7 @@ export default function RegisterPage() {
               setName(e.target.value);
               setFieldErrors((prev) => ({ ...prev, name: undefined }));
             }}
-            className={`w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 ${
-              dark
-                ? "bg-zinc-800 border-zinc-700 text-zinc-100 placeholder-zinc-400 focus:ring-zinc-600"
-                : "bg-white border-gray-300 text-gray-800 placeholder-gray-400 focus:ring-gray-300"
-            }`}
+            className="auth-input w-full px-4 py-3 rounded-lg border focus:outline-none"
           />
           {fieldErrors.name && (
             <p className="-mt-2 text-xs text-red-600">{fieldErrors.name}</p>
@@ -144,11 +138,7 @@ export default function RegisterPage() {
               setEmail(e.target.value);
               setFieldErrors((prev) => ({ ...prev, email: undefined }));
             }}
-            className={`w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 ${
-              dark
-                ? "bg-zinc-800 border-zinc-700 text-zinc-100 placeholder-zinc-400 focus:ring-zinc-600"
-                : "bg-white border-gray-300 text-gray-800 placeholder-gray-400 focus:ring-gray-300"
-            }`}
+            className="auth-input w-full px-4 py-3 rounded-lg border focus:outline-none"
           />
           {fieldErrors.email && (
             <p className="-mt-2 text-xs text-red-600">{fieldErrors.email}</p>
@@ -162,11 +152,7 @@ export default function RegisterPage() {
               setPassword(e.target.value);
               setFieldErrors((prev) => ({ ...prev, password: undefined }));
             }}
-            className={`w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 ${
-              dark
-                ? "bg-zinc-800 border-zinc-700 text-zinc-100 placeholder-zinc-400 focus:ring-zinc-600"
-                : "bg-white border-gray-300 text-gray-800 placeholder-gray-400 focus:ring-gray-300"
-            }`}
+            className="auth-input w-full px-4 py-3 rounded-lg border focus:outline-none"
           />
           {fieldErrors.password && (
             <p className="-mt-2 text-xs text-red-600">{fieldErrors.password}</p>
@@ -180,11 +166,7 @@ export default function RegisterPage() {
               setConfirmPassword(e.target.value);
               setFieldErrors((prev) => ({ ...prev, confirmPassword: undefined }));
             }}
-            className={`w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 ${
-              dark
-                ? "bg-zinc-800 border-zinc-700 text-zinc-100 placeholder-zinc-400 focus:ring-zinc-600"
-                : "bg-white border-gray-300 text-gray-800 placeholder-gray-400 focus:ring-gray-300"
-            }`}
+            className="auth-input w-full px-4 py-3 rounded-lg border focus:outline-none"
           />
           {fieldErrors.confirmPassword && (
             <p className="-mt-2 text-xs text-red-600">{fieldErrors.confirmPassword}</p>
@@ -193,21 +175,17 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full cursor-pointer py-3 rounded-lg font-medium transition disabled:opacity-60 disabled:cursor-not-allowed ${
-              dark
-                ? "bg-zinc-100 text-zinc-900 hover:bg-white"
-                : "bg-gray-900 text-white hover:bg-gray-800"
-            }`}
+            className="auth-primary-btn w-full cursor-pointer py-3 rounded-lg font-medium disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? "Creating account..." : "Register"}
           </button>
         </form>
 
-        <p className={`text-center mt-6 text-sm ${dark ? "text-zinc-400" : "text-gray-500"}`}>
+        <p className="text-center mt-6 text-sm" style={{ color: "var(--text-muted)" }}>
           Already have an account?{" "}
           <span
             onClick={() => router.push("/login")}
-            className={`font-medium cursor-pointer hover:underline ${dark ? "text-zinc-100" : "text-gray-800"}`}
+            className="auth-link font-medium cursor-pointer hover:underline"
           >
             Sign in
           </span>

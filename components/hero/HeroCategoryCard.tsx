@@ -9,6 +9,7 @@ export type HeroCategoryCardData = {
   Icon: ComponentType<{ className?: string; size?: number, style?: React.CSSProperties }>;
   comingSoon?: boolean;
   href?: string;
+  bgImage?: string;
 };
 
 type HeroCategoryCardProps = {
@@ -22,6 +23,20 @@ type HeroCategoryCardProps = {
   isTiny?: boolean;
 };
 
+function hexToRgb(hex: string) {
+  const raw = hex.replace("#", "").trim();
+  const normalized =
+    raw.length === 3 ? raw.split("").map((c) => `${c}${c}`).join("") : raw;
+  if (normalized.length !== 6) return null;
+  const value = Number.parseInt(normalized, 16);
+  if (Number.isNaN(value)) return null;
+  return {
+    r: (value >> 16) & 255,
+    g: (value >> 8) & 255,
+    b: value & 255,
+  };
+}
+
 export default function HeroCategoryCard({
   card,
   index,
@@ -33,9 +48,10 @@ export default function HeroCategoryCard({
   isTiny = false,
 }: HeroCategoryCardProps) {
   const router = useRouter();
-  const { Icon } = card;
 
   const isClickable = Boolean(card.href) && !card.comingSoon;
+  const accentRgb = hexToRgb(card.accent);
+  const badgeText = card.comingSoon ? "Coming soon" : card.label;
 
   const handleNavigate = () => {
     if (isClickable && card.href) {
@@ -47,119 +63,81 @@ export default function HeroCategoryCard({
     ? "clamp(110px, 20vh, 150px)"
     : "clamp(120px, 18vh, 170px)";
 
+  const paddingClass = isTiny ? "p-3" : isSmall ? "p-4" : "p-5";
+
   return (
     <div
       style={{ height: cardHeight }}
       onMouseEnter={() => !card.comingSoon && onEnter(index)}
       onMouseLeave={onLeave}
       onClick={handleNavigate}
-      className={`
-        relative
-        rounded-2xl
-        border
-        overflow-hidden
-        transition-all duration-300 ease-out
-        flex flex-col
-        items-center
-        justify-center
-        gap-2
-
-        ${dark
-          ? "bg-neutral-900 border-neutral-700"
-          : "bg-neutral-50 border-neutral-200"
+      role={isClickable ? "button" : undefined}
+      tabIndex={isClickable ? 0 : -1}
+      onKeyDown={(event) => {
+        if (!isClickable) return;
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          handleNavigate();
         }
+      }}
+      className={`
+        group relative overflow-hidden rounded-2xl border
+        transition-all duration-300 ease-out
+        flex flex-col items-center justify-center text-center
+        ${paddingClass}
+
+        ${dark ? "bg-neutral-950/70 border-white/10" : "bg-white/80 border-black/10"}
+
+        ${isClickable ? "cursor-pointer" : "cursor-default opacity-70"}
 
         ${isActive
-          ? "shadow-xl scale-[1.04] -translate-y-1"
-          : "shadow-sm"
+          ? "shadow-2xl -translate-y-1"
+          : isClickable
+            ? "shadow-sm hover:shadow-xl hover:-translate-y-0.5"
+            : "shadow-sm"
         }
-
-        ${isClickable ? "cursor-pointer" : "opacity-60"}
       `}
     >
-      {/* HUGE BACKGROUND TEXT */}
-
-      {/* <div
-        className="
-    absolute inset-0
-    flex items-center justify-center
-    pointer-events-none
-    select-none
-    overflow-hidden
-  "
-      >
-        <span
-          className={`
-      font-black
-      uppercase
-      leading-none
-      tracking-[-0.08em]
-      whitespace-nowrap
-      text-center
-      transition-all duration-300
-      ${dark ? "text-white/5" : "text-black/5"}
-      ${isActive ? "scale-105" : ""}
-    `}
-          style={{
-            display:"flex",
-            justifyContent:"center",
-            fontSize: "clamp(60px, 7vw, 100px)",
-            transform: "scaleX(0.82)",
-            transformOrigin: "center",
-            width: "100%",
-          }}
-        >
-          {card.label}
-        </span>
-      </div> */}
-
-      {/* icon */}
-
+      {/* background image */}
       <div
+        aria-hidden="true"
         className={`
-          relative z-10
-          rounded-xl
-          flex items-center justify-center
-          transition-all duration-300
-          ${dark
-            ? "bg-neutral-800 border-neutral-700"
-            : "bg-white border-neutral-200"
-          }
-          shadow-sm border
-          ${isActive ? "scale-110 shadow-md" : ""}
+          absolute inset-0 pointer-events-none
+          transition-transform duration-500 ease-out
+          will-change-transform
+          group-hover:scale-[1.03]
+          ${isActive ? "scale-[1.03]" : ""}
         `}
         style={{
-          width: isSmall ? 40 : 52,
-          height: isSmall ? 40 : 52,
+          backgroundImage: card.bgImage ? `url("${card.bgImage}")` : "none",
+          backgroundSize: card.bgImage ? "cover" : undefined,
+          backgroundPosition: card.bgImage ? "center" : undefined,
         }}
-      >
-        <Icon
-          size={isSmall ? 20 : 24}
-          style={{ color: card.accent }}
-        />
-      </div>
+      />
 
-      {/* text */}
-
-      <span
-        className={`
-          relative z-10
-          font-semibold
-          ${isSmall
-            ? "text-sm"
-            : "text-[15px]"
-          }
-          ${dark ? "text-white" : "text-neutral-900"}
-        `}
-      >
-        {card.label}
-      </span>
-
-      {/* coming soon */}
-
-      {card.comingSoon && (
-        <div className="absolute top-2 right-2 text-[10px] px-2 py-[2px] rounded-full bg-black/70 text-white z-20">
-         Coming Soon
+      {/* top-right badge */}
+      {badgeText && (
+        <div
+          className={`
+            absolute top-3 right-3 z-20
+            text-[10px] font-semibold tracking-[0.14em]
+            px-3 py-1
+            rounded-full
+            border
+            backdrop-blur-xl
+            shadow-[0_8px_24px_rgba(0,0,0,0.18)]
+            ring-1 ring-white/40
+            ${dark ? "text-white border-white/25" : "text-neutral-900 border-white/40"}
+          `}
+          style={{
+            backgroundColor: "rgba(255,255,255,0.22)",
+            borderColor: "rgba(255,255,255,0.45)",
+            textShadow: dark
+              ? "0 10px 22px rgba(0,0,0,0.65)"
+              : "0 8px 16px rgba(0,0,0,0.2)",
+          }}
+        >
+          {badgeText}
         </div>
       )}
     </div>

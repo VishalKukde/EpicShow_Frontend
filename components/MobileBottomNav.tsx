@@ -1,16 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { BadgePercent, Compass, Heart, Home, User2 } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useThemeStore } from "@/store/themeStore";
 import { motion } from "framer-motion";
-import { HERO_PAGE_BG } from "@/components/heroTheme";
 
 const items = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/movies", label: "Explore", icon: Compass },
+  { href: "/explore", label: "Search", icon: Compass },
   { href: "/favorites", label: "Favorites", icon: Heart },
   { href: "/offers", label: "Offers", icon: BadgePercent },
   { href: "/profile/menu", label: "Profile", icon: User2 },
@@ -32,11 +31,20 @@ export default function MobileBottomNav() {
     pathname.includes("/seat-layout") ||
     (!isProfileRoute && (pathname.includes("/payment") || pathname.includes("/review")));
 
-  if (loading || !user || shouldHide) {
+  if (loading || shouldHide) {
     return null;
   }
 
-  const navBackgroundColor = "rgba(255,255,255,0.82)";
+  const navBackgroundColor = "var(--bottom-nav-bg)";
+  const handleExploreClick = () => {
+    window.location.href = "/explore";
+  };
+  const navItems = user
+    ? items
+    : [
+        ...items.slice(0, 4),
+        { href: "/login", label: "Login", icon: User2 },
+      ];
 
   return (
     <nav
@@ -51,28 +59,17 @@ export default function MobileBottomNav() {
           }`}
           style={{ backgroundColor: navBackgroundColor }}
         >
-        {items.map((item) => {
+        {navItems.map((item) => {
           const active =
             pathname === item.href ||
             pathname.startsWith(item.href + "/") ||
             (item.href === "/profile/menu" && isProfileRoute);
 
           const Icon = item.icon;
+          const isExplore = item.href === "/explore";
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`relative flex h-12 flex-col items-center justify-center rounded-xl text-[10px] font-medium transition-colors duration-200 ${
-                dark
-                  ? active
-                    ? "text-blue-300"
-                    : "text-zinc-400"
-                  : active
-                    ? "text-blue-700"
-                    : "text-gray-600"
-              }`}
-            >
+          const content = (
+            <>
               <motion.div
                 whileTap={{ scale: 0.9 }}
                 className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-0.5 px-1 py-1"
@@ -82,7 +79,7 @@ export default function MobileBottomNav() {
                     className={`h-4 w-4 transition-transform duration-200 ${
                       dark
                         ? active
-                          ? "text-blue-400"
+                          ? "text-blue-300"
                           : "text-zinc-400"
                         : active
                           ? "text-blue-700"
@@ -102,6 +99,35 @@ export default function MobileBottomNav() {
                   }`}
                 />
               ) : null}
+            </>
+          );
+
+          const sharedClassName = `relative flex h-12 flex-col items-center justify-center rounded-xl text-[10px] font-medium transition-colors duration-200 ${
+            dark
+              ? active
+                ? "text-blue-300"
+                : "text-zinc-400"
+              : active
+                ? "text-blue-700"
+                : "text-gray-600"
+          }`;
+
+          if (isExplore) {
+            return (
+              <button
+                key={item.href}
+                type="button"
+                onClick={handleExploreClick}
+                className={sharedClassName}
+              >
+                {content}
+              </button>
+            );
+          }
+
+          return (
+            <Link key={item.href} href={item.href} className={sharedClassName}>
+              {content}
             </Link>
           );
         })}

@@ -85,6 +85,7 @@ export default function TmdbDashboardPage() {
           language: movie.language,
           runtimeMinutes: runtimeValue,
           rating: movie.rating ?? undefined,
+          releaseDate: movie.releaseDate ?? undefined,
         }),
       });
       setInsertState((prev) => ({ ...prev, [key]: "success" }));

@@ -29,15 +29,15 @@ export default async function Ticket({ id, status, bookingId }: Props) {
 
     const themeMap = {
         success: {
-            bg: "bg-green-100",
-            text: "text-green-600",
+            bg: "bg-emerald-100",
+            text: "text-emerald-600",
             icon: "✓",
             title: "Booking Confirmed",
             message: "Your ticket has been successfully booked"
         },
         failed: {
-            bg: "bg-red-100",
-            text: "text-red-600",
+            bg: "bg-rose-100",
+            text: "text-rose-600",
             icon: "✕",
             title: "Payment Failed",
             message: "Your payment was not successful"
@@ -133,11 +133,11 @@ export default async function Ticket({ id, status, bookingId }: Props) {
                                         label="Status"
                                         value={
                                             <span
-                                                className={
+                                                className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${
                                                     payment.status === "success"
-                                                        ? "text-green-600 font-semibold"
-                                                        : "text-red-600 font-semibold"
-                                                }
+                                                        ? "bg-emerald-50 text-emerald-600 ring-emerald-200"
+                                                        : "bg-rose-50 text-rose-600 ring-rose-200"
+                                                }`}
                                             >
                                                 {capitalize(payment.status)}
                                             </span>
@@ -231,10 +231,10 @@ const capitalize = (value?: string) =>
 const AnimatedCheck = ({ status }: { status: string }) => {
     const color =
         status === "success"
-            ? "text-green-600"
+            ? "text-emerald-500"
             : status === "failed"
-                ? "text-red-600"
-                : "text-yellow-600";
+                ? "text-rose-500"
+                : "text-amber-500";
 
     return (
         <svg

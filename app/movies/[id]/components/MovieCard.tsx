@@ -1,5 +1,7 @@
+"use client";
+
 import { motion } from 'framer-motion'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from "next/image";
 import QuickAction from './QuickAction'
 import { Movie } from '@/types/Movie';
@@ -9,7 +11,8 @@ type IMovieCardProps = {
     movie: Movie;
 }
 const MovieCard = ({ movie }: IMovieCardProps) => {
-    const fallbackPoster = "./dummy.webp";
+    const fallbackPoster = "/dummy.webp";
+    const posterSrc = movie.imageUrl ?? fallbackPoster;
     return (
         <motion.section
             initial={{ opacity: 0, y: 20 }}
@@ -18,7 +21,9 @@ const MovieCard = ({ movie }: IMovieCardProps) => {
             className="p-2">
             <div className="relative flex flex-col sm:flex-row gap-6 sm:gap-8">
                 {/* Poster */}
-                <div className="
+                <div className="relative flex-shrink-0">
+                    <div
+                        className="
   relative 
   h-[140px] w-[95px] 
   sm:h-[170px] sm:w-[120px] 
@@ -26,18 +31,20 @@ const MovieCard = ({ movie }: IMovieCardProps) => {
   rounded-2xl 
   overflow-hidden 
   bg-gray-200 
-  flex-shrink-0 
   shadow-md
-">
-                    <Image
-                        src={movie.imageUrl ?? fallbackPoster}
-                        alt={movie.name}
-                        fill
-                        className="object-cover"
-                        onError={(e) => {
-                            (e.target as HTMLImageElement).src = fallbackPoster;
-                        }}
-                    />
+  transition-shadow duration-500
+"
+                    >
+                        <Image
+                            src={posterSrc}
+                            alt={movie.name}
+                            fill
+                            className="object-cover"
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).src = fallbackPoster;
+                            }}
+                        />
+                    </div>
                 </div>
 
 

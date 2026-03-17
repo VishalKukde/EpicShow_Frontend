@@ -81,8 +81,17 @@ export default function CheckoutNavbar({
             }`}
           >
             <div className="flex items-center justify-center mb-4">
-              <div className="p-3 bg-red-100 rounded-full">
-                <ShieldCheck className="text-red-600" size={22} />
+              <div
+                className={`rounded-full p-3 ${
+                  mode === "dark"
+                    ? "bg-red-500/15 ring-1 ring-red-500/40"
+                    : "bg-red-100"
+                }`}
+              >
+                <ShieldCheck
+                  className={mode === "dark" ? "text-red-300" : "text-red-600"}
+                  size={22}
+                />
               </div>
             </div>
 

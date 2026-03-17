@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.theme-dark, .theme-dark *));
@@ -10,6 +11,79 @@
   --text-primary: #171717;
   --text-secondary: #374151;
   --text-muted: #6b7280;
+  --hero-page-bg: #eff4ff;
+  --bottom-nav-bg: rgba(255, 255, 255, 0.84);
+  --profile-mobile-bg: #f7f8fa;
+  --profile-desktop-bg: #f3f4f6;
+  --profile-header-bg: rgba(255, 255, 255, 0.9);
+  --profile-header-border: rgba(229, 231, 235, 1);
+  --profile-header-shadow: none;
+  --profile-header-btn-hover: rgba(243, 244, 246, 1);
+  --profile-menu-hero-bg: linear-gradient(145deg, #ffffff 0%, #f1f6ff 55%, #e9f1ff 100%);
+  --profile-menu-hero-border: rgba(219, 234, 254, 1);
+  --profile-menu-orb-1: rgba(147, 197, 253, 0.24);
+  --profile-menu-orb-2: rgba(199, 210, 254, 0.3);
+  --profile-menu-title: rgba(29, 78, 216, 0.9);
+  --profile-menu-badge-bg: rgba(219, 234, 254, 1);
+  --profile-menu-badge-text: rgba(30, 64, 175, 1);
+  --profile-menu-stat-bg: rgba(255, 255, 255, 0.9);
+  --profile-menu-stat-border: rgba(219, 234, 254, 1);
+  --profile-menu-section-bg: rgba(255, 255, 255, 0.85);
+  --profile-menu-section-border: rgba(228, 228, 231, 1);
+  --profile-menu-item-bg: rgba(255, 255, 255, 0.95);
+  --profile-menu-item-border: rgba(228, 228, 231, 1);
+  --profile-menu-item-text: rgba(63, 63, 70, 1);
+  --profile-menu-item-hover-bg: rgba(248, 250, 252, 1);
+  --profile-menu-item-hover-border: rgba(212, 212, 216, 1);
+  --profile-menu-icon-bg: rgba(244, 244, 245, 1);
+  --profile-menu-icon-text: rgba(82, 82, 91, 1);
+  --profile-menu-icon-hover-bg: rgba(228, 228, 231, 1);
+  --profile-menu-icon-hover-text: rgba(39, 39, 42, 1);
+  --profile-menu-logout-bg: rgba(254, 226, 226, 0.7);
+  --profile-menu-logout-border: rgba(254, 202, 202, 1);
+  --profile-menu-logout-btn-bg: rgba(254, 226, 226, 1);
+  --profile-menu-logout-btn-text: rgba(185, 28, 28, 1);
+  --profile-menu-logout-btn-hover: rgba(254, 202, 202, 1);
+  --profile-menu-confirm-bg: rgba(255, 255, 255, 1);
+  --profile-menu-confirm-border: rgba(254, 202, 202, 1);
+  --profile-menu-confirm-text: rgba(17, 24, 39, 1);
+  --profile-menu-confirm-secondary-border: rgba(212, 212, 216, 1);
+  --profile-menu-confirm-secondary-text: rgba(63, 63, 70, 1);
+  --profile-menu-confirm-secondary-hover: rgba(244, 244, 245, 1);
+  --profile-menu-confirm-primary-bg: rgb(248, 3, 3);
+  --profile-menu-confirm-primary-text: #ffffff;
+  --profile-menu-confirm-primary-hover: rgba(185, 28, 28, 1);
+  --auth-page-bg: var(--background);
+  --auth-card-bg: rgba(255, 255, 255, 0.78);
+  --auth-card-border: rgba(15, 23, 42, 0.12);
+  --auth-input-bg: rgba(255, 255, 255, 0.95);
+  --auth-input-border: var(--border);
+  --auth-ring: rgba(99, 102, 241, 0.35);
+  --auth-primary-bg: #111827;
+  --auth-primary-text: #ffffff;
+  --auth-primary-hover: #0f172a;
+  --auth-link: #111827;
+  --explore-panel-bg: rgba(255, 255, 255, 0.76);
+  --explore-input-bg: rgba(255, 255, 255, 0.92);
+  --explore-card-bg: rgba(255, 255, 255, 0.96);
+  --explore-card-hover: rgba(255, 255, 255, 1);
+  --explore-shadow: 0 22px 44px -32px rgba(15, 23, 42, 0.35);
+  --hero-section-bg: radial-gradient(900px 420px at 10% -10%, rgba(226, 232, 240, 0.9), transparent 60%),
+    radial-gradient(700px 360px at 85% 0%, rgba(219, 234, 254, 0.7), transparent 55%),
+    var(--hero-page-bg);
+  --hero-grid-line: rgba(148, 163, 184, 0.18);
+  --hero-orb-1: rgba(165, 180, 252, 0.4);
+  --hero-orb-2: rgba(110, 231, 183, 0.4);
+  --hero-header-text: #0f172a;
+  --hero-header-muted: rgba(51, 65, 85, 0.7);
+  --hero-header-border: rgba(15, 23, 42, 0.12);
+  --hero-header-pill-bg: rgba(255, 255, 255, 0.88);
+  --hero-header-btn-border: rgba(15, 23, 42, 0.18);
+  --hero-header-btn-bg: rgba(255, 255, 255, 0.96);
+  --hero-header-btn-text: #0f172a;
+  --hero-header-btn-shadow: 0 0 0 1px rgba(15, 23, 42, 0.06), 0 6px 24px rgba(0, 0, 0, 0.08);
+  --hero-header-btn-shadow-hover: 0 0 0 1px rgba(99, 102, 241, 0.2), 0 8px 28px rgba(0, 0, 0, 0.1);
+  --hero-header-btn-hover-border: rgba(99, 102, 241, 0.35);
 }
 
 @theme inline {
@@ -27,6 +101,79 @@ html.theme-light {
   --text-primary: #171717;
   --text-secondary: #374151;
   --text-muted: #6b7280;
+  --hero-page-bg: #eff4ff;
+  --bottom-nav-bg: rgba(255, 255, 255, 0.84);
+  --profile-mobile-bg: #f7f8fa;
+  --profile-desktop-bg: #f3f4f6;
+  --profile-header-bg: rgba(255, 255, 255, 0.9);
+  --profile-header-border: rgba(229, 231, 235, 1);
+  --profile-header-shadow: none;
+  --profile-header-btn-hover: rgba(243, 244, 246, 1);
+  --profile-menu-hero-bg: linear-gradient(145deg, #ffffff 0%, #f1f6ff 55%, #e9f1ff 100%);
+  --profile-menu-hero-border: rgba(219, 234, 254, 1);
+  --profile-menu-orb-1: rgba(147, 197, 253, 0.24);
+  --profile-menu-orb-2: rgba(199, 210, 254, 0.3);
+  --profile-menu-title: rgba(29, 78, 216, 0.9);
+  --profile-menu-badge-bg: rgba(219, 234, 254, 1);
+  --profile-menu-badge-text: rgba(30, 64, 175, 1);
+  --profile-menu-stat-bg: rgba(255, 255, 255, 0.9);
+  --profile-menu-stat-border: rgba(219, 234, 254, 1);
+  --profile-menu-section-bg: rgba(255, 255, 255, 0.85);
+  --profile-menu-section-border: rgba(228, 228, 231, 1);
+  --profile-menu-item-bg: rgba(255, 255, 255, 0.95);
+  --profile-menu-item-border: rgba(228, 228, 231, 1);
+  --profile-menu-item-text: rgba(63, 63, 70, 1);
+  --profile-menu-item-hover-bg: rgba(248, 250, 252, 1);
+  --profile-menu-item-hover-border: rgba(212, 212, 216, 1);
+  --profile-menu-icon-bg: rgba(244, 244, 245, 1);
+  --profile-menu-icon-text: rgba(82, 82, 91, 1);
+  --profile-menu-icon-hover-bg: rgba(228, 228, 231, 1);
+  --profile-menu-icon-hover-text: rgba(39, 39, 42, 1);
+  --profile-menu-logout-bg: rgba(254, 226, 226, 0.7);
+  --profile-menu-logout-border: rgba(254, 202, 202, 1);
+  --profile-menu-logout-btn-bg: rgba(254, 226, 226, 1);
+  --profile-menu-logout-btn-text: rgba(185, 28, 28, 1);
+  --profile-menu-logout-btn-hover: rgba(254, 202, 202, 1);
+  --profile-menu-confirm-bg: rgba(255, 255, 255, 1);
+  --profile-menu-confirm-border: rgba(254, 202, 202, 1);
+  --profile-menu-confirm-text: rgba(17, 24, 39, 1);
+  --profile-menu-confirm-secondary-border: rgba(212, 212, 216, 1);
+  --profile-menu-confirm-secondary-text: rgba(63, 63, 70, 1);
+  --profile-menu-confirm-secondary-hover: rgba(244, 244, 245, 1);
+  --profile-menu-confirm-primary-bg: rgba(220, 38, 38, 1);
+  --profile-menu-confirm-primary-text: #ffffff;
+  --profile-menu-confirm-primary-hover: rgba(185, 28, 28, 1);
+  --auth-page-bg: var(--background);
+  --auth-card-bg: rgba(255, 255, 255, 0.78);
+  --auth-card-border: rgba(15, 23, 42, 0.12);
+  --auth-input-bg: rgba(255, 255, 255, 0.95);
+  --auth-input-border: var(--border);
+  --auth-ring: rgba(99, 102, 241, 0.35);
+  --auth-primary-bg: #111827;
+  --auth-primary-text: #ffffff;
+  --auth-primary-hover: #0f172a;
+  --auth-link: #111827;
+  --explore-panel-bg: rgba(255, 255, 255, 0.76);
+  --explore-input-bg: rgba(255, 255, 255, 0.92);
+  --explore-card-bg: rgba(255, 255, 255, 0.96);
+  --explore-card-hover: rgba(255, 255, 255, 1);
+  --explore-shadow: 0 22px 44px -32px rgba(15, 23, 42, 0.35);
+  --hero-section-bg: radial-gradient(900px 420px at 10% -10%, rgba(226, 232, 240, 0.9), transparent 60%),
+    radial-gradient(700px 360px at 85% 0%, rgba(219, 234, 254, 0.7), transparent 55%),
+    var(--hero-page-bg);
+  --hero-grid-line: rgba(148, 163, 184, 0.18);
+  --hero-orb-1: rgba(165, 180, 252, 0.4);
+  --hero-orb-2: rgba(110, 231, 183, 0.4);
+  --hero-header-text: #0f172a;
+  --hero-header-muted: rgba(51, 65, 85, 0.7);
+  --hero-header-border: rgba(15, 23, 42, 0.12);
+  --hero-header-pill-bg: rgba(255, 255, 255, 0.88);
+  --hero-header-btn-border: rgba(15, 23, 42, 0.18);
+  --hero-header-btn-bg: rgba(255, 255, 255, 0.96);
+  --hero-header-btn-text: #0f172a;
+  --hero-header-btn-shadow: 0 0 0 1px rgba(15, 23, 42, 0.06), 0 6px 24px rgba(0, 0, 0, 0.08);
+  --hero-header-btn-shadow-hover: 0 0 0 1px rgba(99, 102, 241, 0.2), 0 8px 28px rgba(0, 0, 0, 0.1);
+  --hero-header-btn-hover-border: rgba(99, 102, 241, 0.35);
 }
 
 html.theme-dark {
@@ -37,12 +184,91 @@ html.theme-dark {
   --text-primary: #f4f4f5;
   --text-secondary: #d4d4d8;
   --text-muted: #a1a1aa;
+  --hero-page-bg: #080a10;
+  --bottom-nav-bg: rgba(9, 9, 11, 0.86);
+  --profile-mobile-bg: #0b0b10;
+  --profile-desktop-bg: radial-gradient(circle_at_top, rgba(63, 63, 70, 0.2), transparent 42%),
+    linear-gradient(180deg, #09090b 0%, #0f0f13 52%, #09090b 100%);
+  --profile-header-bg: linear-gradient(180deg, rgba(39, 39, 42, 0.9) 0%, rgba(24, 24, 27, 0.96) 100%);
+  --profile-header-border: rgba(63, 63, 70, 0.45);
+  --profile-header-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --profile-header-btn-hover: rgba(39, 39, 42, 0.8);
+  --profile-menu-hero-bg: linear-gradient(145deg, #0f172a 0%, #111827 50%, #090f1a 100%);
+  --profile-menu-hero-border: rgba(51, 65, 85, 0.8);
+  --profile-menu-orb-1: rgba(96, 165, 250, 0.14);
+  --profile-menu-orb-2: rgba(99, 102, 241, 0.14);
+  --profile-menu-title: rgba(191, 219, 254, 1);
+  --profile-menu-badge-bg: rgba(59, 130, 246, 0.2);
+  --profile-menu-badge-text: rgba(219, 234, 254, 1);
+  --profile-menu-stat-bg: rgba(9, 9, 11, 0.7);
+  --profile-menu-stat-border: rgba(51, 65, 85, 0.8);
+  --profile-menu-section-bg: rgba(24, 24, 27, 0.7);
+  --profile-menu-section-border: rgba(39, 39, 42, 1);
+  --profile-menu-item-bg: rgba(24, 24, 27, 0.9);
+  --profile-menu-item-border: rgba(39, 39, 42, 1);
+  --profile-menu-item-text: rgba(228, 228, 231, 1);
+  --profile-menu-item-hover-bg: rgba(39, 39, 42, 0.9);
+  --profile-menu-item-hover-border: rgba(63, 63, 70, 1);
+  --profile-menu-icon-bg: rgba(39, 39, 42, 1);
+  --profile-menu-icon-text: rgba(212, 212, 216, 1);
+  --profile-menu-icon-hover-bg: rgba(63, 63, 70, 1);
+  --profile-menu-icon-hover-text: rgba(244, 244, 245, 1);
+  --profile-menu-logout-bg: rgba(69, 10, 10, 0.25);
+  --profile-menu-logout-border: rgba(127, 29, 29, 0.5);
+  --profile-menu-logout-btn-bg: rgba(127, 29, 29, 0.4);
+  --profile-menu-logout-btn-text: rgba(254, 202, 202, 1);
+  --profile-menu-logout-btn-hover: rgba(127, 29, 29, 0.55);
+  --profile-menu-confirm-bg: rgba(9, 9, 11, 0.6);
+  --profile-menu-confirm-border: rgba(127, 29, 29, 0.6);
+  --profile-menu-confirm-text: rgba(244, 244, 245, 1);
+  --profile-menu-confirm-secondary-border: rgba(63, 63, 70, 1);
+  --profile-menu-confirm-secondary-text: rgba(228, 228, 231, 1);
+  --profile-menu-confirm-secondary-hover: rgba(39, 39, 42, 1);
+  --profile-menu-confirm-primary-bg: rgba(220, 38, 38, 1);
+  --profile-menu-confirm-primary-text: #ffffff;
+  --profile-menu-confirm-primary-hover: rgba(239, 68, 68, 1);
+  --auth-page-bg: var(--background);
+  --auth-card-bg: rgba(24, 24, 27, 0.78);
+  --auth-card-border: rgba(161, 161, 170, 0.24);
+  --auth-input-bg: rgba(39, 39, 42, 0.92);
+  --auth-input-border: rgba(161, 161, 170, 0.24);
+  --auth-ring: rgba(129, 140, 248, 0.4);
+  --auth-primary-bg: #f4f4f5;
+  --auth-primary-text: #0b0b0f;
+  --auth-primary-hover: #ffffff;
+  --auth-link: #f4f4f5;
+  --explore-panel-bg: rgba(24, 24, 27, 0.78);
+  --explore-input-bg: rgba(39, 39, 42, 0.9);
+  --explore-card-bg: rgba(24, 24, 27, 0.92);
+  --explore-card-hover: rgba(39, 39, 42, 0.95);
+  --explore-shadow: 0 24px 48px -34px rgba(0, 0, 0, 0.65);
+  --hero-section-bg: radial-gradient(900px 420px at 10% -10%, rgba(30, 41, 59, 0.55), transparent 60%),
+    radial-gradient(700px 360px at 85% 0%, rgba(15, 23, 42, 0.7), transparent 55%),
+    var(--hero-page-bg);
+  --hero-grid-line: rgba(148, 163, 184, 0.08);
+  --hero-orb-1: rgba(99, 102, 241, 0.1);
+  --hero-orb-2: rgba(16, 185, 129, 0.1);
+  --hero-header-text: #f8fafc;
+  --hero-header-muted: rgba(148, 163, 184, 0.88);
+  --hero-header-border: rgba(148, 163, 184, 0.22);
+  --hero-header-pill-bg: rgba(15, 23, 42, 0.6);
+  --hero-header-btn-border: rgba(148, 163, 184, 0.38);
+  --hero-header-btn-bg: rgba(15, 23, 42, 0.7);
+  --hero-header-btn-text: #e2e8f0;
+  --hero-header-btn-shadow: 0 0 0 1px rgba(148, 163, 184, 0.12), 0 6px 26px rgba(0, 0, 0, 0.35);
+  --hero-header-btn-shadow-hover: 0 0 0 1px rgba(129, 140, 248, 0.3), 0 10px 34px rgba(0, 0, 0, 0.45);
+  --hero-header-btn-hover-border: rgba(129, 140, 248, 0.55);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.section-header {
+  font-family: "Sora", sans-serif;
+  letter-spacing: -0.02em;
 }
 
 html {
@@ -279,6 +505,122 @@ html.theme-dark option {
 html.theme-dark input::placeholder,
 html.theme-dark textarea::placeholder {
   color: var(--text-muted) !important;
+}
+
+html.theme-light .explore-search-input,
+html.theme-dark .explore-search-input {
+  background-color: var(--explore-input-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+html.theme-light .auth-input,
+html.theme-dark .auth-input {
+  background-color: var(--auth-input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--auth-input-border) !important;
+}
+html.theme-light .auth-input::placeholder,
+html.theme-dark .auth-input::placeholder {
+  color: var(--text-muted) !important;
+}
+html.theme-light .auth-input:focus,
+html.theme-dark .auth-input:focus {
+  box-shadow: 0 0 0 2px var(--auth-ring) !important;
+  outline: none !important;
+}
+
+.auth-primary-btn {
+  background: var(--auth-primary-bg);
+  color: var(--auth-primary-text);
+  transition: background-color 200ms ease, transform 150ms ease;
+}
+.auth-primary-btn:hover {
+  background: var(--auth-primary-hover);
+}
+.auth-primary-btn:active {
+  transform: translateY(1px);
+}
+
+.auth-link {
+  color: var(--auth-link);
+}
+
+.profile-menu-hero {
+  background: var(--profile-menu-hero-bg);
+  border-color: var(--profile-menu-hero-border);
+}
+.profile-menu-title {
+  color: var(--profile-menu-title);
+}
+.profile-menu-badge {
+  background: var(--profile-menu-badge-bg);
+  color: var(--profile-menu-badge-text);
+}
+.profile-menu-stat {
+  background: var(--profile-menu-stat-bg);
+  border-color: var(--profile-menu-stat-border);
+}
+.profile-menu-section {
+  background: var(--profile-menu-section-bg);
+  border-color: var(--profile-menu-section-border);
+}
+.profile-menu-item {
+  background: var(--profile-menu-item-bg);
+  border-color: var(--profile-menu-item-border);
+  color: var(--profile-menu-item-text);
+}
+.profile-menu-item:hover {
+  background: var(--profile-menu-item-hover-bg);
+  border-color: var(--profile-menu-item-hover-border);
+}
+.profile-menu-icon {
+  background: var(--profile-menu-icon-bg);
+  color: var(--profile-menu-icon-text);
+}
+.profile-menu-item:hover .profile-menu-icon {
+  background: var(--profile-menu-icon-hover-bg);
+  color: var(--profile-menu-icon-hover-text);
+}
+.profile-menu-logout {
+  background: var(--profile-menu-logout-bg);
+  border-color: var(--profile-menu-logout-border);
+}
+.profile-menu-logout-btn {
+  background: var(--profile-menu-logout-btn-bg);
+  color: var(--profile-menu-logout-btn-text);
+}
+.profile-menu-logout-btn:hover {
+  background: var(--profile-menu-logout-btn-hover);
+}
+.profile-menu-confirm {
+  background: var(--profile-menu-confirm-bg);
+  border-color: var(--profile-menu-confirm-border);
+}
+.profile-menu-confirm-text {
+  color: var(--profile-menu-confirm-text);
+}
+.profile-menu-confirm-secondary {
+  border-color: var(--profile-menu-confirm-secondary-border);
+  color: var(--profile-menu-confirm-secondary-text);
+}
+.profile-menu-confirm-secondary:hover {
+  background: var(--profile-menu-confirm-secondary-hover);
+}
+.profile-menu-confirm-primary {
+  background: var(--profile-menu-confirm-primary-bg);
+  color: var(--profile-menu-confirm-primary-text);
+}
+.profile-menu-confirm-primary:hover {
+  background: var(--profile-menu-confirm-primary-hover);
+}
+
+.profile-header {
+  background: var(--profile-header-bg);
+  border-color: var(--profile-header-border);
+  box-shadow: var(--profile-header-shadow);
+}
+.profile-header-btn:hover {
+  background: var(--profile-header-btn-hover);
 }
 
 html.theme-dark .shadow-sm,

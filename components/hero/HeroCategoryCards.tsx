@@ -25,25 +25,68 @@ type HeroCategoryCardsProps = {
 };
 
 const DEFAULT_CARDS: HeroCategoryCardData[] = [
-  { label: "Movies", accent: "#818cf8", Icon: Film, href: "/movies" },
-  { label: "Sports", accent: "#34d399", Icon: Trophy, href: "/sports",  comingSoon: true, },
-  { label: "Events", accent: "#fb7185", Icon: CalendarDays, href: "/events",  comingSoon: true, },
-  { label: "Gaming", accent: "#a78bfa", Icon: Gamepad2, href: "/gaming",  comingSoon: true, },
-  { label: "Train", accent: "#60a5fa", Icon: TrainFront, href: "/train",  comingSoon: true, },
-  { label: "Flight", accent: "#4ade80", Icon: Plane, href: "/flight",  comingSoon: true, },
+  {
+    label: "Movies",
+    accent: "#818cf8",
+    Icon: Film,
+    href: "/movies",
+    bgImage: "/assets/category/Movie.png",
+  },
+  {
+    label: "Sports",
+    accent: "#34d399",
+    Icon: Trophy,
+    href: "/sports",
+    // comingSoon: true,
+    bgImage: "/assets/category/Sport.png",
+  },
+  {
+    label: "Events",
+    accent: "#fb7185",
+    Icon: CalendarDays,
+    href: "/events",
+    // comingSoon: true,
+    bgImage: "/assets/category/Event.png",
+  },
+  {
+    label: "Gaming",
+    accent: "#a78bfa",
+    Icon: Gamepad2,
+    href: "/gaming",
+    // comingSoon: true,
+    bgImage: "/assets/category/Gaming.png",
+  },
+  {
+    label: "Train",
+    accent: "#60a5fa",
+    Icon: TrainFront,
+    href: "/train",
+    // comingSoon: true,
+    bgImage: "/assets/category/Train.png",
+  },
+  {
+    label: "Flight",
+    accent: "#4ade80",
+    Icon: Plane,
+    href: "/flight",
+    // comingSoon: true,
+    bgImage: "/assets/category/Flight.png",
+  },
   {
     label: "Hotel",
     accent: "#fbbf24",
     Icon: Hotel,
     href: "/hotel",
-    comingSoon: true,
+    // comingSoon: true,
+    bgImage: "/assets/category/Hotel.png",
   },
   {
     label: "Concerts",
     accent: "#e879f9",
     Icon: Music2,
     href: "/concerts",
-    comingSoon: true,
+    // comingSoon: true,
+    bgImage: "/assets/category/Concert.png",
   },
 ];
 
@@ -71,7 +114,9 @@ export default function HeroCategoryCards({
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  const gridCols = isSmall ? "grid-cols-2" : "grid-cols-4";
+  const gridCols = isSmall
+    ? "grid-flow-col auto-cols-[70%] grid-rows-1 overflow-x-auto pb-2 no-scrollbar"
+    : "grid-cols-4";
 
   return (
     <div ref={containerRef} className={className}>
@@ -108,14 +153,6 @@ export default function HeroCategoryCards({
               className={`
                 rounded-2xl
                 transition
-                shadow-sm
-                hover:shadow-md
-                border
-                ${
-                  dark
-                    ? "bg-zinc-900 border-zinc-700"
-                    : "bg-zinc-50 border-zinc-200"
-                }
               `}
             >
               <HeroCategoryCard

@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useThemeStore } from "@/store/themeStore";
+import { useThemeStore, type ThemeMode } from "@/store/themeStore";
+import { useAuth } from "@/context/AuthContext";
+import { apiFetch } from "@/lib/api";
+import { toast } from "@/lib/toast";
 import { AccessibilityCard } from "./components/AccessibilityCard";
 import { AppearanceCard } from "./components/AppearanceCard";
 import { BookingDefaultsCard } from "./components/BookingDefaultsCard";
@@ -15,8 +18,51 @@ import { TicketRefundCard } from "./components/TicketRefundCard";
 export default function PreferencesPage() {
   const mode = useThemeStore((s) => s.mode);
   const setTheme = useThemeStore((s) => s.setTheme);
-  const toggleTheme = useThemeStore((s) => s.toggleTheme);
+  const setThemeForUser = useThemeStore((s) => s.setThemeForUser);
+  const initializeForUser = useThemeStore((s) => s.initializeForUser);
+  const { user, updateUser } = useAuth();
   const dark = mode === "dark";
+
+  const persistThemePreference = async (nextMode: ThemeMode) => {
+    if (user?.id) {
+      initializeForUser(user.id);
+    } else {
+      initializeForUser(null);
+    }
+    setTheme(nextMode);
+    setThemeForUser(null, nextMode);
+    if (user?.id) {
+      setThemeForUser(user.id, nextMode);
+    }
+
+    if (!user) return;
+
+    try {
+      const res = await apiFetch("/profile/update-profile", {
+        method: "PUT",
+        body: JSON.stringify({
+          preferences: { darkMode: nextMode === "dark" },
+        }),
+      });
+
+      if (res?.user?.preferences) {
+        updateUser({ preferences: res.user.preferences });
+      }
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to sync theme preference";
+      toast.warning(message);
+    }
+  };
+
+  const handleSetTheme = (nextMode: ThemeMode) => {
+    void persistThemePreference(nextMode);
+  };
+
+  const handleToggleTheme = () => {
+    const nextMode: ThemeMode = mode === "dark" ? "light" : "dark";
+    void persistThemePreference(nextMode);
+  };
 
   const [language, setLanguage] = useState<Language>("english");
   const [bookingReminders, setBookingReminders] = useState(true);
@@ -39,7 +85,7 @@ export default function PreferencesPage() {
       <PreferencesIntroCard dark={dark} />
 
       <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <AppearanceCard dark={dark} setTheme={setTheme} toggleTheme={toggleTheme} />
+        <AppearanceCard dark={dark} setTheme={handleSetTheme} toggleTheme={handleToggleTheme} />
 
         <LanguageCard dark={dark} language={language} setLanguage={setLanguage} />
 

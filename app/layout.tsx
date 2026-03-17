@@ -3,6 +3,7 @@ import "./globals.css";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { AuthProvider } from "@/context/AuthContext";
 import ScrollToTop from "./components/ScrollToTop";
+import BackendWarmup from "./components/BackendWarmup";
 import Navbar from "@/components/Navbar";
 import ThemeBridge from "@/components/ThemeBridge";
 import FloatingChatButton from "@/components/FloatingChatButton";
@@ -22,8 +23,18 @@ const themeInitScript = `
     const raw = localStorage.getItem("user-theme-preferences-v1");
     if (raw) {
       const parsed = JSON.parse(raw);
-      const userThemes = parsed?.state?.userThemes || {};
-      mode = userThemes.guest || Object.values(userThemes)[0] || mode;
+      const storedMode = parsed?.state?.mode;
+      if (storedMode === "dark" || storedMode === "light") {
+        mode = storedMode;
+      } else {
+        const userThemes = parsed?.state?.userThemes || {};
+        const lastUserId = parsed?.state?.lastUserId;
+        if (lastUserId && userThemes[lastUserId]) {
+          mode = userThemes[lastUserId];
+        } else {
+          mode = userThemes.guest || mode;
+        }
+      }
     }
     if (mode !== "dark" && mode !== "light") mode = "light";
     const html = document.documentElement;
@@ -37,8 +48,10 @@ const themeInitScript = `
 
 export default function RootLayout({
   children,
+  modal,
 }: Readonly<{
   children: React.ReactNode;
+  modal: React.ReactNode;
 }>) {
   return (
     <html lang="en">
@@ -50,6 +63,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <GlobalErrorToastBridge />
+          <BackendWarmup />
           <ThemeBridge />
           {/* <SmoothScroll> */}
           <Navbar />
@@ -57,6 +71,7 @@ export default function RootLayout({
           <MobileBottomNav />
           <ScrollToTop />
           {children}
+          {modal}
           <AskEpicAiOverlay />
           {/* </SmoothScroll> */}
         </AuthProvider>

@@ -2,7 +2,6 @@
 
 import { ArrowLeft } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useThemeStore } from "@/store/themeStore";
 
 const routeTitle: Array<{ match: string; title: string }> = [
   { match: "/profile/bookings", title: "Bookings" },
@@ -25,8 +24,6 @@ const routeTitle: Array<{ match: string; title: string }> = [
 export default function MobileProfileHeader() {
   const pathname = usePathname();
   const router = useRouter();
-  const mode = useThemeStore((s) => s.mode);
-  const dark = mode === "dark";
 
   if (pathname.startsWith("/profile/chat")) {
     return null;
@@ -46,25 +43,20 @@ export default function MobileProfileHeader() {
 
   return (
     <header
-      className={`fixed left-0 right-0 top-0 z-40 border-b backdrop-blur-xl lg:hidden ${
-        dark
-          ? "border-zinc-700/45 bg-[linear-gradient(180deg,rgba(39,39,42,0.9)_0%,rgba(24,24,27,0.96)_100%)] shadow-[0_8px_24px_rgba(0,0,0,0.35)]"
-          : "border-gray-200 bg-white/90"
-      }`}
+      className="profile-header fixed left-0 right-0 top-0 z-40 border-b backdrop-blur-xl lg:hidden"
     >
       <div className="flex h-14 items-center justify-between px-4">
         <button
           type="button"
           onClick={handleBack}
-          className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-sm font-medium transition ${
-            dark ? "text-zinc-100 hover:bg-zinc-800/80" : "text-gray-700 hover:bg-gray-100"
-          }`}
+          className="profile-header-btn inline-flex items-center gap-1 rounded-lg px-2 py-1 text-sm font-medium transition"
+          style={{ color: "var(--text-primary)" }}
         >
           <ArrowLeft className="h-4 w-4" />
           Back
         </button>
 
-        <p className={`max-w-[120px] truncate text-center text-sm font-semibold ${dark ? "text-zinc-100" : "text-gray-900"}`}>
+        <p className="max-w-[120px] truncate text-center text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
           {pageTitle}
         </p>
 

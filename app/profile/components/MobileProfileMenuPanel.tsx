@@ -26,7 +26,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { useThemeStore } from "@/store/themeStore";
 
 type MenuItem = {
   href: string;
@@ -84,9 +83,9 @@ const menuSections: MenuSection[] = [
   },
 ];
 
-function SectionTitle({ children, dark }: { children: React.ReactNode; dark: boolean }) {
+function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <p className={`px-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${dark ? "text-blue-300/75" : "text-blue-700/70"}`}>
+    <p className="profile-menu-title px-1 text-[10px] font-semibold uppercase tracking-[0.18em]">
       {children}
     </p>
   );
@@ -96,28 +95,18 @@ function Item({
   href,
   icon: Icon,
   label,
-  dark,
 }: {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
-  dark: boolean;
 }) {
   return (
     <Link
       href={href}
-      className={`group flex items-center gap-3 rounded-2xl border px-3 py-3 text-sm font-medium transition-all duration-300 ${
-        dark
-          ? "border-zinc-800 bg-zinc-900/90 text-zinc-200 hover:border-zinc-700 hover:bg-zinc-800/90"
-          : "border-zinc-200 bg-white/95 text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50"
-      }`}
+      className="profile-menu-item group flex items-center gap-3 rounded-2xl border px-3 py-3 text-sm font-medium transition-all duration-300"
     >
       <span
-        className={`inline-flex h-8 w-8 items-center justify-center rounded-xl transition ${
-          dark
-            ? "bg-zinc-800 text-zinc-300 group-hover:bg-zinc-700"
-            : "bg-zinc-100 text-zinc-600 group-hover:bg-zinc-200 group-hover:text-zinc-800"
-        }`}
+        className="profile-menu-icon inline-flex h-8 w-8 items-center justify-center rounded-xl transition"
       >
         <Icon className="h-4 w-4" />
       </span>
@@ -129,13 +118,11 @@ function Item({
 export default function MobileProfileMenuPanel() {
   const router = useRouter();
   const { user, loading, logout } = useAuth();
-  const mode = useThemeStore((s) => s.mode);
-  const dark = mode === "dark";
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const displayName = user?.name || "Guest User";
-  const email = user?.email || "guest@moviebook.app";
+  const email = user?.email || "guest@epicshow.app";
   const membership = user?.membership === "pro" ? "Pro Member" : "Free Member";
   const walletBalance = user?.walletBalance ?? 0;
   const rewardPoints = user?.rewardPoints ?? 0;
@@ -154,31 +141,25 @@ export default function MobileProfileMenuPanel() {
   return (
     <div className="space-y-5 px-3 pb-[calc(env(safe-area-inset-bottom)+5.5rem)] pt-2 sm:px-4 lg:hidden">
       <div
-        className={`relative overflow-hidden rounded-3xl border p-4 shadow-lg ${
-          dark
-            ? "border-slate-700/80 bg-[linear-gradient(145deg,#0f172a_0%,#111827_50%,#090f1a_100%)]"
-            : "border-blue-100 bg-[linear-gradient(145deg,#ffffff_0%,#f1f6ff_55%,#e9f1ff_100%)]"
-        }`}
+        className="profile-menu-hero relative overflow-hidden rounded-3xl border p-4 shadow-lg"
       >
         <div
-          className={`pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full blur-xl ${
-            dark ? "bg-blue-400/14" : "bg-blue-300/24"
-          }`}
+          className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full blur-xl"
+          style={{ background: "var(--profile-menu-orb-1)" }}
         />
         <div
-          className={`pointer-events-none absolute -bottom-8 -left-8 h-24 w-24 rounded-full blur-xl ${
-            dark ? "bg-indigo-500/14" : "bg-indigo-200/30"
-          }`}
+          className="pointer-events-none absolute -bottom-8 -left-8 h-24 w-24 rounded-full blur-xl"
+          style={{ background: "var(--profile-menu-orb-2)" }}
         />
 
         <div className="relative">
-          <p className={`text-[11px] font-medium uppercase tracking-[0.16em] ${dark ? "text-blue-200" : "text-blue-700"}`}>
+          <p className="profile-menu-title text-[11px] font-medium uppercase tracking-[0.16em]">
             Profile Menu
           </p>
           <div className="mt-3 flex items-center gap-3">
             <div className="h-14 w-14 overflow-hidden rounded-2xl ring-2 ring-white/30">
               {loading ? (
-                <div className={`h-full w-full animate-pulse ${dark ? "bg-zinc-700" : "bg-zinc-100"}`} />
+                <div className="h-full w-full animate-pulse" style={{ background: "var(--profile-menu-icon-bg)" }} />
               ) : (
                 <Image
                   src={user?.avatar || "/assets/profiles/user.webp"}
@@ -190,15 +171,13 @@ export default function MobileProfileMenuPanel() {
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <p className={`truncate text-base font-semibold ${dark ? "text-zinc-100" : "text-zinc-900"}`}>
+              <p className="truncate text-base font-semibold" style={{ color: "var(--text-primary)" }}>
                 {loading ? "Loading..." : displayName}
               </p>
-              <p className={`truncate text-xs ${dark ? "text-zinc-300" : "text-zinc-600"}`}>{email}</p>
+              <p className="truncate text-xs" style={{ color: "var(--text-secondary)" }}>{email}</p>
             </div>
             <span
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold ${
-                dark ? "bg-blue-500/20 text-blue-100" : "bg-blue-100 text-blue-800"
-              }`}
+              className="profile-menu-badge inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold"
             >
               <BadgeCheck className="h-3 w-3" />
               {membership}
@@ -206,15 +185,15 @@ export default function MobileProfileMenuPanel() {
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-2">
-            <div className={`rounded-xl border px-3 py-2 ${dark ? "border-slate-700 bg-slate-950/70" : "border-blue-100 bg-white/90"}`}>
-              <p className={`text-[10px] ${dark ? "text-zinc-400" : "text-zinc-500"}`}>Wallet Balance</p>
-              <p className={`mt-0.5 text-sm font-semibold ${dark ? "text-zinc-100" : "text-zinc-900"}`}>
+            <div className="profile-menu-stat rounded-xl border px-3 py-2">
+              <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>Wallet Balance</p>
+              <p className="mt-0.5 text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
                 Rs {walletBalance.toLocaleString("en-IN")}
               </p>
             </div>
-            <div className={`rounded-xl border px-3 py-2 ${dark ? "border-slate-700 bg-slate-950/70" : "border-blue-100 bg-white/90"}`}>
-              <p className={`text-[10px] ${dark ? "text-zinc-400" : "text-zinc-500"}`}>Reward Points</p>
-              <p className={`mt-0.5 text-sm font-semibold ${dark ? "text-zinc-100" : "text-zinc-900"}`}>
+            <div className="profile-menu-stat rounded-xl border px-3 py-2">
+              <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>Reward Points</p>
+              <p className="mt-0.5 text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
                 {rewardPoints.toLocaleString("en-IN")}
               </p>
             </div>
@@ -225,11 +204,9 @@ export default function MobileProfileMenuPanel() {
       {menuSections.map((section) => (
         <div
           key={section.title}
-          className={`space-y-2 rounded-2xl border p-3 ${
-            dark ? "border-zinc-800 bg-zinc-900/70" : "border-zinc-200 bg-white/85"
-          }`}
+          className="profile-menu-section space-y-2 rounded-2xl border p-3"
         >
-          <SectionTitle dark={dark}>{section.title}</SectionTitle>
+          <SectionTitle>{section.title}</SectionTitle>
           <div className="space-y-2">
             {section.items.map((item) => (
               <Item
@@ -237,7 +214,6 @@ export default function MobileProfileMenuPanel() {
                 href={item.href}
                 icon={item.icon}
                 label={item.label}
-                dark={dark}
               />
             ))}
           </div>
@@ -245,18 +221,12 @@ export default function MobileProfileMenuPanel() {
       ))}
 
       <div
-        className={`rounded-2xl border p-3 ${
-          dark ? "border-red-900/50 bg-red-950/25" : "border-red-200 bg-red-50/70"
-        }`}
+        className="profile-menu-logout rounded-2xl border p-3"
       >
         <button
           type="button"
           onClick={() => setShowLogoutConfirm((prev) => !prev)}
-          className={`flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition ${
-            dark
-              ? "bg-red-900/40 text-red-200 hover:bg-red-900/55"
-              : "bg-red-100 text-red-700 hover:bg-red-200"
-          }`}
+          className="flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition text-red-700 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-200 dark:hover:bg-red-900/55"
           disabled={isLoggingOut}
         >
           <LogOut className="h-4 w-4" />
@@ -264,8 +234,8 @@ export default function MobileProfileMenuPanel() {
         </button>
 
         {showLogoutConfirm ? (
-          <div className={`mt-3 rounded-xl border p-3 ${dark ? "border-red-900/60 bg-zinc-950/60" : "border-red-200 bg-white"}`}>
-            <p className={`text-sm font-medium ${dark ? "text-zinc-100" : "text-zinc-900"}`}>
+          <div className="profile-menu-confirm mt-3 rounded-xl border p-3">
+            <p className="profile-menu-confirm-text text-sm font-medium">
               Are you sure you want to logout?
             </p>
             <div className="mt-3 grid grid-cols-2 gap-2">
@@ -273,11 +243,7 @@ export default function MobileProfileMenuPanel() {
                 type="button"
                 onClick={() => setShowLogoutConfirm(false)}
                 disabled={isLoggingOut}
-                className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                  dark
-                    ? "border-zinc-700 text-zinc-200 hover:bg-zinc-800"
-                    : "border-zinc-300 text-zinc-700 hover:bg-zinc-100"
-                }`}
+                className="profile-menu-confirm-secondary rounded-lg border px-3 py-2 text-sm font-medium transition"
               >
                 No
               </button>
@@ -285,9 +251,7 @@ export default function MobileProfileMenuPanel() {
                 type="button"
                 onClick={handleConfirmLogout}
                 disabled={isLoggingOut}
-                className={`rounded-lg px-3 py-2 text-sm font-semibold text-white transition ${
-                  dark ? "bg-red-600 hover:bg-red-500" : "bg-red-600 hover:bg-red-700"
-                }`}
+                className="profile-menu-confirm-primary rounded-lg px-3 py-2 text-sm font-semibold transition"
               >
                 {isLoggingOut ? "Logging out..." : "Yes"}
               </button>

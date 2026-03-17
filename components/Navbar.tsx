@@ -5,7 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import ProfileDropdown from "./ProfileDropdown";
-import MovieSearchModal from "./MovieSearchModal";
 import { useBookingStore } from "@/store/bookingStore";
 import { usePaymentStore } from "@/store/paymentStore";
 import { unlockAllSeatsForCurrentShow } from "@/hooks/useSeatActions";
@@ -13,16 +12,14 @@ import { unlockAllSeatsForCurrentShow } from "@/hooks/useSeatActions";
 import { useSeatLayout } from "@/hooks/useSeatLayout";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
-import { useThemeStore } from "@/store/themeStore";
+import SeatTimer from "@/app/components/SeatTimer";
 
 export default function Navbar() {
   const { user } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
-  const mode = useThemeStore((s) => s.mode);
   const [scrolled, setScrolled] = useState(false);
   const [isNavbarVisible, setIsNavbarVisible] = useState(true);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
@@ -30,16 +27,9 @@ export default function Navbar() {
       const currentY = window.scrollY;
       setScrolled(currentY > 10);
 
-      // Only auto-hide on landing page after crossing the hero/first viewport.
-      if (pathname !== "/") {
-        setIsNavbarVisible(true);
-        lastScrollY.current = currentY;
-        return;
-      }
+      const hideThreshold = 80;
 
-      const heroBoundary = Math.max(window.innerHeight - 100, 280);
-
-      if (currentY <= heroBoundary) {
+      if (currentY <= hideThreshold) {
         setIsNavbarVisible(true);
         lastScrollY.current = currentY;
         return;
@@ -47,9 +37,9 @@ export default function Navbar() {
 
       const delta = currentY - lastScrollY.current;
 
-      if (delta > 8) {
+      if (delta > 6) {
         setIsNavbarVisible(false); // scrolling down -> hide
-      } else if (delta < -8) {
+      } else if (delta < -6) {
         setIsNavbarVisible(true); // scrolling up -> show
       }
 
@@ -73,7 +63,7 @@ export default function Navbar() {
   const { setSeats } = useSeatLayout(booking);
 
   const handleHome = () => {
-    unlockAllSeatsForCurrentShow(setSeats);
+    unlockAllSeatsForCurrentShow(setSeats, user?.id);
     useBookingStore.getState().resetBooking();
     usePaymentStore.getState().resetPayment();
     router.replace("/");
@@ -81,9 +71,16 @@ export default function Navbar() {
 
   const hiddenRoutes = ["/profile", "/payment", "/review"];
   const isAuthEntryPage = pathname === "/login" || pathname === "/register";
-  const dark = mode === "dark";
-
   const hideNavbar = hiddenRoutes.some((route) => pathname.includes(route));
+  const showSeatTimer = pathname.includes("/seat-layout");
+
+  const handleSearchClick = () => {
+    if (typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches) {
+      window.location.href = "/explore";
+      return;
+    }
+    router.push("/explore");
+  };
 
   if (hideNavbar) return null;
 
@@ -102,53 +99,64 @@ export default function Navbar() {
           mass: 0.9,
         }}
         className={`fixed left-1/2 -translate-x-1/2 z-50 transform-gpu will-change-transform
+    ${pathname === "/explore" ? "hidden sm:block" : ""}
     ${isNavbarVisible ? "pointer-events-auto" : "pointer-events-none"}
     ${scrolled ? "top-2" : "top-3"}
     w-[calc(100%-2rem)] sm:w-[calc(100%-3rem)] lg:w-[calc(100%-4rem)] max-w-[100rem] rounded-2xl
     bg-transparent shadow-none 
   `}
       >
-        <div
-          className={`relative flex justify-between items-center px-3 sm:px-6 lg:px-3 transition-all duration-500
-      ${scrolled ? "py-2 sm:py-2" : "py-3 sm:py-2"}`}
-        >
-          {/* Logo */}
           <div
-            className="text-xl sm:text-2xl font-bold tracking-tight lg:pl-2 text-gray-900 cursor-pointer hover:opacity-80 transition"
-            onClick={handleHome}
+            className={`relative flex justify-between items-center px-3 sm:px-6 lg:px-3 transition-all duration-500
+      ${scrolled ? "py-2 sm:py-2" : "py-3 sm:py-2"}`}
           >
-            MovieBook
-          </div>
+            {/* Logo */}
+            <div
+              className="text-xl sm:text-2xl font-bold tracking-tight lg:pl-2 text-gray-900 cursor-pointer hover:opacity-80 transition"
+              onClick={handleHome}
+            >
+              EpicShow
+            </div>
 
-          {/* Right */}
-          <div className="flex items-center gap-3 ">
-          {/* <button
-            type="button"
-            onClick={handleMobileChat}
-            aria-label="Open chatbot"
-            title="Chatbot"
-            className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition sm:hidden ${
-              mode === "dark"
-                ? "border-zinc-700 bg-zinc-900/80 text-indigo-300 hover:bg-zinc-800"
-                : "border-gray-200 bg-white text-indigo-700 hover:bg-indigo-50"
-            }`}
-          >
-            <BotMessageSquare className="h-4 w-4" />
-          </button> */}
+            {showSeatTimer ? (
+              <div className="absolute right-3 sm:left-1/2 sm:-translate-x-1/2">
+                <SeatTimer variant="navbar" />
+              </div>
+            ) : null}
 
-          <button
-            type="button"
-            onClick={() => setIsSearchOpen(true)}
-            aria-label="Open search"
-            className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition sm:text-sm ${
-              dark
-                ? "border-zinc-700 bg-zinc-900/80 text-zinc-100 hover:border-zinc-500 hover:bg-zinc-800"
-                : "border-gray-200 bg-white/90 text-gray-700 hover:border-gray-300 hover:bg-white"
-            }`}
-          >
-            <Search className="h-4 w-4" />
-            <span className="hidden sm:inline">Search</span>
-          </button>
+            {/* Right */}
+          <div className="flex items-center gap-3">
+          {pathname === "/" ? (
+            <button
+              type="button"
+              onClick={handleSearchClick}
+              aria-label="Open search"
+              className="hidden cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition sm:inline-flex sm:text-sm"
+              style={{
+                borderColor: "var(--hero-header-btn-border)",
+                background: "var(--hero-header-btn-bg)",
+                color: "var(--hero-header-btn-text)",
+                backdropFilter: "blur(14px)",
+                boxShadow: "var(--hero-header-btn-shadow)",
+                transform: "translateY(0)",
+              }}
+              onMouseOver={(event) => {
+                const target = event.currentTarget;
+                target.style.transform = "translateY(-2px)";
+                target.style.borderColor = "var(--hero-header-btn-hover-border)";
+                target.style.boxShadow = "var(--hero-header-btn-shadow-hover)";
+              }}
+              onMouseOut={(event) => {
+                const target = event.currentTarget;
+                target.style.transform = "translateY(0)";
+                target.style.borderColor = "var(--hero-header-btn-border)";
+                target.style.boxShadow = "var(--hero-header-btn-shadow)";
+              }}
+            >
+              <Search className="h-4 w-4" />
+              <span>Search</span>
+            </button>
+          ) : null}
 
           {user ? (
             <div className="hidden sm:block">
@@ -183,7 +191,6 @@ export default function Navbar() {
         </div>
         </div>
       </motion.nav>
-      <MovieSearchModal open={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </>
   );
 }

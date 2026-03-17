@@ -4,7 +4,6 @@ import ProfileNavbar from "./components/ProfileNavbar";
 import Sidebar from "./components/Sidebar";
 import MobileProfileHeader from "./components/MobileProfileHeader";
 import { usePathname } from "next/navigation";
-import { useThemeStore } from "@/store/themeStore";
 
 export default function ProfileLayout({
   children,
@@ -13,16 +12,10 @@ export default function ProfileLayout({
 }) {
   const pathname = usePathname();
   const isChatRoute = pathname.startsWith("/profile/chat");
-  const mode = useThemeStore((s) => s.mode);
-  const dark = mode === "dark";
 
   return (
     <div
-      className={`min-h-screen transition-colors ${
-        dark
-          ? "bg-[radial-gradient(circle_at_top,rgba(63,63,70,0.2),transparent_42%),linear-gradient(180deg,#09090b_0%,#0f0f13_52%,#09090b_100%)]"
-          : "bg-gray-50"
-      }`}
+      className="min-h-screen transition-colors bg-[var(--profile-mobile-bg)] lg:bg-[var(--profile-desktop-bg)]"
     >
       {/* Sidebar */}
       <Sidebar />

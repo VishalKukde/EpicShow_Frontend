@@ -40,6 +40,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(nextUser);
       setAccessToken(token);
       setToken(token);
+
+      const themeStore = useThemeStore.getState();
+      themeStore.initializeForUser(nextUser.id);
+      let storedMode: "light" | "dark" | null = themeStore.userThemes?.[nextUser.id] ?? null;
+
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem("user-theme-preferences-v1");
+          if (raw) {
+            const parsed = JSON.parse(raw) as {
+              state?: { userThemes?: Record<string, "light" | "dark"> };
+            };
+            const stored = parsed?.state?.userThemes?.[nextUser.id];
+            if (stored === "light" || stored === "dark") {
+              storedMode = stored;
+            }
+          }
+        } catch {
+          // ignore localStorage parsing errors
+        }
+      }
+
+      const preferredMode = nextUser?.preferences?.darkMode ? "dark" : "light";
+      themeStore.setTheme(storedMode || preferredMode);
     };
 
     const bootstrapAuth = async () => {

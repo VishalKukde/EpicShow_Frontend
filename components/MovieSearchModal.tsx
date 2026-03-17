@@ -169,7 +169,7 @@ export default function MovieSearchModal({ open, onClose }: MovieSearchModalProp
                 type="button"
                 aria-label="Close"
                 onClick={onClose}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
+                className="cursor-pointer inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -221,7 +221,7 @@ export default function MovieSearchModal({ open, onClose }: MovieSearchModalProp
                     key={movie._id}
                     type="button"
                     onClick={() => handleSelect(movie._id)}
-                    className="group flex w-full items-center gap-4 rounded-2xl border border-slate-200 bg-white p-3 text-left transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_20px_40px_-24px_rgba(15,23,42,0.35)]"
+                    className=" cursor-pointer group flex w-full items-center gap-4 rounded-2xl border border-slate-200 bg-white p-3 text-left transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_20px_40px_-24px_rgba(15,23,42,0.35)]"
                   >
                     <div className="relative h-16 w-12 overflow-hidden rounded-xl bg-slate-100">
                       <Image

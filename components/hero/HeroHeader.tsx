@@ -1,7 +1,6 @@
 "use client";
 
 import { Sparkles, Ticket } from "lucide-react";
-import { useThemeStore } from "@/store/themeStore";
 import { useAskEpicAiStore } from "@/store/askEpicAiStore";
 
 type HeroHeaderProps = {
@@ -9,17 +8,19 @@ type HeroHeaderProps = {
 };
 
 export default function HeroHeader({ className }: HeroHeaderProps) {
-  const mode = useThemeStore((s) => s.mode);
   const openAskEpicAi = useAskEpicAiStore((s) => s.open);
-  const dark = mode === "dark";
 
   const tk = {
-    text1: dark ? "#f0f2f8" : "#0b0d14",
-    text2: dark ? "rgba(160,174,200,0.75)" : "rgba(45,55,80,0.60)",
-    border: dark ? "rgba(255,255,255,0.08)" : "rgba(10,15,40,0.09)",
-    aiBorder: dark ? "rgba(255,255,255,0.12)" : "rgba(10,15,40,0.12)",
-    aiTxt: dark ? "rgba(200,210,235,0.90)" : "rgba(20,28,50,0.75)",
-    aiBg: dark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.90)",
+    text1: "var(--hero-header-text)",
+    text2: "var(--hero-header-muted)",
+    border: "var(--hero-header-border)",
+    pillBg: "var(--hero-header-pill-bg)",
+    aiBorder: "var(--hero-header-btn-border)",
+    aiTxt: "var(--hero-header-btn-text)",
+    aiBg: "var(--hero-header-btn-bg)",
+    aiShadow: "var(--hero-header-btn-shadow)",
+    aiShadowHover: "var(--hero-header-btn-shadow-hover)",
+    aiHoverBorder: "var(--hero-header-btn-hover-border)",
   };
 
   return (
@@ -31,7 +32,7 @@ export default function HeroHeader({ className }: HeroHeaderProps) {
           gap: "7px",
           borderRadius: "100px",
           border: `1px solid ${tk.border}`,
-          background: dark ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.85)",
+          background: tk.pillBg,
           backdropFilter: "blur(12px)",
           padding: "5px 14px 5px 8px",
           marginBottom: "24px",
@@ -101,26 +102,20 @@ export default function HeroHeader({ className }: HeroHeaderProps) {
           background: tk.aiBg,
           color: tk.aiTxt,
           backdropFilter: "blur(14px)",
-          boxShadow: dark
-            ? "0 0 0 1px rgba(255,255,255,0.05), 0 4px 24px rgba(0,0,0,0.30)"
-            : "0 0 0 1px rgba(10,15,40,0.06), 0 4px 20px rgba(0,0,0,0.07)",
+          boxShadow: tk.aiShadow,
           transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s",
         }}
         onMouseOver={(event) => {
           const target = event.currentTarget;
           target.style.transform = "translateY(-2px)";
-          target.style.borderColor = dark ? "rgba(129,140,248,0.45)" : "rgba(99,102,241,0.35)";
-          target.style.boxShadow = dark
-            ? "0 0 0 1px rgba(129,140,248,0.25), 0 8px 32px rgba(0,0,0,0.40)"
-            : "0 0 0 1px rgba(99,102,241,0.20), 0 8px 28px rgba(0,0,0,0.10)";
+          target.style.borderColor = tk.aiHoverBorder;
+          target.style.boxShadow = tk.aiShadowHover;
         }}
         onMouseOut={(event) => {
           const target = event.currentTarget;
           target.style.transform = "translateY(0)";
           target.style.borderColor = tk.aiBorder;
-          target.style.boxShadow = dark
-            ? "0 0 0 1px rgba(255,255,255,0.05), 0 4px 24px rgba(0,0,0,0.30)"
-            : "0 0 0 1px rgba(10,15,40,0.06), 0 4px 20px rgba(0,0,0,0.07)";
+          target.style.boxShadow = tk.aiShadow;
         }}
       >
         <svg width="0" height="0" aria-hidden="true" style={{ position: "absolute" }}>

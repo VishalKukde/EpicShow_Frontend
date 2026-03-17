@@ -127,23 +127,39 @@ export function useSeatActions(
 // and called when "change of seat/date" it instantly unlock seats
 export const unlockAllSeatsForCurrentShow = async (
     setSeats: SeatSetter,
+    userId?: string | null,
 ) => {
     const booking = useBookingStore.getState();
     const seatIds = booking.seats.map(s => s.id);
 
-    await apiFetch("/seat/unlock", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            movieId: booking.item?._id,
-            cinemaId: booking.venueId,
-            showDate: booking.date,
-            showSlot: booking.slot,
-            seatId: seatIds
-        })
-    });
+    const canUnlock =
+        userId &&
+        booking.item?._id &&
+        booking.venueId &&
+        booking.date &&
+        booking.slot &&
+        seatIds.length > 0;
+
+    if (canUnlock) {
+        try {
+            await apiFetch("/seat/unlock", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    movieId: booking.item?._id,
+                    cinemaId: booking.venueId,
+                    showDate: booking.date,
+                    showSlot: booking.slot,
+                    seatId: seatIds,
+                    userId
+                })
+            });
+        } catch {
+            // Ignore unlock errors to avoid blocking navigation.
+        }
+    }
 
     // ✅ Clear UI seat layout
     setSeats((prev) =>
