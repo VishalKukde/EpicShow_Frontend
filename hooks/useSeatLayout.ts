@@ -5,6 +5,7 @@ import { SeatRow } from "@/types/Seat";
 import { useAuth } from "@/context/AuthContext";
 
 type BookingForSeatLayout = {
+  type?: string | null;
   venueId: string | null;
   item: { _id: string } | null;
   date: string | null;
@@ -16,6 +17,7 @@ export function useSeatLayout(booking: BookingForSeatLayout) {
   const [seats, setSeats] = useState<SeatRow[]>([]);
 
   useEffect(() => {
+    if (booking?.type && booking.type !== "movie") return;
     if (
       !booking?.venueId ||
       !booking?.item?._id ||

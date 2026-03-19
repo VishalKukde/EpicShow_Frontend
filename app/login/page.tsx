@@ -4,7 +4,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import type { FormEvent } from "react";
-import { toast } from "@/lib/toast";
 
 export default function LoginPage() {
     return (
@@ -34,7 +33,6 @@ function LoginPageContent() {
         if (!trimmedEmail || !password) {
             const message = "Please enter both email and password.";
             setError(message);
-            toast.warning(message);
             return;
         }
 
@@ -42,7 +40,6 @@ function LoginPageContent() {
             setError(null);
             setLoading(true);
             await login(trimmedEmail, password, rememberMe);
-            toast.success("Signed in successfully.");
 
             if (redirectPath) {
                 router.replace(redirectPath);
@@ -79,11 +76,11 @@ function LoginPageContent() {
                     Welcome back, please login to continue
                 </p>
 
-                {error && (
-                    <p className="mb-4 rounded-lg border border-red-300 bg-red-100/70 px-3 py-2 text-sm text-red-700">
-                        {error}
-                    </p>
-                )}
+        {error && (
+          <p className="mb-4 rounded-lg border px-3 py-2 text-sm auth-error">
+            {error}
+          </p>
+        )}
 
                 <form className="space-y-4" onSubmit={handleLogin}>
                     <input

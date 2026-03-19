@@ -32,10 +32,10 @@ import UpcomingMovieModal from "./components/UpcomingMovieModal";
 
 export default function LandingPage() {
   const router = useRouter();
-  const comingSoon = ["Oppenheimer", "Joker 2", "Batman", "Matrix", "Blade Runner"];
-  const comingSoonList = Array.from({ length: 5 }, (_, i) => comingSoon[i % comingSoon.length]);
   const [latestReleaseItems, setLatestReleaseItems] = useState<MovieRowItem[]>([]);
   const [upcomingItems, setUpcomingItems] = useState<MovieRowItem[]>([]);
+  const [latestLoading, setLatestLoading] = useState(true);
+  const [upcomingLoading, setUpcomingLoading] = useState(true);
   const [selectedUpcoming, setSelectedUpcoming] = useState<MovieRowItem | null>(null);
   const [isUpcomingOpen, setIsUpcomingOpen] = useState(false);
 
@@ -55,6 +55,7 @@ export default function LandingPage() {
     let active = true;
 
     const loadLatestReleases = async () => {
+      if (active) setLatestLoading(true);
       try {
         const data = await apiFetch("/movies/latest?limit=5", {
           method: "GET",
@@ -69,6 +70,8 @@ export default function LandingPage() {
         if (active) setLatestReleaseItems(mapped);
       } catch {
         if (active) setLatestReleaseItems([]);
+      } finally {
+        if (active) setLatestLoading(false);
       }
     };
 
@@ -82,6 +85,7 @@ export default function LandingPage() {
     let active = true;
 
     const loadUpcoming = async () => {
+      if (active) setUpcomingLoading(true);
       try {
         const data = await apiFetch("/tmdb/upcoming?limit=5", {
           method: "GET",
@@ -111,6 +115,8 @@ export default function LandingPage() {
         if (active) setUpcomingItems(mapped);
       } catch {
         if (active) setUpcomingItems([]);
+      } finally {
+        if (active) setUpcomingLoading(false);
       }
     };
 
@@ -120,7 +126,21 @@ export default function LandingPage() {
     };
   }, []);
 
+
   
+  const SectionLoader = ({ title }: { title: string }) => (
+    <section className="relative z-10 mx-auto mb-16 max-w-7xl sm:mb-24">
+      <div className="mb-5 flex flex-col items-start gap-3 text-left">
+        <h2 className="section-header text-2xl lg:text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
+          {title}
+        </h2>
+      </div>
+      <div className="flex min-h-[200px] items-center justify-center text-slate-500 dark:text-slate-300">
+        <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent opacity-70" />
+        <span className="ml-3 text-sm">Loading...</span>
+      </div>
+    </section>
+  );
 
   return (
     <div
@@ -136,37 +156,45 @@ export default function LandingPage() {
         <HeroSectionNewAgain/>
 
         <div className="mx-auto w-full max-w-7xl space-y-28 px-4 pb-20 pt-12 sm:space-y-32 sm:px-6 sm:pb-24 sm:pt-16 lg:space-y-36 lg:px-2 lg:pb-28 lg:pt-12">
-          <MovieRow
-            title="Latest Releases"
-            movies={latestReleaseItems}
-            showTitles={false}
-            showViewAll={false}
-            onMovieClick={(movie) => {
-              if (!movie.id) return;
-              router.push(`/movies/${movie.id}`);
-            }}
-          />
+          {latestLoading ? (
+            <SectionLoader title="Latest Releases" />
+          ) : (
+            latestReleaseItems.length > 0 && (
+              <MovieRow
+                title="Latest Releases"
+                movies={latestReleaseItems}
+                showTitles={false}
+                showViewAll={false}
+                onMovieClick={(movie) => {
+                  if (!movie.id) return;
+                  router.push(`/movies/${movie.id}`);
+                }}
+              />
+            )
+          )}
 
           <HeroCategoryCards className="mt-8" />
 
           {/* <CategoryGateway /> */}
 
-          <MovieRow
-            title="Coming Soon"
-            movies={
-              upcomingItems.length
-                ? upcomingItems
-                : comingSoonList.map((title) => ({ title }))
-            }
-            showTitles={false}
-            showReleaseDate={upcomingItems.length > 0}
-            showViewAll={false}
-            onMovieClick={(movie) => {
-              if (!movie.tmdbId) return;
-              setSelectedUpcoming(movie);
-              setIsUpcomingOpen(true);
-            }}
-          />
+          {upcomingLoading ? (
+            <SectionLoader title="Coming Soon" />
+          ) : (
+            upcomingItems.length > 0 && (
+              <MovieRow
+                title="Coming Soon"
+                movies={upcomingItems}
+                showTitles={false}
+                showReleaseDate
+                showViewAll={false}
+                onMovieClick={(movie) => {
+                  if (!movie.tmdbId) return;
+                  setSelectedUpcoming(movie);
+                  setIsUpcomingOpen(true);
+                }}
+              />
+            )
+          )}
         </div>
 
         <TrendingFooter />

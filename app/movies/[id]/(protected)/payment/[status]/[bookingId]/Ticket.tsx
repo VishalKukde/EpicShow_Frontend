@@ -91,7 +91,7 @@ export default async function Ticket({ id, status, bookingId }: Props) {
                         </div>
 
                         {/* Bottom Section */}
-                        <div className="grid grid-cols-2 gap-6 p-6 text-sm">
+                        <div className="grid grid-cols-1 gap-6 p-6 text-sm md:grid-cols-2">
 
                             {/* Booking */}
                             {booking && (
@@ -153,7 +153,7 @@ export default async function Ticket({ id, status, bookingId }: Props) {
 
                     </div>
 
-                    <div className="mt-4 flex items-center justify-end gap-4">
+                    <div className="mt-4 flex flex-wrap items-center justify-end gap-3 sm:gap-4">
 
                         <DownloadTicketButton booking={booking} payment={payment} />
                         {booking ? (

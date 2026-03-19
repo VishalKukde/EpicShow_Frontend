@@ -71,11 +71,12 @@ export default function TrendingFooter() {
         >
           <p>© 2026 EpicShow. All rights reserved.</p>
           <div className="inline-flex items-center gap-2">
-            <span>Built with</span>
+            <span>Made with</span>
             <Heart
               className={`h-3.5 w-3.5 ${dark ? "text-rose-400" : "text-rose-500"}`}
               fill="currentColor"
             />
+             <span>by Vishal</span>
           </div>
         </div>
       </div>

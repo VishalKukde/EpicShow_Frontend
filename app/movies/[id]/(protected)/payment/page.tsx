@@ -7,9 +7,9 @@ import { useBookingStore } from "@/store/bookingStore";
 import { usePaymentStore } from "@/store/paymentStore";
 import { useThemeStore } from "@/store/themeStore";
 import { apiFetch } from "@/lib/api";
-import CheckoutNavbar from "./components/CheckoutNavbar";
-import PaymentOption from "./components/PaymentOption";
 import { useAuth } from "@/context/AuthContext";
+import PaymentOption from "@/components/checkout/PaymentOption";
+import CheckoutNavbar from "@/components/checkout/CheckoutNavbar";
 
 const PaymentPage = () => {
   const router = useRouter();

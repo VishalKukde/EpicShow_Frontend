@@ -1,7 +1,17 @@
-import { Heart, Info, Play } from 'lucide-react'
-import React from 'react'
+"use client";
 
-const QuickAction = () => {
+import { Heart, Info, Play } from "lucide-react";
+import React, { useState } from "react";
+import AskAiModal from "./AskAiModal";
+
+type QuickActionProps = {
+  movieTitle: string;
+  releaseDate?: string;
+};
+
+const QuickAction = ({ movieTitle, releaseDate }: QuickActionProps) => {
+  const [askOpen, setAskOpen] = useState(false);
+
   return (
     <>
                             {/* ⚡ Quick Actions */}
@@ -49,11 +59,18 @@ const QuickAction = () => {
       hover:bg-gray-200
       transition cursor-pointer
     "
+                                    onClick={() => setAskOpen(true)}
                                 >
                                     <Info size={16} />
                                     <span className="inline">Ask AI</span>
                                 </button>
                             </div>
+                            <AskAiModal
+                              open={askOpen}
+                              movieTitle={movieTitle}
+                              releaseDate={releaseDate}
+                              onClose={() => setAskOpen(false)}
+                            />
     </>
 
   )

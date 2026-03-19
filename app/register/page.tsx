@@ -3,7 +3,6 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { toast } from "@/lib/toast";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -69,16 +68,12 @@ export default function RegisterPage() {
     setError(null);
     const { valid, firstError } = validateForm();
     if (!valid) {
-      if (firstError) {
-        toast.warning(firstError);
-      }
       return;
     }
 
     setLoading(true);
     try {
       await register(name.trim(), email.trim().toLowerCase(), password);
-      toast.success("Account created successfully. Please sign in.");
       router.push("/login");
     } catch (err: unknown) {
       const message =
@@ -112,7 +107,7 @@ export default function RegisterPage() {
         </p>
 
         {error && (
-          <p className="text-sm text-red-500 text-center mb-4">
+          <p className="mb-4 rounded-lg border px-3 py-2 text-sm text-center auth-error">
             {error}
           </p>
         )}
@@ -128,7 +123,7 @@ export default function RegisterPage() {
             className="auth-input w-full px-4 py-3 rounded-lg border focus:outline-none"
           />
           {fieldErrors.name && (
-            <p className="-mt-2 text-xs text-red-600">{fieldErrors.name}</p>
+            <p className="-mt-2 text-xs auth-error-text">{fieldErrors.name}</p>
           )}
 
           <input
@@ -141,7 +136,7 @@ export default function RegisterPage() {
             className="auth-input w-full px-4 py-3 rounded-lg border focus:outline-none"
           />
           {fieldErrors.email && (
-            <p className="-mt-2 text-xs text-red-600">{fieldErrors.email}</p>
+            <p className="-mt-2 text-xs auth-error-text">{fieldErrors.email}</p>
           )}
 
           <input
@@ -155,7 +150,7 @@ export default function RegisterPage() {
             className="auth-input w-full px-4 py-3 rounded-lg border focus:outline-none"
           />
           {fieldErrors.password && (
-            <p className="-mt-2 text-xs text-red-600">{fieldErrors.password}</p>
+            <p className="-mt-2 text-xs auth-error-text">{fieldErrors.password}</p>
           )}
 
           <input
@@ -169,7 +164,7 @@ export default function RegisterPage() {
             className="auth-input w-full px-4 py-3 rounded-lg border focus:outline-none"
           />
           {fieldErrors.confirmPassword && (
-            <p className="-mt-2 text-xs text-red-600">{fieldErrors.confirmPassword}</p>
+            <p className="-mt-2 text-xs auth-error-text">{fieldErrors.confirmPassword}</p>
           )}
 
           <button

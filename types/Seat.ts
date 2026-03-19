@@ -1,4 +1,4 @@
-export type SeatStatus = "available" | "selected" | "sold";
+export type SeatStatus = "available" | "selected" | "sold" | "locked";
 
 export type SeatRow = {
   row: string;
@@ -9,6 +9,5 @@ export type Seat = {
   id: string; // Row
   number: number;
   price: number;
-  status: string;
+  status: SeatStatus;
 };
-

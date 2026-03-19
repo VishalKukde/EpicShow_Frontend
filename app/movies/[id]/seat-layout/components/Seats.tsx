@@ -17,18 +17,28 @@ const dark  = mode === "dark";
   function isSeatHidden(row: string, seatIndex: number) {
     return (row === "A" || row === "B" || row === "C" || row === "D") && hiddenSeatIndexes.includes(seatIndex);
   }
+  const getRowPrice = (row: SeatRow) =>
+    row.seats.find((seat, seatIndex) => !isSeatHidden(row.row, seatIndex))?.price ??
+    row.seats[0]?.price;
   return (
     <div
       className="relative mx-auto h-162.5 sm:h-137.25 overflow-x-auto overflow-y-auto border-b border-t border-gray-400 seat-scroll"
       style={{ WebkitOverflowScrolling: "touch" }}
     >
       <div
-        className="max-w-152.5 sm:min-w-90 p-3 sm:space-y-2 space-y-3 origin-top-left transition-transform"
+        className="max-w-152.5 sm:min-w-208 p-3 sm:space-y-2 space-y-3 origin-top-left transition-transform"
         style={{ transform: `scale(${scale})` }}
       >
 
-        {seats.map((rowData, rowIndex) => (
-          <div key={rowIndex} className="flex items-center gap-2">
+        {seats.map((rowData, rowIndex) => {
+          const currentPrice = getRowPrice(rowData);
+          const prevPrice = rowIndex > 0 ? getRowPrice(seats[rowIndex - 1]) : null;
+          const hasPriceGap = rowIndex > 0 && currentPrice !== prevPrice;
+          return (
+            <div
+              key={rowIndex}
+              className={`flex items-center gap-2 ${hasPriceGap ? "mt-5 sm:mt-6" : ""}`}
+            >
 
             {/* Left row label */}
             <span className="flex flex-shrink-0 w-2 text-xs text-gray-500 font-mono">
@@ -61,15 +71,17 @@ const dark  = mode === "dark";
                         y: e.clientY + 12
                       })
                     }
-                    disabled={seat.status === "sold"}
+                    disabled={seat.status === "sold" || seat.status === "locked"}
                     className={`
                       w-5 sm:w-7 h-5 sm:h-7 rounded-sm sm:rounded-md
                       flex items-center justify-center text-[8px] font-medium transition
                       ${seat.status === "sold"
                         ? dark ? "bg-gray-900 border border-gray-400 text-red-500": "bg-gray-300 text-red-700 cursor-not-allowed border border-red-400"
-                        : seat.status === "selected"
-                          ? "bg-green-600 text-white ring-1 ring-green-500"
-                          : "bg-white border border-gray-500 hover:bg-gray-200 text-gray-800 cursor-pointer"
+                        : seat.status === "locked"
+                          ? dark ? "bg-yellow-900/50 border border-yellow-500 text-yellow-300 cursor-not-allowed" : "bg-yellow-200 border border-yellow-500 text-yellow-800 cursor-not-allowed"
+                          : seat.status === "selected"
+                            ? "bg-green-600 text-white ring-1 ring-green-500"
+                            : "bg-white border border-gray-500 hover:bg-gray-200 text-gray-800 cursor-pointer"
                       }
                       ${seatIndex === 4 || seatIndex === 14 ? "mr-6" : ""}
                     `}
@@ -85,7 +97,8 @@ const dark  = mode === "dark";
               {rowData.row}
             </span>
           </div>
-        ))}
+          );
+        })}
 
       </div>
     </div>

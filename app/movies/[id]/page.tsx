@@ -49,6 +49,21 @@ export default function MovieDetailPage() {
     if (id) loadMovie();
   }, [id]);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isReady) {
+      root.style.setProperty(
+        "--app-toast-bottom",
+        "calc(env(safe-area-inset-bottom) + 6rem)"
+      );
+    } else {
+      root.style.removeProperty("--app-toast-bottom");
+    }
+    return () => {
+      root.style.removeProperty("--app-toast-bottom");
+    };
+  }, [isReady]);
+
 
   const handleBooking = () => {
     if (!selectedCinema || !selectedDate || !selectedSlot || !selectedCinemaId) {

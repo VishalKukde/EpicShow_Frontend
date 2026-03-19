@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SeatsQuickAction from "./components/SeatsQuickAction";
 import ScreenIndicator from "./components/ScreenIndicator";
 import Seats from "./components/Seats";
@@ -31,6 +31,29 @@ export default function SeatLayout() {
     .filter(seat => seat.status === "selected");
 
   const totalPrice = selectedSeats.reduce((sum, seat) => sum + seat.price, 0);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const update = () => {
+      const isSmall = window.matchMedia("(max-width: 639px)").matches;
+      if (isSmall) {
+        root.style.setProperty("--app-toast-top", "1rem");
+        root.style.setProperty("--app-toast-timer", "3000");
+        root.style.removeProperty("--app-toast-bottom");
+      } else {
+        root.style.removeProperty("--app-toast-top");
+        root.style.removeProperty("--app-toast-timer");
+      }
+    };
+
+    update();
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("resize", update);
+      root.style.removeProperty("--app-toast-top");
+      root.style.removeProperty("--app-toast-timer");
+    };
+  }, []);
 
   const goToReviewBooking = () => {
     if (selectedSeats.length === 0) {

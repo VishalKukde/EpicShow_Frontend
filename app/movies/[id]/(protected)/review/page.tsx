@@ -1,9 +1,10 @@
 "use client";
 
+import CheckoutNavbar from "@/components/checkout/CheckoutNavbar";
 import CoupenCard from "@/components/CoupenCard";
 import CouponModal from "@/components/CouponModal";
 import TicketCard from "@/components/TicketCard";
-import CheckoutNavbar from "../payment/components/CheckoutNavbar";
+
 import { useAuth } from "@/context/AuthContext";
 // import { useSeatSession } from "@/hooks/useSeatSession";
 import { apiFetch } from "@/lib/api";

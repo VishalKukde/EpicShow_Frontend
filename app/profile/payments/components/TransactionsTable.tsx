@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useThemeStore } from "@/store/themeStore";
 import type { PaymentStatus, PaymentTransaction } from "../types";
 import { X } from "lucide-react";
@@ -158,121 +159,124 @@ export default function TransactionsTable({
         </table>
       </div>
 
-      {openFilterModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4"
-          onClick={() => setOpenFilterModal(false)}
-        >
+      {openFilterModal &&
+        typeof window !== "undefined" &&
+        createPortal(
           <div
-            className={`w-full max-w-lg rounded-2xl border shadow-xl ${dark ? "border-zinc-700 bg-zinc-900 text-white" : "border-gray-200 bg-white text-gray-900"
-              }`}
-            onClick={(event) => event.stopPropagation()}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4"
+            onClick={() => setOpenFilterModal(false)}
           >
             <div
-              className={`flex items-start justify-between border-b px-5 py-4 ${dark ? "border-zinc-700" : "border-gray-200"
+              className={`w-full max-w-lg rounded-2xl border shadow-xl ${dark ? "border-zinc-700 bg-zinc-900 text-white" : "border-gray-200 bg-white text-gray-900"
                 }`}
+              onClick={(event) => event.stopPropagation()}
             >
-              {/* Left Content */}
-              <div>
-                <h3 className="text-base font-semibold">Filter Transactions</h3>
-                <p
-                  className={`mt-1 text-xs ${dark ? "text-zinc-400" : "text-gray-500"
+              <div
+                className={`flex items-start justify-between border-b px-5 py-4 ${dark ? "border-zinc-700" : "border-gray-200"
+                  }`}
+              >
+                {/* Left Content */}
+                <div>
+                  <h3 className="text-base font-semibold">Filter Transactions</h3>
+                  <p
+                    className={`mt-1 text-xs ${dark ? "text-zinc-400" : "text-gray-500"
+                      }`}
+                  >
+                    Filter by show type and payment status.
+                  </p>
+                </div>
+
+                {/* Right Close Button */}
+                <button
+                  type="button"
+                  onClick={() => setOpenFilterModal(false)}
+                  className={`group cursor-pointer rounded-lg p-2 transition-all duration-200 hover:shadow-md ${dark
+                      ? "bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                 >
-                  Filter by show type and payment status.
-                </p>
+                  <X size={18} className="transition-transform duration-200 group-hover:rotate-90" />
+                </button>
               </div>
 
-              {/* Right Close Button */}
-              <button
-                type="button"
-                onClick={() => setOpenFilterModal(false)}
-                className={`group cursor-pointer rounded-lg p-2 transition-all duration-200 hover:shadow-md ${dark
-                    ? "bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-              >
-                <X size={18} className="transition-transform duration-200 group-hover:rotate-90" />
-              </button>
-            </div>
+              <div className="space-y-5 px-5 py-4">
+                <div>
+                  <p className={`text-sm font-semibold ${dark ? "text-zinc-200" : "text-gray-900"}`}>
+                    Show Type
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {showTypeOptions.map((showType) => {
+                      const selected = selectedShowTypes.includes(showType);
+                      return (
+                        <button
+                          key={showType}
+                          type="button"
+                          onClick={() => toggleShowType(showType)}
+                          className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-medium ${selected
+                            ? "border-indigo-500 bg-indigo-600 text-white"
+                            : dark
+                              ? "border-zinc-600 bg-zinc-800 text-zinc-200"
+                              : "border-gray-300 bg-gray-100 text-gray-700"
+                            }`}
+                        >
+                          {showType}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
-            <div className="space-y-5 px-5 py-4">
-              <div>
-                <p className={`text-sm font-semibold ${dark ? "text-zinc-200" : "text-gray-900"}`}>
-                  Show Type
-                </p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {showTypeOptions.map((showType) => {
-                    const selected = selectedShowTypes.includes(showType);
-                    return (
-                      <button
-                        key={showType}
-                        type="button"
-                        onClick={() => toggleShowType(showType)}
-                        className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-medium ${selected
-                          ? "border-indigo-500 bg-indigo-600 text-white"
-                          : dark
-                            ? "border-zinc-600 bg-zinc-800 text-zinc-200"
-                            : "border-gray-300 bg-gray-100 text-gray-700"
-                          }`}
-                      >
-                        {showType}
-                      </button>
-                    );
-                  })}
+                <div>
+                  <p className={`text-sm font-semibold ${dark ? "text-zinc-200" : "text-gray-900"}`}>
+                    Status
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {statusOptions.map((status) => {
+                      const selected = selectedStatuses.includes(status);
+                      return (
+                        <button
+                          key={status}
+                          type="button"
+                          onClick={() => toggleStatus(status)}
+                          className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-medium ${selected
+                            ? "border-indigo-500 bg-indigo-600 text-white"
+                            : dark
+                              ? "border-zinc-600 bg-zinc-800 text-zinc-200"
+                              : "border-gray-300 bg-gray-100 text-gray-700"
+                            }`}
+                        >
+                          {status}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <p className={`text-sm font-semibold ${dark ? "text-zinc-200" : "text-gray-900"}`}>
-                  Status
-                </p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {statusOptions.map((status) => {
-                    const selected = selectedStatuses.includes(status);
-                    return (
-                      <button
-                        key={status}
-                        type="button"
-                        onClick={() => toggleStatus(status)}
-                        className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-medium ${selected
-                          ? "border-indigo-500 bg-indigo-600 text-white"
-                          : dark
-                            ? "border-zinc-600 bg-zinc-800 text-zinc-200"
-                            : "border-gray-300 bg-gray-100 text-gray-700"
-                          }`}
-                      >
-                        {status}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            <div
-              className={`flex items-center justify-end gap-2 border-t px-5 py-4 ${dark ? "border-zinc-700" : "border-gray-200"
-                }`}
-            >
-              <button
-                type="button"
-                onClick={clearFilters}
-                className={`cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium ${dark ? "bg-zinc-800 text-zinc-100 hover:bg-zinc-700" : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+              <div
+                className={`flex items-center justify-end gap-2 border-t px-5 py-4 ${dark ? "border-zinc-700" : "border-gray-200"
                   }`}
               >
-                Clear
-              </button>
-              <button
-                type="button"
-                onClick={() => setOpenFilterModal(false)}
-                className="cursor-pointer rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-500"
-              >
-                Apply
-              </button>
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className={`cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium ${dark ? "bg-zinc-800 text-zinc-100 hover:bg-zinc-700" : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                    }`}
+                >
+                  Clear
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOpenFilterModal(false)}
+                  className="cursor-pointer rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-500"
+                >
+                  Apply
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
 
       {hasMore && (
         <div className="mt-4 flex justify-center">

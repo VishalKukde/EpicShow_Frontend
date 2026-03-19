@@ -1,6 +1,7 @@
 "use client";
 
 import type { ComponentType } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export type HeroCategoryCardData = {
@@ -11,6 +12,9 @@ export type HeroCategoryCardData = {
   href?: string;
   bgImage?: string;
 };
+
+const TRANSPARENT_BLUR_DATA_URL =
+  "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
 
 type HeroCategoryCardProps = {
   card: HeroCategoryCardData;
@@ -108,12 +112,19 @@ export default function HeroCategoryCard({
           group-hover:scale-[1.03]
           ${isActive ? "scale-[1.03]" : ""}
         `}
-        style={{
-          backgroundImage: card.bgImage ? `url("${card.bgImage}")` : "none",
-          backgroundSize: card.bgImage ? "cover" : undefined,
-          backgroundPosition: card.bgImage ? "center" : undefined,
-        }}
-      />
+      >
+        {card.bgImage && (
+          <Image
+            src={card.bgImage}
+            alt=""
+            fill
+            sizes="(max-width: 640px) 70vw, (max-width: 1024px) 45vw, 25vw"
+            className="object-cover"
+            placeholder="blur"
+            blurDataURL={TRANSPARENT_BLUR_DATA_URL}
+          />
+        )}
+      </div>
 
       {/* top-right badge */}
       {badgeText && (

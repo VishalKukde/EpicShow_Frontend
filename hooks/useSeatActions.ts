@@ -5,6 +5,7 @@ import { useBookingStore } from "@/store/bookingStore";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import type { Dispatch, SetStateAction } from "react";
+import { toast } from "@/lib/toast";
 
 type BookingForSeatActions = {
     item: { _id: string } | null;
@@ -33,12 +34,12 @@ export function useSeatActions(
             return;
         }
         if (!booking.item?._id || !booking.venueId || !booking.date || !booking.slot) {
-            alert("Please select cinema, date and slot first");
+            toast.warning("Please select venue, date, and slot first.");
             return;
         }
 
         const seat = seats[rowIndex].seats[seatIndex];
-        if (seat.status === "sold") return;
+        if (seat.status === "sold" || seat.status === "locked") return;
 
         const isUnlocking = seat.status === "selected";
 
@@ -47,7 +48,7 @@ export function useSeatActions(
             .filter(s => s.status === "selected").length;
 
         if (!isUnlocking && selectedCount >= 2) {
-            alert("Max 2 seats allowed");
+            toast.warning("Max 2 seats allowed.");
             return;
         }
 
@@ -111,9 +112,9 @@ export function useSeatActions(
 
             const errorWithStatus = err as { status?: number };
             if (errorWithStatus?.status === 409) {
-                alert("Seat already locked by someone else");
+                toast.warning("Seat already locked by someone else.");
             } else {
-                alert("Seat action failed");
+                toast.error("Seat action failed.");
             }
         }
     };

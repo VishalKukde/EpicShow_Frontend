@@ -11,7 +11,7 @@ import { unlockAllSeatsForCurrentShow } from "@/hooks/useSeatActions";
 // import { useSeatSession } from "@/hooks/useSeatSession";
 import { useSeatLayout } from "@/hooks/useSeatLayout";
 import { motion } from "framer-motion";
-import { Search } from "lucide-react";
+import { Home, Search } from "lucide-react";
 import SeatTimer from "@/app/components/SeatTimer";
 
 export default function Navbar() {
@@ -163,16 +163,17 @@ export default function Navbar() {
               <ProfileDropdown />
             </div>
           ) : isAuthEntryPage ? (
-            <>
-              <span className="hidden sm:inline-flex rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700">
+            <div className="flex items-center gap-2">
+              <span className="hidden sm:inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700">
                 Secure access portal
               </span>
               <Link href="/">
-                <button className="cursor-pointer rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
-                  Back to home
+                <button className="inline-flex items-center gap-2 cursor-pointer rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
+                  <Home className="h-4 w-4" />
+                  Home
                 </button>
               </Link>
-            </>
+            </div>
           ) : (
             <>
               <Link href="/login">

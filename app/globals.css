@@ -63,6 +63,10 @@
   --auth-primary-text: #ffffff;
   --auth-primary-hover: #0f172a;
   --auth-link: #111827;
+  --auth-error-bg: rgba(254, 226, 226, 0.7);
+  --auth-error-border: rgba(248, 113, 113, 0.6);
+  --auth-error-text: #ef4444;
+  --auth-error-muted: #f87171;
   --explore-panel-bg: rgba(255, 255, 255, 0.76);
   --explore-input-bg: rgba(255, 255, 255, 0.92);
   --explore-card-bg: rgba(255, 255, 255, 0.96);
@@ -153,6 +157,10 @@ html.theme-light {
   --auth-primary-text: #ffffff;
   --auth-primary-hover: #0f172a;
   --auth-link: #111827;
+  --auth-error-bg: rgba(254, 226, 226, 0.7);
+  --auth-error-border: rgba(248, 113, 113, 0.6);
+  --auth-error-text: #ef4444;
+  --auth-error-muted: #f87171;
   --explore-panel-bg: rgba(255, 255, 255, 0.76);
   --explore-input-bg: rgba(255, 255, 255, 0.92);
   --explore-card-bg: rgba(255, 255, 255, 0.96);
@@ -237,6 +245,10 @@ html.theme-dark {
   --auth-primary-text: #0b0b0f;
   --auth-primary-hover: #ffffff;
   --auth-link: #f4f4f5;
+  --auth-error-bg: rgba(127, 29, 29, 0.3);
+  --auth-error-border: rgba(248, 113, 113, 0.55);
+  --auth-error-text: #ef4444;
+  --auth-error-muted: #f87171;
   --explore-panel-bg: rgba(24, 24, 27, 0.78);
   --explore-input-bg: rgba(39, 39, 42, 0.9);
   --explore-card-bg: rgba(24, 24, 27, 0.92);
@@ -545,6 +557,16 @@ html.theme-dark .auth-input:focus {
   color: var(--auth-link);
 }
 
+.auth-error {
+  background: var(--auth-error-bg);
+  border-color: var(--auth-error-border);
+  color: var(--auth-error-text);
+}
+
+.auth-error-text {
+  color: var(--auth-error-muted);
+}
+
 .profile-menu-hero {
   background: var(--profile-menu-hero-bg);
   border-color: var(--profile-menu-hero-border);
@@ -761,6 +783,14 @@ html.theme-dark .chat-scroll::-webkit-scrollbar-thumb:hover {
   box-shadow: none !important;
   padding: 0.45rem 0.6rem !important;
   z-index: 99999;
+}
+
+.app-toast-container {
+  bottom: var(--app-toast-bottom, 1rem) !important;
+  top: auto !important;
+  right: 1rem !important;
+  left: auto !important;
+  padding: 0 !important;
 }
 
 .app-toast-title {

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useThemeStore } from "@/store/themeStore";
 
-type CheckoutNavbarProps = {
+export type CheckoutNavbarProps = {
   backUrl: string;
   title?: string;
   badgeText?: string;
