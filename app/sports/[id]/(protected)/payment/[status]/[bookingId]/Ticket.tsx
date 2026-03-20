@@ -1,13 +1,11 @@
-"use client";
-
-import { useEffect } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { Home, Ticket as TicketIcon } from "lucide-react";
 import CopyButton from "@/app/movies/[id]/(protected)/payment/components/CopyButton";
 import DownloadTicketButton from "@/app/movies/[id]/(protected)/payment/components/DownloadTicketButton";
-import { useBookingStore } from "@/store/bookingStore";
-import { usePaymentStore } from "@/store/paymentStore";
+import ResetSportStores from "@/app/sports/[id]/(protected)/payment/components/ResetSportStores";
+import { serverFetch } from "@/lib/serverFetch";
+import type { Payment } from "@/types/Payment";
 
 interface Props {
   id: string;
@@ -15,14 +13,36 @@ interface Props {
   bookingId: string;
 }
 
-export default function Ticket({ id, status, bookingId }: Props) {
-  void id;
-  const storedTicket = usePaymentStore((state) => state.mockTicket);
-  const ticket =
-    storedTicket && storedTicket.bookingId === bookingId ? storedTicket : null;
-  useEffect(() => {
-    useBookingStore.getState().resetBooking();
-  }, []);
+type SportBooking = {
+  _id: string;
+  status: string;
+  amount: number;
+  seatIds: string[];
+  schedule?: {
+    date?: string;
+    time?: string;
+  };
+  venue?: {
+    name?: string;
+    city?: string;
+  };
+  teams?: {
+    teamA?: string;
+    teamB?: string;
+    label?: string;
+  };
+  league?: string;
+  matchNo?: string;
+  paymentId?: string | null;
+  createdAt?: string;
+};
+
+export default async function Ticket({ id, status, bookingId }: Props) {
+  const data = await serverFetch(`/sports/booking/${bookingId}`, {
+    authRedirectPath: `/sports/${id}/payment/${status}/${bookingId}`,
+  });
+  const booking = data?.booking as SportBooking | undefined;
+  const payment = data?.payment as Payment | null;
 
   const themeMap = {
     success: {
@@ -39,7 +59,12 @@ export default function Ticket({ id, status, bookingId }: Props) {
     },
   } as const;
 
-  const resolvedStatus = (ticket?.status || status) as keyof typeof themeMap;
+  const resolvedStatus = (payment?.status ||
+    (booking?.status === "paid"
+      ? "success"
+      : booking?.status === "failed"
+        ? "failed"
+        : status)) as keyof typeof themeMap;
   const theme = themeMap[resolvedStatus];
 
   if (!theme) {
@@ -50,7 +75,7 @@ export default function Ticket({ id, status, bookingId }: Props) {
     );
   }
 
-  if (!ticket) {
+  if (!booking) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="max-w-md rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm">
@@ -70,9 +95,26 @@ export default function Ticket({ id, status, bookingId }: Props) {
     );
   }
 
+  const matchTitle =
+    booking.teams?.label ||
+    (booking.teams?.teamA && booking.teams?.teamB
+      ? `${booking.teams.teamA} vs ${booking.teams.teamB}`
+      : booking.league
+        ? `${booking.league}${booking.matchNo ? ` • ${booking.matchNo}` : ""}`
+        : "Sport match");
+  const venueLabel = booking.venue?.name
+    ? `${booking.venue.name}${booking.venue.city ? `, ${booking.venue.city}` : ""}`
+    : booking.venue?.city || "Stadium";
+  const scheduleDate = booking.schedule?.date || "-";
+  const scheduleTime = booking.schedule?.time || "-";
+  const seatLabel = booking.seatIds?.length ? booking.seatIds.join(", ") : "-";
+  const paymentStatus = payment?.status || resolvedStatus;
+
   return (
-    <div className="h-screen bg-background flex items-center justify-center px-4 overflow-hidden select-none">
-      <div className="w-full max-w-4xl relative">
+    <>
+      <ResetSportStores />
+      <div className="h-screen bg-background flex items-center justify-center px-4 overflow-hidden select-none">
+        <div className="w-full max-w-4xl relative">
         <div className="bg-white rounded-2xl border border-gray-200 shadow-lg relative overflow-hidden">
           <div className="absolute top-1/2 -left-4 transform -translate-y-1/2 w-8 h-8 bg-background rounded-full" />
           <div className="absolute top-1/2 -right-4 transform -translate-y-1/2 w-8 h-8 bg-background rounded-full" />
@@ -97,14 +139,14 @@ export default function Ticket({ id, status, bookingId }: Props) {
                   <CopyButton value={bookingId} />
                 </div>
               </div>
-              <Row label="Match" value={ticket.matchTitle} />
-              <Row label="Stadium" value={ticket.venue} />
-              <Row label="Date" value={ticket.date} />
-              <Row label="Time" value={ticket.slot} />
-              <Row label="Seats" value={ticket.seatIds.join(", ")} />
+              <Row label="Match" value={matchTitle} />
+              <Row label="Stadium" value={venueLabel} />
+              <Row label="Date" value={scheduleDate} />
+              <Row label="Time" value={scheduleTime} />
+              <Row label="Seats" value={seatLabel} />
               <div className="pt-2 border-t flex justify-between font-semibold">
                 <span>Total</span>
-                <span>₹{ticket.amount}</span>
+                <span>₹{booking.amount}</span>
               </div>
             </div>
 
@@ -113,11 +155,11 @@ export default function Ticket({ id, status, bookingId }: Props) {
               <div className="flex justify-between items-center">
                 <span className="text-gray-700">Payment ID</span>
                 <div className="flex items-center font-medium text-gray-900">
-                  {ticket.paymentId || "—"}
-                  {ticket.paymentId ? <CopyButton value={ticket.paymentId} /> : null}
+                  {payment?.paymentId || booking.paymentId || "—"}
+                  {payment?.paymentId ? <CopyButton value={payment.paymentId} /> : null}
                 </div>
               </div>
-              <Row label="Method" value={formatMethod(ticket.method)} />
+              <Row label="Method" value={formatMethod(payment?.method)} />
               <Row
                 label="Status"
                 value={
@@ -127,13 +169,13 @@ export default function Ticket({ id, status, bookingId }: Props) {
                       : "bg-rose-50 text-rose-600 ring-rose-200"
                     }`}
                   >
-                    {capitalize(resolvedStatus)}
+                    {capitalize(paymentStatus)}
                   </span>
                 }
               />
               <Row
                 label="Transaction"
-                value={new Date(ticket.createdAt).toLocaleString()}
+                value={payment?.createdAt ? new Date(payment.createdAt).toLocaleString() : "—"}
               />
             </div>
           </div>
@@ -142,7 +184,7 @@ export default function Ticket({ id, status, bookingId }: Props) {
         <div className="mt-4 flex flex-wrap items-center justify-end gap-3 sm:gap-4">
           <DownloadTicketButton
             booking={{ _id: bookingId }}
-            payment={{ paymentId: ticket.paymentId }}
+            payment={{ paymentId: payment?.paymentId || booking.paymentId || undefined }}
           />
           <Link
             href="/sports"
@@ -152,8 +194,9 @@ export default function Ticket({ id, status, bookingId }: Props) {
             Back to Sports
           </Link>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

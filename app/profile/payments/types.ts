@@ -10,6 +10,7 @@ export type PaymentTransaction = {
   amount: number;
   status: PaymentStatus;
   showType:string
+  details?: string | null;
 };
 
 export type SavedMethod = {

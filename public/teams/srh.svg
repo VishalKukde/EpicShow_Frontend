@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="SRH logo">
+  <circle cx="60" cy="60" r="46" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="4" />
+  <circle cx="60" cy="48" r="12" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="4" />
+  <g stroke="rgba(255,255,255,0.9)" stroke-width="4" stroke-linecap="round">
+    <path d="M60 24 V34" />
+    <path d="M60 62 V72" />
+    <path d="M36 48 H46" />
+    <path d="M74 48 H84" />
+    <path d="M44 32 L50 38" />
+    <path d="M76 32 L70 38" />
+  </g>
+  <text x="60" y="92" text-anchor="middle" font-size="20" font-weight="700" letter-spacing="2" fill="rgba(255,255,255,0.95)" font-family="Arial, sans-serif">SRH</text>
+</svg>

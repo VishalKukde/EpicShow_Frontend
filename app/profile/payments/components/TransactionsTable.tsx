@@ -126,7 +126,11 @@ export default function TransactionsTable({
                 <td className="px-4 py-3 text-xs font-medium text-gray-700">
                   {payment.id}
                 </td>
-                <td className="px-4 py-3 font-medium text-gray-900">{payment.title}</td>
+                <td className="px-4 py-3 text-gray-900">
+                  <div className="flex flex-col">
+                    <span className="font-medium">{payment.title}</span>
+                  </div>
+                </td>
                 <td className="px-4 py-3 text-gray-600">
                   <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs text-gray-700 ring-1 ring-gray-200 uppercase">
                     {payment.showType || "N/A"}

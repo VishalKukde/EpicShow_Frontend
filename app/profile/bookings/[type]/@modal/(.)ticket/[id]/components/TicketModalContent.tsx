@@ -35,22 +35,41 @@ export default function TicketModalContent({
         setLoading(true);
         setError(null);
 
-        const bookingData = (await apiFetch(`/booking/${id}`)) as {
+        const bookingEndpoint =
+          type === "sports"
+            ? `/sports/booking/${id}`
+            : type === "events"
+              ? `/events/booking/${id}`
+              : `/booking/${id}`;
+        const bookingData = (await apiFetch(bookingEndpoint)) as {
           booking: Booking;
           payment: Payment | null;
         };
 
         if (!active) return;
 
-        const showData = (await apiFetch(`/${type}/${bookingData.booking.itemId}`)) as {
-          name: string;
+        const showEndpoint =
+          type === "sports"
+            ? `/sports/${bookingData.booking.itemId}`
+            : `/${type}/${bookingData.booking.itemId}`;
+        const showData = (await apiFetch(showEndpoint)) as {
+          name?: string;
+          title?: string;
           imageUrl?: string;
+          teamA?: string;
+          teamB?: string;
         };
 
         if (!active) return;
+        const showName =
+          showData?.name ||
+          showData?.title ||
+          (showData?.teamA && showData?.teamB
+            ? `${showData.teamA} vs ${showData.teamB}`
+            : "Show");
 
         setData(bookingData);
-        setShow(showData);
+        setShow({ name: showName, imageUrl: showData?.imageUrl });
       } catch (err: unknown) {
         if (!active) return;
         setError(err instanceof Error ? err.message : "Failed to load ticket");

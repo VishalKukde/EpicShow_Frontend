@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="CSK logo">
+  <circle cx="60" cy="60" r="46" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="4" />
+  <path d="M28 56 L42 40 L60 56 L78 40 L92 56 L92 70 L28 70 Z" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="4" stroke-linejoin="round" />
+  <circle cx="42" cy="36" r="4" fill="rgba(255,255,255,0.9)" />
+  <circle cx="78" cy="36" r="4" fill="rgba(255,255,255,0.9)" />
+  <text x="60" y="92" text-anchor="middle" font-size="22" font-weight="700" letter-spacing="3" fill="rgba(255,255,255,0.95)" font-family="Arial, sans-serif">CSK</text>
+</svg>

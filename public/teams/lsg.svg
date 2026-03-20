@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="LSG logo">
+  <circle cx="60" cy="60" r="46" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="4" />
+  <path d="M28 52 C40 38 52 38 60 48 C68 38 80 38 92 52" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="4" stroke-linecap="round" />
+  <path d="M28 68 C40 82 52 82 60 72 C68 82 80 82 92 68" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="4" stroke-linecap="round" />
+  <text x="60" y="92" text-anchor="middle" font-size="20" font-weight="700" letter-spacing="2" fill="rgba(255,255,255,0.95)" font-family="Arial, sans-serif">LSG</text>
+</svg>

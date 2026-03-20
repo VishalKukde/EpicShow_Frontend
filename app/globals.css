@@ -53,16 +53,24 @@
   --profile-menu-confirm-primary-bg: rgb(248, 3, 3);
   --profile-menu-confirm-primary-text: #ffffff;
   --profile-menu-confirm-primary-hover: rgba(185, 28, 28, 1);
-  --auth-page-bg: var(--background);
-  --auth-card-bg: rgba(255, 255, 255, 0.78);
-  --auth-card-border: rgba(15, 23, 42, 0.12);
-  --auth-input-bg: rgba(255, 255, 255, 0.95);
-  --auth-input-border: var(--border);
-  --auth-ring: rgba(99, 102, 241, 0.35);
-  --auth-primary-bg: #111827;
+  --auth-page-bg: radial-gradient(900px 520px at 10% -10%, rgba(226, 232, 240, 0.9), transparent 60%),
+    radial-gradient(700px 500px at 100% 0%, rgba(186, 230, 253, 0.6), transparent 60%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f7 45%, #f8fafc 100%);
+  --auth-orb-1: rgba(59, 130, 246, 0.18);
+  --auth-orb-2: rgba(14, 165, 233, 0.2);
+  --auth-orb-3: rgba(16, 185, 129, 0.16);
+  --auth-grid-color: rgba(148, 163, 184, 0.18);
+  --auth-card-bg: rgba(255, 255, 255, 0.84);
+  --auth-card-border: rgba(15, 23, 42, 0.14);
+  --auth-input-bg: rgba(255, 255, 255, 0.94);
+  --auth-input-border: rgba(148, 163, 184, 0.35);
+  --auth-ring: rgba(56, 189, 248, 0.35);
+  --auth-primary-bg: linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #0f172a 100%);
   --auth-primary-text: #ffffff;
-  --auth-primary-hover: #0f172a;
-  --auth-link: #111827;
+  --auth-primary-hover: linear-gradient(135deg, #0b1220 0%, #1b2433 55%, #0b1220 100%);
+  --auth-primary-border: rgba(15, 23, 42, 0.14);
+  --auth-primary-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.5);
+  --auth-link: #0f172a;
   --auth-error-bg: rgba(254, 226, 226, 0.7);
   --auth-error-border: rgba(248, 113, 113, 0.6);
   --auth-error-text: #ef4444;
@@ -147,16 +155,24 @@ html.theme-light {
   --profile-menu-confirm-primary-bg: rgba(220, 38, 38, 1);
   --profile-menu-confirm-primary-text: #ffffff;
   --profile-menu-confirm-primary-hover: rgba(185, 28, 28, 1);
-  --auth-page-bg: var(--background);
-  --auth-card-bg: rgba(255, 255, 255, 0.78);
-  --auth-card-border: rgba(15, 23, 42, 0.12);
-  --auth-input-bg: rgba(255, 255, 255, 0.95);
-  --auth-input-border: var(--border);
-  --auth-ring: rgba(99, 102, 241, 0.35);
-  --auth-primary-bg: #111827;
+  --auth-page-bg: radial-gradient(900px 520px at 10% -10%, rgba(226, 232, 240, 0.9), transparent 60%),
+    radial-gradient(700px 500px at 100% 0%, rgba(186, 230, 253, 0.6), transparent 60%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f7 45%, #f8fafc 100%);
+  --auth-orb-1: rgba(59, 130, 246, 0.18);
+  --auth-orb-2: rgba(14, 165, 233, 0.2);
+  --auth-orb-3: rgba(16, 185, 129, 0.16);
+  --auth-grid-color: rgba(148, 163, 184, 0.18);
+  --auth-card-bg: rgba(255, 255, 255, 0.84);
+  --auth-card-border: rgba(15, 23, 42, 0.14);
+  --auth-input-bg: rgba(255, 255, 255, 0.94);
+  --auth-input-border: rgba(148, 163, 184, 0.35);
+  --auth-ring: rgba(56, 189, 248, 0.35);
+  --auth-primary-bg: linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #0f172a 100%);
   --auth-primary-text: #ffffff;
-  --auth-primary-hover: #0f172a;
-  --auth-link: #111827;
+  --auth-primary-hover: linear-gradient(135deg, #0b1220 0%, #1b2433 55%, #0b1220 100%);
+  --auth-primary-border: rgba(15, 23, 42, 0.14);
+  --auth-primary-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.5);
+  --auth-link: #0f172a;
   --auth-error-bg: rgba(254, 226, 226, 0.7);
   --auth-error-border: rgba(248, 113, 113, 0.6);
   --auth-error-text: #ef4444;
@@ -235,16 +251,24 @@ html.theme-dark {
   --profile-menu-confirm-primary-bg: rgba(220, 38, 38, 1);
   --profile-menu-confirm-primary-text: #ffffff;
   --profile-menu-confirm-primary-hover: rgba(239, 68, 68, 1);
-  --auth-page-bg: var(--background);
-  --auth-card-bg: rgba(24, 24, 27, 0.78);
-  --auth-card-border: rgba(161, 161, 170, 0.24);
-  --auth-input-bg: rgba(39, 39, 42, 0.92);
-  --auth-input-border: rgba(161, 161, 170, 0.24);
-  --auth-ring: rgba(129, 140, 248, 0.4);
-  --auth-primary-bg: #f4f4f5;
+  --auth-page-bg: radial-gradient(900px 520px at 10% -10%, rgba(30, 41, 59, 0.6), transparent 60%),
+    radial-gradient(700px 500px at 90% 0%, rgba(14, 116, 144, 0.28), transparent 60%),
+    linear-gradient(180deg, #07080b 0%, #0b0d12 55%, #07080b 100%);
+  --auth-orb-1: rgba(56, 189, 248, 0.2);
+  --auth-orb-2: rgba(14, 116, 144, 0.3);
+  --auth-orb-3: rgba(99, 102, 241, 0.2);
+  --auth-grid-color: rgba(148, 163, 184, 0.12);
+  --auth-card-bg: rgba(15, 17, 23, 0.82);
+  --auth-card-border: rgba(148, 163, 184, 0.2);
+  --auth-input-bg: rgba(24, 24, 27, 0.9);
+  --auth-input-border: rgba(148, 163, 184, 0.24);
+  --auth-ring: rgba(129, 140, 248, 0.45);
+  --auth-primary-bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 55%, #f8fafc 100%);
   --auth-primary-text: #0b0b0f;
-  --auth-primary-hover: #ffffff;
-  --auth-link: #f4f4f5;
+  --auth-primary-hover: linear-gradient(135deg, #ffffff 0%, #e2e8f0 55%, #ffffff 100%);
+  --auth-primary-border: rgba(15, 23, 42, 0.2);
+  --auth-primary-shadow: 0 20px 45px -30px rgba(2, 6, 23, 0.75);
+  --auth-link: #f8fafc;
   --auth-error-bg: rgba(127, 29, 29, 0.3);
   --auth-error-border: rgba(248, 113, 113, 0.55);
   --auth-error-text: #ef4444;
@@ -544,7 +568,9 @@ html.theme-dark .auth-input:focus {
 .auth-primary-btn {
   background: var(--auth-primary-bg);
   color: var(--auth-primary-text);
-  transition: background-color 200ms ease, transform 150ms ease;
+  border: 1px solid var(--auth-primary-border);
+  box-shadow: var(--auth-primary-shadow);
+  transition: background 200ms ease, box-shadow 200ms ease, transform 150ms ease;
 }
 .auth-primary-btn:hover {
   background: var(--auth-primary-hover);

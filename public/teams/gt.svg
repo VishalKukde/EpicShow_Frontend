@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="GT logo">
+  <circle cx="60" cy="60" r="46" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="4" />
+  <path d="M60 28 L88 78 H32 Z" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="4" stroke-linejoin="round" />
+  <circle cx="60" cy="56" r="6" fill="rgba(255,255,255,0.85)" />
+  <text x="60" y="92" text-anchor="middle" font-size="20" font-weight="700" letter-spacing="2" fill="rgba(255,255,255,0.95)" font-family="Arial, sans-serif">GT</text>
+</svg>

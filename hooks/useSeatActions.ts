@@ -16,10 +16,23 @@ type BookingForSeatActions = {
 
 type SeatSetter = Dispatch<SetStateAction<SeatRow[]>>;
 
+type BookingStoreApi = {
+    getState: () => {
+        item?: { _id?: string } | null;
+        venueId?: string | null;
+        date?: string | null;
+        slot?: string | null;
+        seats?: { id: string }[];
+        setExpireAt?: (time: string | null) => void;
+    };
+    setState: (partial: Record<string, unknown>) => void;
+};
+
 export function useSeatActions(
     seats: SeatRow[],
     setSeats: SeatSetter,
     booking: BookingForSeatActions,
+    store: BookingStoreApi = useBookingStore,
 ) {
 
     const router = useRouter();
@@ -30,7 +43,8 @@ export function useSeatActions(
         if (loading) return;
 
         if (!user) {
-            router.push(`/login?redirect=${window.location.pathname}`);
+            toast.warning("Login required to select seats.");
+            // router.push(`/login?redirect=${window.location.pathname}`);
             return;
         }
         if (!booking.item?._id || !booking.venueId || !booking.date || !booking.slot) {
@@ -92,18 +106,17 @@ export function useSeatActions(
                 })
             });
 
-            // 🟢 If locking → start timer
-            if (!isUnlocking && res.expireAt) {
-                useBookingStore.getState().setExpireAt(res.expireAt);
-            }
+        if (!isUnlocking && res.expireAt) {
+            store.getState().setExpireAt?.(res.expireAt);
+        }
 
-            if (isUnlocking) {
-                const updatedSelectedCount = selectedCount - 1;
+        if (isUnlocking) {
+            const updatedSelectedCount = selectedCount - 1;
 
-                if (updatedSelectedCount === 0) {
-                    useBookingStore.getState().setExpireAt(null);
-                }
+            if (updatedSelectedCount === 0) {
+                store.getState().setExpireAt?.(null);
             }
+        }
 
         } catch (err: unknown) {
 
@@ -129,8 +142,9 @@ export function useSeatActions(
 export const unlockAllSeatsForCurrentShow = async (
     setSeats: SeatSetter,
     userId?: string | null,
+    store: BookingStoreApi = useBookingStore,
 ) => {
-    const booking = useBookingStore.getState();
+    const booking = store.getState();
     const seatIds = booking.seats.map(s => s.id);
 
     const canUnlock =
@@ -176,7 +190,7 @@ export const unlockAllSeatsForCurrentShow = async (
 
 
     // ✅ Reset booking store show + seats
-    useBookingStore.setState({
+    store.setState({
         venueId: null,
         venue: null,
         date: null,

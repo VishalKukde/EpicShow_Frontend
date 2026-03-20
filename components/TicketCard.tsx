@@ -6,30 +6,54 @@ import { useBookingStore } from '@/store/bookingStore';
 import { useThemeStore } from '@/store/themeStore';
 import { useAuth } from '@/context/AuthContext';
 import { Movie } from '@/types/Movie';
+import type { Event } from '@/types/Event';
 import { Seat } from '@/types/Seat';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
 type ITicketCardProps = {
-    item: Movie | null;
+    item: Movie | Event | null;
     seats: Seat[];
     venue: string | null;
     date: string | null;
     slot: string | null;
+    bookingState?: {
+        type?: string | null;
+        item?: { _id?: string } | null;
+        venueId?: string | null;
+        date?: string | null;
+        slot?: string | null;
+    };
+    bookingStore?: {
+        getState: () => {
+            type?: string | null;
+        };
+        setState: (partial: Record<string, unknown>) => void;
+    };
 
 }
-const TicketCard = ({ item, date: _date, seats, slot: _slot, venue }: ITicketCardProps) => {
+const TicketCard = ({
+    item,
+    date: _date,
+    seats,
+    slot: _slot,
+    venue,
+    bookingState,
+    bookingStore,
+}: ITicketCardProps) => {
     const router = useRouter();
     const { user } = useAuth();
-    const booking = useBookingStore();
+    const storeApi = bookingStore || useBookingStore;
+    const booking = bookingState || useBookingStore();
     const mode = useThemeStore((s) => s.mode);
     const { setSeats } = useSeatLayout(booking);
     void _date;
     void _slot;
 
     const handleUnlockSeats = () => {
-        unlockAllSeatsForCurrentShow(setSeats, user?.id);
-        router.replace(`/movies/${item?._id}`);
+        unlockAllSeatsForCurrentShow(setSeats, user?.id, storeApi);
+        const basePath = booking.type === "event" ? "/events" : "/movies";
+        router.replace(`${basePath}/${item?._id}`);
     }
 
     return (
@@ -51,7 +75,7 @@ const TicketCard = ({ item, date: _date, seats, slot: _slot, venue }: ITicketCar
                     {/* Left Section */}
                     <div className="flex flex-col">
                         <h2 className={`text-xl sm:text-2xl font-semibold ${mode === "dark" ? "text-zinc-100" : "text-gray-900"}`}>
-                            {item?.name}
+                            {"name" in (item || {}) ? item?.name : (item as Event | null)?.title}
                         </h2>
                         <p className={`mt-1 ${mode === "dark" ? "text-zinc-400" : "text-gray-500"}`}>
                             {venue}

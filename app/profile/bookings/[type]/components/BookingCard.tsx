@@ -1,5 +1,5 @@
 import { cinemas } from "@/app/movies/[id]/components/Cinemas";
-import { BOOKING_STATUS, BookingStatus } from "@/constants/Constants";
+import { BOOKING_STATUS, BookingStatus, SHOW_TYPE } from "@/constants/Constants";
 import { useThemeStore } from "@/store/themeStore";
 import { Booking } from "@/types/Booking";
 import { Calendar, Ticket, MapPin, Eye, Clock3 } from "lucide-react";
@@ -23,6 +23,60 @@ const statusStyles: Record<BookingStatus, string> = {
   expired: "bg-gray-100 text-gray-700 border-gray-200",
 };
 
+const TEAM_THEMES: Array<{ aliases: string[]; color: string }> = [
+  { aliases: ["csk", "chennai super kings"], color: "#F9D423" },
+  { aliases: ["mi", "mumbai indians"], color: "#004BA0" },
+  { aliases: ["rcb", "royal challengers bengaluru", "royal challengers bangalore"], color: "#D71920" },
+  { aliases: ["kkr", "kolkata knight riders"], color: "#3A225D" },
+  { aliases: ["srh", "sunrisers hyderabad"], color: "#F15A29" },
+  { aliases: ["rr", "rajasthan royals"], color: "#E91E63" },
+  { aliases: ["pbks", "punjab kings", "kings xi punjab", "kxip"], color: "#C8102E" },
+  { aliases: ["dc", "delhi capitals", "delhi daredevils"], color: "#17479E" },
+  { aliases: ["gt", "gujarat titans"], color: "#0B1C3D" },
+  { aliases: ["lsg", "lucknow super giants"], color: "#00A3A3" },
+];
+
+const FALLBACK_COLORS = ["#1E293B", "#0F172A", "#334155", "#111827"];
+
+const normalizeTeamName = (value: string) =>
+  value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+
+const matchesAlias = (normalized: string, alias: string) => {
+  if (alias.length <= 3) {
+    return normalized.split(" ").includes(alias);
+  }
+  return normalized.includes(alias);
+};
+
+const hashString = (value: string) => {
+  let hash = 0;
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash * 31 + value.charCodeAt(i)) % 2147483647;
+  }
+  return hash;
+};
+
+const getTeamColor = (teamName: string) => {
+  const normalized = normalizeTeamName(teamName);
+  const found = TEAM_THEMES.find((theme) =>
+    theme.aliases.some((alias) => matchesAlias(normalized, alias))
+  );
+  if (found) return found.color;
+  const fallback = FALLBACK_COLORS[hashString(normalized) % FALLBACK_COLORS.length];
+  return fallback;
+};
+
+const parseTeams = (name: string) => {
+  const parts = name
+    .split(/\s+vs\.?\s+|\s+v\/s\.?\s+|\s+v\s+/i)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (parts.length >= 2) {
+    return { teamA: parts[0], teamB: parts.slice(1).join(" ") };
+  }
+  return { teamA: name, teamB: "" };
+};
+
 export default function BookingCard({
   booking,
   title,
@@ -33,34 +87,73 @@ export default function BookingCard({
   const type = params.type as string;
   const seatCount = booking.seatIds.length;
   const dark = mode === "dark";
+  const isSport = booking.showType === SHOW_TYPE.SPORT;
+  const { teamA, teamB } = parseTeams(title);
+  const teamAColor = getTeamColor(teamA);
+  const teamBColor = getTeamColor(teamB || teamA);
+  const showSportGradient = isSport;
+  const gradientStyle = {
+    background: `linear-gradient(180deg, ${teamAColor} 0%, ${teamBColor} 100%)`,
+  };
 
   const cinemaName =
-    cinemas.find((c) => c.id === booking.cinemaId)?.name || "Unknown cinema";
+    booking.showType === "movie"
+      ? cinemas.find((c) => c.id === booking.cinemaId)?.name || "Unknown cinema"
+      : booking.cinemaId || "Venue";
 
   return (
     <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-[rgb(255,255,255)] shadow-sm transition-shadow duration-300 hover:shadow-xl select-none dark:border-zinc-700 dark:bg-[#18181b] sm:rounded-3xl">
-      <div className="relative h-40 w-full shrink-0 bg-gray-100 sm:h-48">
-        {posterUrl && (
-          <Image
-            src={posterUrl}
-            alt={title}
-            fill
-            className="object-cover"
-          />
+      <div className={`relative h-40 w-full shrink-0 ${showSportGradient ? "overflow-hidden" : "bg-gray-100"} sm:h-48`}>
+        {showSportGradient ? (
+          <>
+            <div className="absolute inset-0" style={gradientStyle} />
+            <div className="absolute inset-0 bg-black/25" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
+              <p className="line-clamp-1 text-sm font-semibold text-white sm:text-base">{teamA}</p>
+              {teamB ? (
+                <span className="mt-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-white/80">
+                  VS
+                </span>
+              ) : null}
+              {teamB ? (
+                <p className="mt-1 line-clamp-1 text-sm font-semibold text-white sm:text-base">{teamB}</p>
+              ) : null}
+            </div>
+            <div className="absolute right-4 top-4">
+              <span
+                className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wide shadow-sm ${statusStyles[booking.status]}`}
+              >
+                {booking.status === BOOKING_STATUS.UPCOMING
+                  ? "UPCOMING"
+                  : booking.status.toUpperCase()}
+              </span>
+            </div>
+          </>
+        ) : (
+          <>
+            {posterUrl && (
+              <Image
+                src={posterUrl}
+                alt={title}
+                fill
+                className="object-cover"
+              />
+            )}
+
+            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-transparent" />
+
+            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3">
+              <p className="line-clamp-1 text-sm font-semibold text-white">{title}</p>
+              <span
+                className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wide shadow-sm ${statusStyles[booking.status]}`}
+              >
+                {booking.status === BOOKING_STATUS.UPCOMING
+                  ? "UPCOMING"
+                  : booking.status.toUpperCase()}
+              </span>
+            </div>
+          </>
         )}
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-transparent" />
-
-        <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3">
-          <p className="line-clamp-1 text-sm font-semibold text-white">{title}</p>
-          <span
-            className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wide shadow-sm ${statusStyles[booking.status]}`}
-          >
-            {booking.status === BOOKING_STATUS.UPCOMING
-              ? "UPCOMING"
-              : booking.status.toUpperCase()}
-          </span>
-        </div>
       </div>
 
       <div className="flex flex-1 flex-col p-4 sm:p-5">

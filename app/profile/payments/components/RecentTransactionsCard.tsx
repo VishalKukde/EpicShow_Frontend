@@ -68,7 +68,10 @@ export default function RecentTransactionsCard({
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="font-medium text-gray-900">{payment.title}</p>
-                <p className="mt-1 text-xs text-gray-500">
+                {payment.details && (
+                  <p className="mt-1 text-xs text-gray-500">{payment.details}</p>
+                )}
+                <p className={`${payment.details ? "mt-0.5" : "mt-1"} text-xs text-gray-500`}>
                   {payment.id} • {payment.date}
                 </p>
               </div>

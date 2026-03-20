@@ -74,15 +74,15 @@ export default function ReviewLayout({
     : actionLabel;
 
   return (
-    <div className={`min-h-screen px-4 pb-12 pt-26 ${dark ? "bg-zinc-950" : "bg-gradient-to-b from-slate-50 to-white"}`}>
+    <div className={`min-h-screen px-5 pb-12 pt-28 sm:px-6 sm:pt-26 ${dark ? "bg-zinc-950" : "bg-gradient-to-b from-slate-50 to-white"}`}>
       <CheckoutNavbar
         backUrl={backUrl}
         title={navTitle || title}
         badgeText={badgeText}
       />
-      <div className="mx-auto grid w-full max-w-5xl gap-4 lg:grid-cols-[1.25fr_0.75fr] lg:gap-5">
-        <section className="space-y-4 lg:space-y-5">
-          <div className={`rounded-3xl border p-5 shadow-sm sm:p-6 ${dark ? "border-zinc-700 bg-zinc-900" : "border-slate-200 bg-white"}`}>
+      <div className="mx-auto grid w-full max-w-5xl gap-5 lg:grid-cols-[1.25fr_0.75fr] lg:gap-5">
+        <section className="mx-auto w-full max-w-[560px] space-y-5 sm:space-y-4 lg:mx-0 lg:max-w-none lg:space-y-5">
+          <div className={`rounded-3xl border p-6 shadow-sm sm:p-6 ${dark ? "border-zinc-700 bg-zinc-900" : "border-slate-200 bg-white"}`}>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h1 className={`text-2xl font-semibold sm:text-3xl ${dark ? "text-zinc-100" : "text-slate-900"}`}>
@@ -112,7 +112,7 @@ export default function ReviewLayout({
           )}
         </section>
 
-        <aside className={`h-fit rounded-3xl border p-5 shadow-sm lg:sticky lg:top-26 sm:p-6 ${dark ? "border-zinc-700 bg-zinc-900" : "border-slate-200 bg-white"}`}>
+        <aside className={`mx-auto h-fit w-full max-w-[560px] rounded-3xl border p-6 shadow-sm lg:mx-0 lg:max-w-none lg:sticky lg:top-26 sm:p-6 ${dark ? "border-zinc-700 bg-zinc-900" : "border-slate-200 bg-white"}`}>
           <div className="flex items-center gap-2">
             {summaryIcon ?? <Ticket className="h-4 w-4 text-indigo-600" />}
             <h3 className={`text-base font-semibold ${dark ? "text-zinc-100" : "text-slate-900"}`}>

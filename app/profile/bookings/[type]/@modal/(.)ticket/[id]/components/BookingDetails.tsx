@@ -7,7 +7,10 @@ type IBookingDetailsProps ={
   booking: Booking
 }
 export function BookingDetails({booking }:IBookingDetailsProps) {
-  const cinemaName = cinemas.find((c) => c.id === booking.cinemaId)?.name || "Unknown cinema";
+  const cinemaName =
+    booking.showType === "movie"
+      ? cinemas.find((c) => c.id === booking.cinemaId)?.name || "Unknown cinema"
+      : booking.cinemaId || "Venue";
   const seatCount = booking.seatIds.length;
 
   return (

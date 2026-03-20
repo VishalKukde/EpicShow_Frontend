@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="PBKS logo">
+  <circle cx="60" cy="60" r="46" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="4" />
+  <path d="M40 32 H80 L76 78 L60 92 L44 78 Z" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="4" stroke-linejoin="round" />
+  <path d="M46 46 L74 70" stroke="rgba(255,255,255,0.8)" stroke-width="4" stroke-linecap="round" />
+  <path d="M74 46 L46 70" stroke="rgba(255,255,255,0.8)" stroke-width="4" stroke-linecap="round" />
+  <text x="60" y="92" text-anchor="middle" font-size="18" font-weight="700" letter-spacing="2" fill="rgba(255,255,255,0.95)" font-family="Arial, sans-serif">PBKS</text>
+</svg>

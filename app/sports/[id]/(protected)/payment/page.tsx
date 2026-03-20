@@ -5,11 +5,13 @@ import { useParams, useRouter } from "next/navigation";
 import { CreditCard, Wallet } from "lucide-react";
 import PaymentLayout from "@/components/checkout/PaymentLayout";
 import PaymentOption from "@/components/checkout/PaymentOption";
-import { useBookingStore } from "@/store/bookingStore";
+import { useSportBookingStore } from "@/store/sportBookingStore";
 import { usePaymentStore } from "@/store/paymentStore";
 import { useThemeStore } from "@/store/themeStore";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import { type SportMatch } from "@/app/sports/data";
+import { fetchSportById } from "@/lib/sportsApi";
 
 export default function SportsPaymentPage() {
   const { id } = useParams();
@@ -20,7 +22,27 @@ export default function SportsPaymentPage() {
 
   const { verifiedAmount, loading, error } = usePaymentStore();
   const { item, seats, venue, venueId, date, slot, totalPrice, appliedCoupon, type, redeemReward } =
-    useBookingStore();
+    useSportBookingStore();
+
+    console.log("Booking details:", { item, seats, venue, venueId, date, slot, totalPrice, appliedCoupon, type, redeemReward });  
+
+  const [match, setMatch] = useState<SportMatch | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    fetchSportById(String(id))
+      .then((data) => {
+        if (!active) return;
+        setMatch(data);
+      })
+      .catch((err) => {
+        if (!active) return;
+        console.error(err);
+      });
+    return () => {
+      active = false;
+    };
+  }, [id]);
 
   const [method, setMethod] = useState<"upi" | "card" | "wallet">("upi");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -83,29 +105,42 @@ export default function SportsPaymentPage() {
       setIsProcessing(true);
       setProcessingMessage("Creating your secure order...");
 
-      const orderData = await apiFetch("/payment/create-order", {
+      const resolvedVenueId = venueId || match?.venueId || "";
+      const resolvedVenue = venue || match?.venue || "";
+      const matchLabel =
+        match?.teamA && match?.teamB ? `${match.teamA} vs ${match.teamB}` : item?.name || "";
+
+      const orderData = await apiFetch("/sports/payment/create-order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          cinemaId: venueId!,
-          movieId: item?._id,
-          showDate: date,
-          showSlot: slot,
+          venueId: resolvedVenueId,
+          itemId: item?._id || match?._id || String(id),
+          showDate: date || match?.date,
+          showSlot: slot || match?.time,
           seatIds: seats.map((s) => s.id),
           amount: payableAmount,
           coupon: appliedCoupon || null,
           redeemReward,
           showType: type,
           userId: user.id,
+          sportType: match?.genres?.[0] || "Sport",
+          league: match?.league,
+          matchNo: match?.matchNo,
+          teamA: match?.teamA,
+          teamB: match?.teamB,
+          matchLabel,
+          venue: resolvedVenue,
+          city: match?.city,
         }),
       });
 
       if (method === "wallet") {
         setProcessingMessage("Processing wallet payment...");
 
-        const walletResult = await apiFetch("/payment/wallet-pay", {
+        const walletResult = await apiFetch("/sports/payment/wallet-pay", {
           method: "POST",
           body: JSON.stringify({
             bookingId: orderData.bookingId,
@@ -121,7 +156,7 @@ export default function SportsPaymentPage() {
         }
         await fetch("/api/wallet/transactions/revalidate", { method: "POST" });
 
-        useBookingStore.getState().resetBooking();
+        useSportBookingStore.getState().resetBooking();
         usePaymentStore.getState().resetPayment();
         goToSuccess(orderData.bookingId);
         return;
@@ -150,7 +185,7 @@ export default function SportsPaymentPage() {
           setProcessingMessage("Verifying your payment...");
 
           try {
-            const verification = await apiFetch("/payment/verify", {
+            const verification = await apiFetch("/sports/payment/verify", {
               method: "POST",
               body: JSON.stringify({
                 bookingId: orderData.bookingId,
@@ -166,10 +201,20 @@ export default function SportsPaymentPage() {
             }
             await fetch("/api/wallet/transactions/revalidate", { method: "POST" });
 
-            useBookingStore.getState().resetBooking();
+            useSportBookingStore.getState().resetBooking();
             usePaymentStore.getState().resetPayment();
             goToSuccess(orderData.bookingId);
           } catch {
+            try {
+              await apiFetch("/sports/payment/fail", {
+                method: "POST",
+                body: JSON.stringify({
+                  bookingId: orderData.bookingId,
+                }),
+              });
+            } catch (verifyErr) {
+              console.error("Failed to update payment status", verifyErr);
+            }
             goToFailed(orderData.bookingId);
           }
         },
@@ -179,7 +224,7 @@ export default function SportsPaymentPage() {
             setProcessingMessage("Cancelling your payment...");
 
             try {
-              await apiFetch("/payment/fail", {
+              await apiFetch("/sports/payment/fail", {
                 method: "POST",
                 body: JSON.stringify({
                   bookingId: orderData.bookingId,
@@ -188,7 +233,7 @@ export default function SportsPaymentPage() {
             } catch (dismissErr) {
               console.error("Failed to update payment status", dismissErr);
             } finally {
-              useBookingStore.getState().resetBooking();
+              useSportBookingStore.getState().resetBooking();
               usePaymentStore.getState().resetPayment();
               goToFailed(orderData.bookingId);
             }

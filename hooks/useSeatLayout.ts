@@ -17,7 +17,7 @@ export function useSeatLayout(booking: BookingForSeatLayout) {
   const [seats, setSeats] = useState<SeatRow[]>([]);
 
   useEffect(() => {
-    if (booking?.type && booking.type !== "movie") return;
+    if (booking?.type && !["movie", "event"].includes(booking.type)) return;
     if (
       !booking?.venueId ||
       !booking?.item?._id ||

@@ -23,6 +23,7 @@ type PaymentTransactionApiItem = {
   amount: number;
   status: string;
   showType:string
+  details?: string | null;
 };
 
 type PaymentStatsApi = {
@@ -96,6 +97,7 @@ export default function PaymentsPage() {
             title: txn.title,
             date: formatDate(txn.date),
             showType: txn.showType,
+            details: txn.details ?? null,
             method: formatPaymentMethod(txn.method),
             amount: Number(txn.amount ?? 0),
             status: formatPaymentStatus(txn.status),

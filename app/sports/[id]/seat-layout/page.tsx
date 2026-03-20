@@ -6,9 +6,10 @@ import { X } from "lucide-react";
 import PageTransition from "@/app/components/PageTransition";
 import { Seat, SeatRow } from "@/types/Seat";
 import { toast } from "@/lib/toast";
-import { useBookingStore } from "@/store/bookingStore";
+import { useSportBookingStore } from "@/store/sportBookingStore";
 import { useAuth } from "@/context/AuthContext";
-import { getSportMatchById, toSportBookingItem } from "@/app/sports/data";
+import { toSportBookingItem, type SportMatch } from "@/app/sports/data";
+import { fetchSportById } from "@/lib/sportsApi";
 import { useThemeStore } from "@/store/themeStore";
 
 const DEFAULT_PRICES = {
@@ -161,20 +162,46 @@ const buildStandLayouts = (prices: typeof DEFAULT_PRICES) =>
 export default function SportSeatLayout() {
   const router = useRouter();
   const { id } = useParams();
-  const match = getSportMatchById(String(id));
+  const [match, setMatch] = useState<SportMatch | null>(null);
+  const [matchError, setMatchError] = useState<string | null>(null);
+  const [matchLoading, setMatchLoading] = useState(true);
   const { user, loading } = useAuth();
   const mode = useThemeStore((s) => s.mode);
   const dark = mode === "dark";
 
-  const booking = useBookingStore();
-  const setItem = useBookingStore((s) => s.setItem);
-  const setShow = useBookingStore((s) => s.setShow);
-  const setSelectedSeats = useBookingStore((s) => s.setSeats);
+  const booking = useSportBookingStore();
+  const setItem = useSportBookingStore((s) => s.setItem);
+  const setShow = useSportBookingStore((s) => s.setShow);
+  const setSelectedSeats = useSportBookingStore((s) => s.setSeats);
 
   const [standLayouts, setStandLayouts] = useState<Record<string, SeatRow[]>>(
-    () => buildStandLayouts(match?.prices ?? DEFAULT_PRICES)
+    () => buildStandLayouts(DEFAULT_PRICES)
   );
   const [activeStandId, setActiveStandId] = useState<string | null>(null);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    setMatchLoading(true);
+    fetchSportById(String(id))
+      .then((data) => {
+        if (!active) return;
+        setMatch(data);
+        setMatchError(null);
+      })
+      .catch((err) => {
+        if (!active) return;
+        setMatch(null);
+        setMatchError(err instanceof Error ? err.message : "Failed to load match");
+      })
+      .finally(() => {
+        if (!active) return;
+        setMatchLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [id]);
 
   useEffect(() => {
     if (!match) return;
@@ -208,6 +235,7 @@ export default function SportSeatLayout() {
     const root = document.documentElement;
     const update = () => {
       const isSmall = window.matchMedia("(max-width: 639px)").matches;
+      setIsSmallScreen(isSmall);
       if (isSmall) {
         root.style.setProperty("--app-toast-top", "1rem");
         root.style.setProperty("--app-toast-timer", "3000");
@@ -244,7 +272,8 @@ export default function SportSeatLayout() {
   const toggleSeat = (standId: string, rowIndex: number, seatIndex: number) => {
     if (loading) return;
     if (!user) {
-      router.push(`/login?redirect=${window.location.pathname}`);
+      toast.warning("Login required to select seats.");
+      // router.push(`/login?redirect=${window.location.pathname}`);
       return;
     }
 
@@ -299,7 +328,9 @@ export default function SportSeatLayout() {
   if (!match) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Match not found</p>
+        <p className="text-gray-600">
+          {matchLoading ? "Loading match..." : matchError || "Match not found"}
+        </p>
       </div>
     );
   }
@@ -359,17 +390,18 @@ export default function SportSeatLayout() {
 
   const getStandArcColor = (tier: StandTier, ratio: number) => {
     const hue = tierHue[tier];
-    const saturation = dark ? 42 : 38;
-    const lightness = dark ? 50 + ratio * 6 : 90 - ratio * 6;
-    const alpha = dark ? 0.8 : 0.95;
+    const saturation = dark ? (isSmallScreen ? 48 : 60) : isSmallScreen ? 58 : 38;
+    const baseLightness = dark ? (isSmallScreen ? 46 : 50) : isSmallScreen ? 50 : 60;
+    const lightness = dark ? baseLightness + ratio * 6 : baseLightness - ratio * 6;
+    const alpha = dark ? (isSmallScreen ? 0.9 : 0.8) : isSmallScreen ? 0.98 : 0.95;
     return `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
   };
 
   return (
     <PageTransition>
-      <div className="relative bg-background sm:px-10 pt-18 pb-20 select-none">
+      <div className="relative bg-background sm:px-10 pt-32 sm:pt-18 pb-20 select-none">
         <div className="mx-auto max-w-5xl px-4">
-          <div className="text-center space-y-2">
+          <div className="pt-4 sm:pt-0 text-center space-y-2">
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-600">
               Stadium Map
             </p>
@@ -454,16 +486,24 @@ export default function SportSeatLayout() {
                   className="absolute inset-2 rounded-full"
                   style={{
                     background: dark
-                      ? "radial-gradient(circle at 30% 30%, rgba(16,185,129,0.25), rgba(15,23,42,0) 60%), radial-gradient(circle at 70% 70%, rgba(16,185,129,0.18), rgba(15,23,42,0) 60%), linear-gradient(180deg, rgba(16,185,129,0.08), rgba(16,185,129,0.02))"
-                      : "radial-gradient(circle at 30% 30%, rgba(16,185,129,0.35), rgba(16,185,129,0.05) 60%), radial-gradient(circle at 70% 70%, rgba(16,185,129,0.25), rgba(16,185,129,0.05) 60%), linear-gradient(180deg, rgba(16,185,129,0.12), rgba(16,185,129,0.02))",
+                      ? isSmallScreen
+                        ? "radial-gradient(circle at 30% 30%, rgba(16,185,129,0.4), rgba(15,23,42,0) 60%), radial-gradient(circle at 70% 70%, rgba(16,185,129,0.28), rgba(15,23,42,0) 60%), linear-gradient(180deg, rgba(16,185,129,0.14), rgba(16,185,129,0.04))"
+                        : "radial-gradient(circle at 30% 30%, rgba(16,185,129,0.25), rgba(15,23,42,0) 60%), radial-gradient(circle at 70% 70%, rgba(16,185,129,0.18), rgba(15,23,42,0) 60%), linear-gradient(180deg, rgba(16,185,129,0.08), rgba(16,185,129,0.02))"
+                      : isSmallScreen
+                        ? "radial-gradient(circle at 30% 30%, rgba(16,185,129,0.5), rgba(16,185,129,0.08) 60%), radial-gradient(circle at 70% 70%, rgba(16,185,129,0.38), rgba(16,185,129,0.08) 60%), linear-gradient(180deg, rgba(16,185,129,0.2), rgba(16,185,129,0.05))"
+                        : "radial-gradient(circle at 30% 30%, rgba(16,185,129,0.35), rgba(16,185,129,0.05) 60%), radial-gradient(circle at 70% 70%, rgba(16,185,129,0.25), rgba(16,185,129,0.05) 60%), linear-gradient(180deg, rgba(16,185,129,0.12), rgba(16,185,129,0.02))",
                   }}
                 />
                 <div
                   className="absolute inset-4 rounded-full opacity-80"
                   style={{
                     background: dark
-                      ? "repeating-linear-gradient(90deg, rgba(16,185,129,0.08) 0px, rgba(16,185,129,0.08) 10px, rgba(16,185,129,0.02) 10px, rgba(16,185,129,0.02) 20px)"
-                      : "repeating-linear-gradient(90deg, rgba(16,185,129,0.18) 0px, rgba(16,185,129,0.18) 10px, rgba(16,185,129,0.06) 10px, rgba(16,185,129,0.06) 20px)",
+                      ? isSmallScreen
+                        ? "repeating-linear-gradient(90deg, rgba(16,185,129,0.16) 0px, rgba(16,185,129,0.16) 10px, rgba(16,185,129,0.05) 10px, rgba(16,185,129,0.05) 20px)"
+                        : "repeating-linear-gradient(90deg, rgba(16,185,129,0.08) 0px, rgba(16,185,129,0.08) 10px, rgba(16,185,129,0.02) 10px, rgba(16,185,129,0.02) 20px)"
+                      : isSmallScreen
+                        ? "repeating-linear-gradient(90deg, rgba(16,185,129,0.26) 0px, rgba(16,185,129,0.26) 10px, rgba(16,185,129,0.1) 10px, rgba(16,185,129,0.1) 20px)"
+                        : "repeating-linear-gradient(90deg, rgba(16,185,129,0.18) 0px, rgba(16,185,129,0.18) 10px, rgba(16,185,129,0.06) 10px, rgba(16,185,129,0.06) 20px)",
                   }}
                 />
                 <div
@@ -592,9 +632,9 @@ function StandSeatModal({
       <div
         className={`w-full max-w-3xl rounded-3xl border p-4 shadow-2xl sm:p-5 ${
           dark ? "border-zinc-700 bg-zinc-900" : "border-slate-200 bg-white"
-        }`}
+        } flex flex-col max-h-[90vh] overflow-hidden sm:max-h-none`}
       >
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start justify-between gap-4 shrink-0">
           <div>
             <p className={`text-xs font-semibold uppercase tracking-[0.3em] ${dark ? "text-emerald-300" : "text-emerald-600"}`}>
               {stand.label}
@@ -619,13 +659,13 @@ function StandSeatModal({
           </button>
         </div>
 
-        <div className="mt-6 space-y-3 overflow-x-auto py-2">
+        <div className="mt-6 flex-1 space-y-3 overflow-y-auto overflow-x-auto py-2 pr-1 sm:overflow-y-visible sm:pr-0">
           {layout.map((row, rowIndex) => (
-            <div key={row.row} className="flex items-center gap-2">
-              <span className={`w-10 text-[10px] font-mono ${dark ? "text-zinc-400" : "text-slate-500"}`}>
+            <div key={row.row} className="flex items-center gap-2 min-w-max">
+              <span className={`w-10 shrink-0 text-[10px] font-mono ${dark ? "text-zinc-400" : "text-slate-500"}`}>
                 {stand.shortLabel}-{row.row}
               </span>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-nowrap gap-1.5 min-w-max">
                 {row.seats.map((seat, seatIndex) => (
                   <button
                     key={seat.id}
@@ -663,9 +703,9 @@ function StandSeatModal({
           ))}
         </div>
 
-        <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className={`mt-4 flex flex-col gap-4 border-t pt-4 sm:mt-6 sm:flex-row sm:items-center sm:justify-between ${dark ? "border-zinc-800/70" : "border-slate-200/70"}`}>
           <div
-            className={`inline-flex flex-wrap items-center gap-4 rounded-2xl border px-4 py-2 text-xs font-medium ${
+            className={`inline-flex flex-wrap items-center gap-4 rounded-2xl border px-4 py-2 text-xs font-medium self-center sm:self-auto sm:mx-0 mx-auto ${
               dark
                 ? "border-zinc-700 bg-zinc-900 text-zinc-200"
                 : "border-gray-200 bg-white text-gray-700"
