@@ -24,14 +24,21 @@ type ITicketCardProps = {
         date?: string | null;
         slot?: string | null;
     };
-    bookingStore?: {
-        getState: () => {
-            type?: string | null;
-        };
-        setState: (partial: Record<string, unknown>) => void;
-    };
+    bookingStore?: BookingStoreApi;
 
 }
+type BookingStoreApi = {
+    getState: () => {
+        item?: { _id?: string } | null;
+        venueId?: string | null;
+        date?: string | null;
+        slot?: string | null;
+        seats?: { id: string }[];
+        setExpireAt?: (time: string | null) => void;
+        type?: string | null;
+    };
+    setState: (partial: Record<string, unknown>) => void;
+};
 const TicketCard = ({
     item,
     date: _date,
@@ -43,10 +50,17 @@ const TicketCard = ({
 }: ITicketCardProps) => {
     const router = useRouter();
     const { user } = useAuth();
-    const storeApi = bookingStore || useBookingStore;
+    const storeApi = (bookingStore || useBookingStore) as BookingStoreApi;
     const booking = bookingState || useBookingStore();
+    const normalizedBooking = {
+        type: booking.type ?? null,
+        venueId: booking.venueId ?? null,
+        item: booking.item && booking.item._id ? { _id: booking.item._id } : null,
+        date: booking.date ?? null,
+        slot: booking.slot ?? null,
+    };
     const mode = useThemeStore((s) => s.mode);
-    const { setSeats } = useSeatLayout(booking);
+    const { setSeats } = useSeatLayout(normalizedBooking);
     void _date;
     void _slot;
 

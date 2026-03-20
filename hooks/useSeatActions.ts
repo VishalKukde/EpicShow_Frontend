@@ -145,7 +145,7 @@ export const unlockAllSeatsForCurrentShow = async (
     store: BookingStoreApi = useBookingStore,
 ) => {
     const booking = store.getState();
-    const seatIds = booking.seats.map(s => s.id);
+    const seatIds = booking.seats?.map(s => s.id) ?? [];
 
     const canUnlock =
         userId &&

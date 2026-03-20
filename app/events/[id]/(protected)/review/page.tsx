@@ -261,13 +261,17 @@ const TicketReview = () => {
       <AnimatePresence>
         {showCoupon && (
           <CouponModal
-            closeModal={() => setShowCoupon(false)}
-            onApplyCoupon={(coupon) => {
+            onClose={() => setShowCoupon(false)}
+            onApply={(code, off) => {
               setError(null);
               removeCoupon();
-              useEventBookingStore.getState().applyCoupon(coupon);
-              setShowCoupon(false);
+              useEventBookingStore.getState().applyCoupon({ code, off });
             }}
+            onRemove={() => {
+              setError(null);
+              removeCoupon();
+            }}
+            appliedCoupon={appliedCoupon?.code || null}
           />
         )}
       </AnimatePresence>
