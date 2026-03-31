@@ -12,6 +12,7 @@ export default function BackendWarmup() {
     if (!baseUrl) return;
 
     const healthUrl = getHealthUrl(baseUrl);
+    const intervalMs = 14 * 60 * 1000;
 
     const warm = () => {
       try {
@@ -24,15 +25,24 @@ export default function BackendWarmup() {
       cancelIdleCallback?: (handle: number) => void;
     };
 
+    let idleHandle: number | undefined;
+    let timeoutId: number | undefined;
+    let intervalId: number | undefined;
+
     if (typeof w.requestIdleCallback === "function") {
-      const handle = w.requestIdleCallback(warm, { timeout: 2000 });
-      return () => w.cancelIdleCallback?.(handle);
+      idleHandle = w.requestIdleCallback(warm, { timeout: 2000 });
+    } else {
+      timeoutId = window.setTimeout(warm, 500);
     }
 
-    const timeoutId = window.setTimeout(warm, 500);
-    return () => window.clearTimeout(timeoutId);
+    intervalId = window.setInterval(warm, intervalMs);
+
+    return () => {
+      if (idleHandle !== undefined) w.cancelIdleCallback?.(idleHandle);
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+      if (intervalId !== undefined) window.clearInterval(intervalId);
+    };
   }, []);
 
   return null;
 }
-
