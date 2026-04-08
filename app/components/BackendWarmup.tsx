@@ -12,7 +12,7 @@ export default function BackendWarmup() {
     if (!baseUrl) return;
 
     const healthUrl = getHealthUrl(baseUrl);
-    const intervalMs = 14 * 60 * 1000;
+    const intervalMs = 15 * 60 * 1000;
 
     const warm = () => {
       try {

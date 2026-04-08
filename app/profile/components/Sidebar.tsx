@@ -168,10 +168,10 @@ export default function Sidebar() {
               />
 
               <SubLink
-                href="/profile/bookings/games"
+                href="/profile/bookings/gaming"
                 icon={Gamepad2}
-                label="Games"
-                active={isActive("/profile/bookings/games")}
+                label="Gaming"
+                active={isActive("/profile/bookings/gaming")}
               />
 
               <SubLink

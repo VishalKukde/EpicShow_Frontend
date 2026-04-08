@@ -4,8 +4,12 @@ export const bookingTypeConfig = {
     api: "/bookings/movies",
   },
   games: {
-    title: "Game Bookings",
-    api: "/bookings/games",
+    title: "Gaming Bookings",
+    api: "/bookings/gaming",
+  },
+  gaming: {
+    title: "Gaming Bookings",
+    api: "/bookings/gaming",
   },
   sports: {
     title: "Sports Bookings",

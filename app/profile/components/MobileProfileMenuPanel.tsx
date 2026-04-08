@@ -52,7 +52,7 @@ const menuSections: MenuSection[] = [
     items: [
       { href: "/profile/bookings/movies", icon: Film, label: "Movies" },
       { href: "/profile/bookings/sports", icon: Trophy, label: "Sports" },
-      { href: "/profile/bookings/games", icon: Gamepad2, label: "Games" },
+      { href: "/profile/bookings/gaming", icon: Gamepad2, label: "Gaming" },
       { href: "/profile/bookings/events", icon: Ticket, label: "Events" },
     ],
   },

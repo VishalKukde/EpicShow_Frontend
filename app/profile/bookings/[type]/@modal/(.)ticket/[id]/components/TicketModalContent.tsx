@@ -40,7 +40,9 @@ export default function TicketModalContent({
             ? `/sports/booking/${id}`
             : type === "events"
               ? `/events/booking/${id}`
-              : `/booking/${id}`;
+              : type === "gaming" || type === "games"
+                ? `/gaming/booking/${id}`
+                : `/booking/${id}`;
         const bookingData = (await apiFetch(bookingEndpoint)) as {
           booking: Booking;
           payment: Payment | null;
@@ -51,7 +53,9 @@ export default function TicketModalContent({
         const showEndpoint =
           type === "sports"
             ? `/sports/${bookingData.booking.itemId}`
-            : `/${type}/${bookingData.booking.itemId}`;
+            : type === "gaming" || type === "games"
+              ? `/gaming/${bookingData.booking.itemId}`
+              : `/${type}/${bookingData.booking.itemId}`;
         const showData = (await apiFetch(showEndpoint)) as {
           name?: string;
           title?: string;

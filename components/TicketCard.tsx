@@ -66,7 +66,12 @@ const TicketCard = ({
 
     const handleUnlockSeats = () => {
         unlockAllSeatsForCurrentShow(setSeats, user?.id, storeApi);
-        const basePath = booking.type === "event" ? "/events" : "/movies";
+        const basePath =
+            booking.type === "event"
+                ? "/events"
+                : booking.type === "gaming"
+                    ? "/gaming"
+                    : "/movies";
         router.replace(`${basePath}/${item?._id}`);
     }
 
