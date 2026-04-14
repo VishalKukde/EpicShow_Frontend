@@ -24,4 +24,7 @@ jobs:
         run: npm test || echo "No tests"
 
       - name: Trigger Vercel Deploy
-        run: curl ${{ secrets.VERCEL_FRONTEND_DEPLOY}}
+        run: |
+              echo "Triggering deploy..."
+              curl -X POST ${{ secrets.VERCEL_FRONTEND_DEPLOY }}
+              echo "Deploy triggered"
