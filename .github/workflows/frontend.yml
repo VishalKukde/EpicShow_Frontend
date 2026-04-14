@@ -23,5 +23,5 @@ jobs:
       - name: Run tests
         run: npm test || echo "No tests"
 
-      - name: Trigger Render Deploy
+      - name: Trigger Vercel Deploy
         run: curl ${{ secrets.VERCEL_FRONTEND_DEPLOY}}
