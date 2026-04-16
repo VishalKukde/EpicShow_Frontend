@@ -1,14 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Bot, Headphones, MessageSquareText, RotateCcw, Trash2 } from "lucide-react";
+import { AlertTriangle, Bot, Loader2, RotateCcw, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useThemeStore } from "@/store/themeStore";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 import RuleBasedChatbot, { type RuleBasedChatbotHandle } from "./components/RuleBasedChatbot";
+import AssistantChat, { type AssistantChatHandle } from "./components/AssistantChat";
 
 type SupportTab = "chatbot" | "assistant";
+type ChatAction = "reset" | "delete";
 
 const tabs: Array<{ id: SupportTab; label: string }> = [
   { id: "chatbot", label: "Chatbot" },
@@ -32,12 +34,43 @@ function ChatPageContent() {
   const queryTab = searchParams.get("tab");
   const activeTab: SupportTab = queryTab === "assistant" ? "assistant" : "chatbot";
   const chatbotRef = useRef<RuleBasedChatbotHandle>(null);
+  const assistantRef = useRef<AssistantChatHandle>(null);
   const [mobileViewportHeight, setMobileViewportHeight] = useState<number | null>(null);
+  const [confirmationState, setConfirmationState] = useState<{
+    action: ChatAction;
+    tab: SupportTab;
+  } | null>(null);
+  const [confirmingAction, setConfirmingAction] = useState(false);
 
-  const onResetChat = () => chatbotRef.current?.resetChat();
-  const onClearChat = () => chatbotRef.current?.clearChat();
-  const chatbotActive = activeTab === "chatbot";
+  const onResetChat = () => setConfirmationState({ action: "reset", tab: activeTab });
 
+  const onClearChat = () => setConfirmationState({ action: "delete", tab: activeTab });
+
+  const handleConfirmAction = async () => {
+    if (!confirmationState || confirmingAction) return;
+
+    setConfirmingAction(true);
+
+    try {
+      if (confirmationState.tab === "assistant") {
+        if (confirmationState.action === "reset") {
+          await assistantRef.current?.resetChat({ skipConfirm: true });
+        } else {
+          await assistantRef.current?.clearChat({ skipConfirm: true });
+        }
+        return;
+      }
+
+      if (confirmationState.action === "reset") {
+        chatbotRef.current?.resetChat();
+      } else {
+        chatbotRef.current?.clearChat();
+      }
+    } finally {
+      setConfirmingAction(false);
+      setConfirmationState(null);
+    }
+  };
   const handleTabChange = (tab: SupportTab) => {
     if (tab === activeTab) return;
     const params = new URLSearchParams(searchParams.toString());
@@ -72,6 +105,34 @@ function ChatPageContent() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!confirmationState) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !confirmingAction) {
+        setConfirmationState(null);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [confirmationState, confirmingAction]);
+
+  const confirmationTitle =
+    confirmationState?.action === "reset" ? "Reset this chat?" : "Delete this chat history?";
+  const confirmationDescription =
+    confirmationState?.tab === "assistant"
+      ? confirmationState.action === "reset"
+        ? "You are about to reset this Live Assistant conversation. All messages will be permanently removed from the database and cannot be recovered."
+        : "You are about to delete this Live Assistant conversation. All messages will be permanently removed from the database and cannot be recovered."
+      : confirmationState?.action === "reset"
+        ? "This will reset the current chatbot session and remove all messages shown in this window."
+        : "This will clear the current chatbot session and remove all messages shown in this window.";
+  const confirmationButtonLabel =
+    confirmationState?.action === "reset" ? "Yes, reset chat" : "Yes, delete chat";
+  const confirmationContextLabel =
+    confirmationState?.tab === "assistant" ? "Live Assistant Support" : "Epic Chatbot Session";
+
   return (
     <div
       className="h-[100svh] min-h-0 overflow-hidden overscroll-y-none lg:h-[calc(100dvh-7rem)] select-none"
@@ -93,8 +154,12 @@ function ChatPageContent() {
                 <Bot className="h-5 w-5" />
               </span>
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-white">Epic Chatbot</p>
-                <p className="truncate text-[11px] text-blue-100">Rule-Based Support Chatbot</p>
+                <p className="truncate text-sm font-semibold text-white">
+                  {activeTab === "chatbot" ? "Epic Chatbot" : "Live Assistant Support"}
+                </p>
+                <p className="truncate text-[11px] text-blue-100">
+                  {activeTab === "chatbot" ? "Rule-Based Support Chatbot" : "Real-time support with admin team"}
+                </p>
               </div>
             </div>
 
@@ -127,11 +192,8 @@ function ChatPageContent() {
               <button
                 type="button"
                 onClick={onResetChat}
-                disabled={!chatbotActive}
                 className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-medium transition sm:text-[11px] ${
-                  chatbotActive
-                    ? "border-white/35 bg-white/10 text-white hover:bg-white/20"
-                    : "cursor-not-allowed border-white/15 bg-white/5 text-white/45"
+                  "border-white/35 bg-white/10 text-white hover:bg-white/20"
                 }`}
                 title="Reset chat"
               >
@@ -141,11 +203,8 @@ function ChatPageContent() {
               <button
                 type="button"
                 onClick={onClearChat}
-                disabled={!chatbotActive}
                 className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-medium transition sm:text-[11px] ${
-                  chatbotActive
-                    ? "border-red-200/60 bg-red-500/20 text-red-100 hover:bg-red-500/35"
-                    : "cursor-not-allowed border-white/15 bg-white/5 text-white/45"
+                  "border-red-200/60 bg-red-500/20 text-red-100 hover:bg-red-500/35"
                 }`}
                 title="Clear chat"
               >
@@ -160,33 +219,106 @@ function ChatPageContent() {
           {activeTab === "chatbot" ? (
             <RuleBasedChatbot ref={chatbotRef} />
           ) : (
-            <div
-              className={`flex h-full flex-col items-center justify-center rounded-2xl border p-6 text-center ${
-                dark ? "border-zinc-700 bg-zinc-900 text-zinc-200" : "border-[#bfcfff] bg-white text-gray-700"
-              }`}
-            >
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1d4ed8] text-white">
-                <Headphones className="h-7 w-7" />
-              </div>
-              <h2 className={`mt-4 text-lg font-semibold ${dark ? "text-white" : "text-gray-900"}`}>
-                Assistant support coming soon
-              </h2>
-              <p className={`mt-2 text-sm ${dark ? "text-zinc-300" : "text-gray-600"}`}>
-                Live assistant support is currently unavailable on this panel. Please use the Chatbot tab for instant
-                rule-based help.
-              </p>
-              <div
-                className={`mx-auto mt-5 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${
-                  dark ? "bg-zinc-800 text-zinc-200" : "bg-indigo-50 text-indigo-700"
-                }`}
-              >
-                <MessageSquareText className="h-3.5 w-3.5" />
-                Placeholder tab only
-              </div>
-            </div>
+            <AssistantChat ref={assistantRef} />
           )}
         </div>
       </section>
+
+      {confirmationState ? (
+        <div
+          className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 px-4 backdrop-blur-[2px]"
+          onClick={() => {
+            if (!confirmingAction) setConfirmationState(null);
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="chat-confirm-title"
+            aria-describedby="chat-confirm-description"
+            className={`w-full max-w-md rounded-2xl border shadow-2xl ${
+              dark ? "border-zinc-700 bg-zinc-900 text-zinc-100" : "border-gray-200 bg-white text-gray-900"
+            }`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className={`border-b px-5 py-4 ${dark ? "border-zinc-700" : "border-gray-200"}`}>
+              <span
+                className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${
+                  confirmationState.action === "delete"
+                    ? dark
+                      ? "bg-red-500/20 text-red-300"
+                      : "bg-red-50 text-red-600"
+                    : dark
+                      ? "bg-blue-500/20 text-blue-300"
+                      : "bg-blue-50 text-blue-600"
+                }`}
+              >
+                <AlertTriangle className="h-4 w-4" />
+              </span>
+              <p
+                className={`mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] ${
+                  dark ? "text-zinc-300" : "text-gray-500"
+                }`}
+              >
+                Confirmation Required
+              </p>
+              <h3 id="chat-confirm-title" className="mt-1 text-lg font-semibold">
+                {confirmationTitle}
+              </h3>
+              <p id="chat-confirm-description" className={`mt-2 text-sm leading-relaxed ${dark ? "text-zinc-300" : "text-gray-600"}`}>
+                {confirmationDescription}
+              </p>
+              <p
+                className={`mt-3 inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium ${
+                  dark ? "bg-zinc-800 text-zinc-200" : "bg-gray-100 text-gray-700"
+                }`}
+              >
+                {confirmationContextLabel}
+              </p>
+            </div>
+
+            <div className={`flex items-center justify-end gap-2 px-5 py-4 ${dark ? "bg-zinc-900" : "bg-white"}`}>
+              <button
+                type="button"
+                disabled={confirmingAction}
+                onClick={() => setConfirmationState(null)}
+                className={`cursor-pointer rounded-lg px-4 py-2 text-sm font-medium transition ${
+                  dark
+                    ? "bg-zinc-800 text-zinc-100 hover:bg-zinc-700"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                } disabled:cursor-not-allowed disabled:opacity-70`}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={confirmingAction}
+                onClick={() => {
+                  void handleConfirmAction();
+                }}
+                className={`inline-flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-80 ${
+                  confirmationState.action === "delete"
+                    ? dark
+                      ? "bg-red-500 hover:bg-red-400"
+                      : "bg-red-600 hover:bg-red-500"
+                    : dark
+                      ? "bg-blue-500 hover:bg-blue-400"
+                      : "bg-blue-600 hover:bg-blue-500"
+                }`}
+              >
+                {confirmingAction ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  confirmationButtonLabel
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
