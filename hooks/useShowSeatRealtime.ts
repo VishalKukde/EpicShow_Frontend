@@ -5,7 +5,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { showSocket } from "@/lib/showSocket";
 import { toast } from "@/lib/toast";
-import type { SeatRow, SeatStatus } from "@/types/Seat";
+import type { Seat, SeatRow, SeatStatus } from "@/types/Seat";
 
 type BookingForRealtime = {
   item?: { _id?: string } | null;
@@ -73,9 +73,9 @@ export function useShowSeatRealtime(
       const nextStatus: SeatStatus = isCurrentUser ? "selected" : "locked";
 
       setSeats((previousSeats) =>
-        previousSeats.map((row) => ({
+        previousSeats.map((row): SeatRow => ({
           ...row,
-          seats: row.seats.map((seat) => {
+          seats: row.seats.map((seat): Seat => {
             if (!seatIds.includes(seat.id) || seat.status === "sold") {
               return seat;
             }
@@ -100,9 +100,9 @@ export function useShowSeatRealtime(
       let releasedSelectedSeat = false;
 
       setSeats((previousSeats) => {
-        const nextSeats = previousSeats.map((row) => ({
+        const nextSeats: SeatRow[] = previousSeats.map((row): SeatRow => ({
           ...row,
-          seats: row.seats.map((seat) => {
+          seats: row.seats.map((seat): Seat => {
             if (!seatIds.includes(seat.id) || seat.status === "sold") {
               return seat;
             }
@@ -139,9 +139,9 @@ export function useShowSeatRealtime(
       let displacedSelectedSeat = false;
 
       setSeats((previousSeats) => {
-        const nextSeats = previousSeats.map((row) => ({
+        const nextSeats: SeatRow[] = previousSeats.map((row): SeatRow => ({
           ...row,
-          seats: row.seats.map((seat) => {
+          seats: row.seats.map((seat): Seat => {
             if (!seatIds.includes(seat.id)) {
               return seat;
             }
