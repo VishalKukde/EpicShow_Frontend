@@ -116,12 +116,12 @@ export default function Navbar() {
       ${scrolled ? "py-2 sm:py-2" : "py-3 sm:py-2"}`}
           >
             {/* Logo */}
-            <div
-              className="text-xl sm:text-2xl font-bold tracking-tight lg:pl-2 text-gray-900 cursor-pointer hover:opacity-80 transition"
-              onClick={handleHome}
-            >
-              EpicShow
-            </div>
+           <div
+  onClick={handleHome}
+  className="text-xl sm:text-2xl font-bold tracking-tight lg:pl-2 text-gray-900 cursor-pointer transition-transform duration-300 hover:scale-110 hover:-rotate-1"
+>
+  EpicShow
+</div>
 
             {showSeatTimer ? (
               <div className="absolute right-3 sm:left-1/2 sm:-translate-x-1/2">

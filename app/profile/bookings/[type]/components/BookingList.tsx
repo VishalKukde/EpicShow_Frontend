@@ -76,7 +76,7 @@ export default function BookingList({
             <button
               type="button"
               onClick={onLoadMore}
-              className={`inline-flex min-h-11 items-center justify-center rounded-2xl border px-6 py-2.5 text-sm font-semibold shadow-sm transition ${
+              className={`inline-flex min-h-11 items-center justify-center rounded-2xl border px-6 py-2.5 text-sm font-semibold shadow-sm transition cursor-pointer ${
                 dark
                   ? "border-zinc-700 bg-zinc-900 text-zinc-100 hover:border-zinc-500 hover:bg-zinc-800"
                   : "border-gray-300 bg-white text-gray-900 hover:border-gray-400 hover:bg-gray-50"

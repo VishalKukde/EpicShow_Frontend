@@ -10,8 +10,8 @@ import { motion } from "framer-motion";
 const items = [
   { href: "/", label: "Home", icon: Home },
   { href: "/explore", label: "Search", icon: Compass },
-  { href: "/favorites", label: "Favorites", icon: Heart },
-  { href: "/offers", label: "Offers", icon: BadgePercent },
+  { href: "/profile/favorite", label: "Favorites", icon: Heart },
+  { href: "/profile/offers", label: "Offers", icon: BadgePercent },
   { href: "/profile/menu", label: "Profile", icon: User2 },
 ];
 

@@ -25,6 +25,10 @@ import {
   SlidersHorizontal,
   Heart,
   BadgePercent,
+  TrainFront,
+  Plane,
+  Hotel,
+  Music2,
 } from "lucide-react";
 
 import SidebarItem from "./SidebarItem";
@@ -158,7 +162,7 @@ export default function Sidebar() {
           </button>
 
           <div
-            className={`overflow-hidden transition-all ${openBookings ? "max-h-48 mt-2" : "max-h-0"
+            className={`overflow-hidden transition-all ${openBookings ? "max-h-78 mt-2" : "max-h-0"
               }`}
           >
             <div className="ml-6 space-y-1 border-l border-gray-200 pl-3">
@@ -189,6 +193,30 @@ export default function Sidebar() {
                 icon={Trophy}
                 label="Events"
                 active={isActive("/profile/bookings/events")}
+              />
+              <SubLink
+                href="/profile/bookings/concerts"
+                icon={Music2}
+                label="Concerts"
+                active={isActive("/profile/bookings/concerts")}
+              />
+              <SubLink
+                href="/profile/bookings/trains"
+                icon={TrainFront}
+                label="Trains"
+                active={isActive("/profile/bookings/trains")}
+              />
+              <SubLink
+                href="/profile/bookings/flights"
+                icon={Plane}
+                label="Flights"
+                active={isActive("/profile/bookings/flights")}
+              />
+              <SubLink
+                href="/profile/bookings/hotels"
+                icon={Hotel}
+                label="Hotels"
+                active={isActive("/profile/bookings/hotels")}
               />
             </div>
           </div>

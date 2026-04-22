@@ -107,14 +107,14 @@ export default function ProfileOffersPage() {
           </div>
 
           <Link
-            href="/offers"
+            href="/movies"
             className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition ${
               dark
                 ? "bg-zinc-100 text-zinc-900 hover:bg-white"
                 : "bg-gray-900 text-white hover:bg-black"
             }`}
           >
-            Open Offers Hub
+            Browse Shows
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

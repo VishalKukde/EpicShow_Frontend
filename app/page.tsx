@@ -35,9 +35,9 @@ export default function LandingPage() {
   const [latestReleaseItems, setLatestReleaseItems] = useState<MovieRowItem[]>([]);
   const [upcomingItems, setUpcomingItems] = useState<MovieRowItem[]>([]);
   const [latestLoading, setLatestLoading] = useState(true);
-  const [upcomingLoading, setUpcomingLoading] = useState(true);
-  const [selectedUpcoming, setSelectedUpcoming] = useState<MovieRowItem | null>(null);
-  const [isUpcomingOpen, setIsUpcomingOpen] = useState(false);
+  // const [upcomingLoading, setUpcomingLoading] = useState(true);
+  // const [selectedUpcoming, setSelectedUpcoming] = useState<MovieRowItem | null>(null);
+  // const [isUpcomingOpen, setIsUpcomingOpen] = useState(false);
 
   useEffect(() => {
     const blockBack = () => {
@@ -177,7 +177,7 @@ export default function LandingPage() {
 
           {/* <CategoryGateway /> */}
 
-          {upcomingLoading ? (
+          {/* {upcomingLoading ? (
             <SectionLoader title="Coming Soon" />
           ) : (
             upcomingItems.length > 0 && (
@@ -194,7 +194,7 @@ export default function LandingPage() {
                 }}
               />
             )
-          )}
+          )} */}
         </div>
 
         <TrendingFooter />

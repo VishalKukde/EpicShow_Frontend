@@ -59,7 +59,7 @@ export default async function BookingPage({
   const config = bookingTypeConfig[type as keyof typeof bookingTypeConfig];
 
   if (!config) {
-    return <div className="p-6">Invalid booking type</div>;
+    return <div className="p-6"># Coming Soon... </div>;
   }
 
   const hero = bookingHeroMeta[type] || {

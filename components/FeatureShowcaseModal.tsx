@@ -190,7 +190,7 @@ const developerLinks = [
   },
   {
     label: "Email",
-    href: "mailto:vishalkukde4432@gmail.com",
+    href: "mailto:vishalkukde19@gmail.com",
     icon: Mail,
   },
 ];
@@ -254,7 +254,7 @@ export default function FeatureShowcaseModal({
             <button
               type="button"
               onClick={onClose}
-              className={`absolute right-4 top-4 z-20 inline-flex h-11 w-11 items-center justify-center rounded-2xl border transition sm:right-5 sm:top-5 ${
+              className={`absolute right-4 top-4 z-20 inline-flex h-11 w-11 items-center justify-center rounded-2xl border transition sm:right-5 sm:top-5 cursor-pointer ${
                 dark
                   ? "border-white/10 bg-white/5 text-zinc-200 hover:bg-white/10"
                   : "border-slate-200 bg-white/80 text-slate-700 hover:bg-white"
