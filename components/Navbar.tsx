@@ -11,13 +11,18 @@ import { unlockAllSeatsForCurrentShow } from "@/hooks/useSeatActions";
 // import { useSeatSession } from "@/hooks/useSeatSession";
 import { useSeatLayout } from "@/hooks/useSeatLayout";
 import { motion } from "framer-motion";
-import { Home, Search } from "lucide-react";
+import { Home, Layers3, Search } from "lucide-react";
 import SeatTimer from "@/app/components/SeatTimer";
+import { useThemeStore } from "@/store/themeStore";
+import { useFeatureShowcase } from "@/components/FeatureShowcaseProvider";
 
 export default function Navbar() {
   const { user } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+  const mode = useThemeStore((state) => state.mode);
+  const dark = mode === "dark";
+  const { openShowcase } = useFeatureShowcase();
   const [scrolled, setScrolled] = useState(false);
   const [isNavbarVisible, setIsNavbarVisible] = useState(true);
   const lastScrollY = useRef(0);
@@ -125,7 +130,27 @@ export default function Navbar() {
             ) : null}
 
             {/* Right */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+          <button
+            type="button"
+            onClick={openShowcase}
+            aria-label="Open app feature guide"
+            className={`inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl border px-3.5 text-xs font-semibold transition hover:-translate-y-0.5 sm:text-sm ${
+              dark
+                ? "border-white/10 bg-slate-900/70 text-zinc-100 hover:bg-slate-800"
+                : "border-slate-200 bg-white/85 text-slate-700 hover:bg-white"
+            }`}
+            style={{
+              backdropFilter: "blur(14px)",
+              boxShadow: dark
+                ? "0 14px 32px rgba(2, 6, 23, 0.28)"
+                : "0 14px 32px rgba(148, 163, 184, 0.2)",
+            }}
+          >
+            <Layers3 className="h-4 w-4" />
+            <span className="hidden md:inline">Inside App</span>
+          </button>
+
           {pathname === "/" ? (
             <button
               type="button"

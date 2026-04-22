@@ -23,6 +23,8 @@ import {
   Bug,
   Crown,
   SlidersHorizontal,
+  Heart,
+  BadgePercent,
 } from "lucide-react";
 
 import SidebarItem from "./SidebarItem";
@@ -122,6 +124,14 @@ export default function Sidebar() {
 
             <SidebarItem href="/profile/wallet" icon={Wallet}>
               Wallet
+            </SidebarItem>
+
+            <SidebarItem href="/profile/favorite" icon={Heart}>
+              Favorites
+            </SidebarItem>
+
+            <SidebarItem href="/profile/offers" icon={BadgePercent}>
+              Offers
             </SidebarItem>
           </nav>
         </div>

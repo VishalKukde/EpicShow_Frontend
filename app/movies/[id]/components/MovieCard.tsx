@@ -82,7 +82,7 @@ const MovieCard = ({ movie }: IMovieCardProps) => {
                     </p>
 
 
-                    <QuickAction movieTitle={movie.name} releaseDate={movie.releaseDate} />
+                    <QuickAction movieTitle={movie.name} releaseDate={movie.releaseDate} movieId={movie._id} />
                 </div>
             </div>
         </motion.section>

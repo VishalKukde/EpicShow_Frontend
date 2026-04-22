@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   Activity,
+  BadgePercent,
   Bug,
   LogOut,
   BadgeCheck,
@@ -23,6 +24,7 @@ import {
   Trophy,
   User,
   Wallet,
+  Heart,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -45,6 +47,8 @@ const menuSections: MenuSection[] = [
       { href: "/profile", icon: User, label: "Overview" },
       { href: "/profile/activity", icon: Activity, label: "Your Activity" },
       { href: "/profile/wallet", icon: Wallet, label: "Wallet" },
+      { href: "/profile/favorite", icon: Heart, label: "Favorites" },
+      { href: "/profile/offers", icon: BadgePercent, label: "Offers" },
     ],
   },
   {

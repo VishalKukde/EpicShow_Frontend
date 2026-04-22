@@ -1,6 +1,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import BookingCard from "./BookingCard";
 import type { Booking } from "@/types/Booking";
+import { CalendarFold, Sparkles } from "lucide-react";
+import { useThemeStore } from "@/store/themeStore";
 
 type BookingListItem = Booking & {
   show: {
@@ -24,17 +26,19 @@ export default function BookingList({
   onLoadMore,
   filteredBookings,
 }: BookingListProps) {
-  // console.log("filteredBookings", filteredBookings);
+  const mode = useThemeStore((state) => state.mode);
+  const dark = mode === "dark";
+
   return (
-    <div className="h-[calc(100vh-140px)] overflow-y-auto p-3 sm:p-6 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+    <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 scrollbar-thin scrollbar-track-transparent sm:px-5 sm:py-6">
       {loading ? (
         <SkeletonList />
       ) : filteredBookings.length === 0 ? (
-        <EmptyState />
+        <EmptyState dark={dark} />
       ) : (
         <motion.div
           layout
-          className="mx-auto grid max-w-[1600px] grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4 xl:gap-8"
+          className="mx-auto grid max-w-[1600px] grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3"
         >
           <AnimatePresence mode="popLayout">
             {filteredBookings.map((booking, index) => (
@@ -53,7 +57,7 @@ export default function BookingList({
                   y: -4,
                   transition: { duration: 0.18 },
                 }}
-                className="group"
+                className="group h-full"
               >
                 <BookingCard
                   booking={booking}
@@ -72,21 +76,31 @@ export default function BookingList({
             <button
               type="button"
               onClick={onLoadMore}
-              className="inline-flex min-h-10 items-center justify-center rounded-xl border border-gray-300 bg-white px-6 py-2 text-sm font-semibold text-gray-900 shadow-sm transition hover:border-gray-400 hover:bg-gray-50 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-500 dark:hover:bg-zinc-800"
+              className={`inline-flex min-h-11 items-center justify-center rounded-2xl border px-6 py-2.5 text-sm font-semibold shadow-sm transition ${
+                dark
+                  ? "border-zinc-700 bg-zinc-900 text-zinc-100 hover:border-zinc-500 hover:bg-zinc-800"
+                  : "border-gray-300 bg-white text-gray-900 hover:border-gray-400 hover:bg-gray-50"
+              }`}
             >
               Load More
             </button>
           ) : null}
 
           {loadingMore ? (
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm dark:bg-zinc-900/90 dark:text-zinc-200">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-700 dark:border-zinc-600 dark:border-t-zinc-200" />
+            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow-sm ${
+              dark ? "bg-zinc-900/90 text-zinc-200" : "bg-white/90 text-gray-700"
+            }`}>
+              <span className={`h-4 w-4 animate-spin rounded-full border-2 ${
+                dark
+                  ? "border-zinc-600 border-t-zinc-200"
+                  : "border-gray-300 border-t-gray-700"
+              }`} />
               Loading more bookings...
             </div>
           ) : null}
 
           {!hasMore && !loadingMore ? (
-            <p className="text-sm font-medium text-gray-500 dark:text-zinc-400">
+            <p className={`text-sm font-medium ${dark ? "text-zinc-400" : "text-gray-500"}`}>
               No more bookings found
             </p>
           ) : null}
@@ -98,46 +112,39 @@ export default function BookingList({
 
 function SkeletonList() {
   return (
-    <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: 6 }).map((_, i) => (
         <div
           key={i}
-          className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden animate-pulse"
+          className="animate-pulse overflow-hidden rounded-[1.7rem] border border-gray-100 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
         >
-          {/* Poster */}
-          <div className="relative h-40 w-full bg-gray-200 sm:h-48" />
+          <div className="h-44 bg-gray-200 dark:bg-zinc-800" />
 
-          {/* Content */}
-          <div className="flex flex-1 flex-col p-4 sm:p-5">
-            {/* Title */}
-            <div className="h-6 w-4/5 bg-gray-200 rounded-lg mb-3" />
+          <div className="space-y-4 p-4">
+            <div className="space-y-2.5">
+              <div className="h-6 w-24 rounded-full bg-gray-200 dark:bg-zinc-800" />
+              <div className="h-6 w-3/4 rounded-lg bg-gray-200 dark:bg-zinc-800" />
+              <div className="h-4 w-1/2 rounded bg-gray-200 dark:bg-zinc-800" />
+            </div>
 
-            {/* Details Grid */}
-            <div className="grid grid-cols-3 gap-4 text-center border-y border-gray-100 py-3 mb-4">
-              {[1, 2, 3].map((j) => (
-                <div key={j} className="space-y-2">
-                  <div className="h-3 w-1/2 mx-auto bg-gray-200 rounded" />
-                  <div className="h-4 w-3/4 mx-auto bg-gray-200 rounded" />
+            <div className="grid grid-cols-2 gap-2.5">
+              {Array.from({ length: 4 }).map((_, j) => (
+                <div
+                  key={j}
+                  className="space-y-2 rounded-[1.15rem] border border-gray-100 bg-gray-50/80 p-3 dark:border-zinc-700 dark:bg-zinc-800"
+                >
+                  <div className="h-3 w-1/2 rounded bg-gray-200 dark:bg-zinc-700" />
+                  <div className="h-4 w-4/5 rounded bg-gray-200 dark:bg-zinc-700" />
                 </div>
               ))}
             </div>
 
-            {/* Location */}
-            <div className="flex items-center gap-2 mb-auto">
-              <div className="w-4 h-4 bg-gray-200 rounded-full shrink-0" />
-              <div className="h-4 w-1/2 bg-gray-200 rounded" />
-            </div>
-
-            {/* Footer */}
-            <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4 sm:mt-5 sm:pt-5">
-              <div className="space-y-1">
-                <div className="h-3 w-16 bg-gray-200 rounded" />
-                <div className="h-8 w-24 bg-gray-200 rounded-lg" />
-              </div>
+            <div className="flex items-center justify-between gap-3 border-t border-dashed border-gray-200 pt-4 dark:border-zinc-700">
               <div className="flex gap-2">
-                <div className="w-10 h-10 rounded-lg bg-gray-200" />
-                <div className="w-24 h-10 rounded-lg bg-gray-200" />
+                <div className="h-7 w-16 rounded-full bg-gray-200 dark:bg-zinc-700" />
+                <div className="h-7 w-24 rounded-full bg-gray-200 dark:bg-zinc-700" />
               </div>
+              <div className="h-10 w-24 rounded-xl bg-gray-200 dark:bg-zinc-700" />
             </div>
           </div>
         </div>
@@ -146,11 +153,30 @@ function SkeletonList() {
   );
 }
 
-function EmptyState() {
+function EmptyState({ dark }: { dark: boolean }) {
   return (
-    <div className="text-center py-10">
-      <p className="text-gray-500 font-medium">No bookings found</p>
-      {/* <p className="text-sm text-gray-400 mt-1">Try adjusting filters</p> */}
+    <div className="flex min-h-[18rem] items-center justify-center">
+      <div className="max-w-md text-center">
+        <div
+          className={`mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl ${
+            dark ? "bg-zinc-800 text-zinc-200" : "bg-gray-100 text-gray-700"
+          }`}
+        >
+          <CalendarFold className="h-6 w-6" />
+        </div>
+        <h3 className={`mt-4 text-xl font-semibold ${dark ? "text-zinc-100" : "text-gray-900"}`}>
+          No bookings found
+        </h3>
+        <p className={`mt-2 text-sm leading-6 ${dark ? "text-zinc-400" : "text-gray-500"}`}>
+          Your booking cards will appear here once you start reserving tickets across movies, sports, events, or gaming.
+        </p>
+        <div className={`mt-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${
+          dark ? "bg-zinc-800 text-zinc-300" : "bg-gray-100 text-gray-600"
+        }`}>
+          <Sparkles className="h-3.5 w-3.5" />
+          Fresh, cleaner booking history
+        </div>
+      </div>
     </div>
   );
 }

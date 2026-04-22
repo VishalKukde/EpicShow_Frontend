@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useBookingStore } from "@/store/bookingStore";
 import { useSeatLayout } from "@/hooks/useSeatLayout";
 import { useSeatActions } from "@/hooks/useSeatActions";
+import { useShowSeatRealtime } from "@/hooks/useShowSeatRealtime";
 import { toast } from "@/lib/toast";
 
 export default function SeatLayout() {
@@ -25,6 +26,7 @@ export default function SeatLayout() {
   const booking = useBookingStore();
   const { seats, setSeats } = useSeatLayout(booking);
   const { toggleSeat } = useSeatActions(seats, setSeats, booking);
+  useShowSeatRealtime(booking, setSeats, useBookingStore);
 
   const selectedSeats: Seat[] = seats
     .flatMap(row => row.seats)

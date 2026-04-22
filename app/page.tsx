@@ -81,50 +81,50 @@ export default function LandingPage() {
     };
   }, []);
 
-  useEffect(() => {
-    let active = true;
+  // useEffect(() => {
+  //   let active = true;
 
-    const loadUpcoming = async () => {
-      if (active) setUpcomingLoading(true);
-      try {
-        const data = await apiFetch("/tmdb/upcoming?limit=5", {
-          method: "GET",
-          notifyOnError: false,
-        });
-        const items = Array.isArray(data?.items) ? data.items : [];
-        const mapped = items.map(
-          (movie: {
-            tmdbId?: number;
-            name?: string;
-            imageUrl?: string;
-            releaseDate?: string | null;
-            description?: string;
-            rating?: number | null;
-            voteCount?: number | null;
-          }) => ({
-            id: movie.tmdbId ? String(movie.tmdbId) : undefined,
-            tmdbId: movie.tmdbId,
-            title: movie.name || "Untitled",
-            imageUrl: movie.imageUrl || null,
-            releaseDate: movie.releaseDate || null,
-            description: movie.description || null,
-            rating: movie.rating ?? null,
-            voteCount: movie.voteCount ?? null,
-          })
-        );
-        if (active) setUpcomingItems(mapped);
-      } catch {
-        if (active) setUpcomingItems([]);
-      } finally {
-        if (active) setUpcomingLoading(false);
-      }
-    };
+  //   const loadUpcoming = async () => {
+  //     if (active) setUpcomingLoading(true);
+  //     try {
+  //       const data = await apiFetch("/tmdb/upcoming?limit=5", {
+  //         method: "GET",
+  //         notifyOnError: false,
+  //       });
+  //       const items = Array.isArray(data?.items) ? data.items : [];
+  //       const mapped = items.map(
+  //         (movie: {
+  //           tmdbId?: number;
+  //           name?: string;
+  //           imageUrl?: string;
+  //           releaseDate?: string | null;
+  //           description?: string;
+  //           rating?: number | null;
+  //           voteCount?: number | null;
+  //         }) => ({
+  //           id: movie.tmdbId ? String(movie.tmdbId) : undefined,
+  //           tmdbId: movie.tmdbId,
+  //           title: movie.name || "Untitled",
+  //           imageUrl: movie.imageUrl || null,
+  //           releaseDate: movie.releaseDate || null,
+  //           description: movie.description || null,
+  //           rating: movie.rating ?? null,
+  //           voteCount: movie.voteCount ?? null,
+  //         })
+  //       );
+  //       if (active) setUpcomingItems(mapped);
+  //     } catch {
+  //       if (active) setUpcomingItems([]);
+  //     } finally {
+  //       if (active) setUpcomingLoading(false);
+  //     }
+  //   };
 
-    loadUpcoming();
-    return () => {
-      active = false;
-    };
-  }, []);
+  //   loadUpcoming();
+  //   return () => {
+  //     active = false;
+  //   };
+  // }, []);
 
 
   
@@ -199,11 +199,11 @@ export default function LandingPage() {
 
         <TrendingFooter />
       </div>
-      <UpcomingMovieModal
+      {/* <UpcomingMovieModal
         open={isUpcomingOpen}
         movie={selectedUpcoming}
         onClose={() => setIsUpcomingOpen(false)}
-      />
+      /> */}
     </div>
   );
 }

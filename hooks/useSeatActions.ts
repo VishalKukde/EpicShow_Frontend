@@ -93,6 +93,7 @@ export function useSeatActions(
 
             const res = await apiFetch(endpoint, {
                 method: "POST",
+                notifyOnError: false,
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -123,11 +124,11 @@ export function useSeatActions(
             // 💥 3️⃣ ROLLBACK IF FAILED
             setSeats(previousSeats);
 
-            const errorWithStatus = err as { status?: number };
-            if (errorWithStatus?.status === 409) {
-                toast.warning("Seat already locked by someone else.");
+            const message = err instanceof Error ? err.message : "Seat action failed.";
+            if (message.toLowerCase().includes("locked") || message.toLowerCase().includes("booked")) {
+                toast.warning("Seat already locked or booked.");
             } else {
-                toast.error("Seat action failed.");
+                toast.error(message);
             }
         }
     };
@@ -159,6 +160,7 @@ export const unlockAllSeatsForCurrentShow = async (
         try {
             await apiFetch("/seat/unlock", {
                 method: "POST",
+                notifyOnError: false,
                 headers: {
                     "Content-Type": "application/json"
                 },

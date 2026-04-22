@@ -6,10 +6,10 @@ import ScrollToTop from "./components/ScrollToTop";
 import BackendWarmup from "./components/BackendWarmup";
 import Navbar from "@/components/Navbar";
 import ThemeBridge from "@/components/ThemeBridge";
-import FloatingChatButton from "@/components/FloatingChatButton";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import AskEpicAiOverlay from "@/components/AskEpicAiOverlay";
 import GlobalErrorToastBridge from "@/components/GlobalErrorToastBridge";
+import { FeatureShowcaseProvider } from "@/components/FeatureShowcaseProvider";
 
 export const metadata: Metadata = {
   title: "Epic Show",
@@ -62,18 +62,20 @@ export default function RootLayout({
         className="antialiased"
       >
         <AuthProvider>
-          <GlobalErrorToastBridge />
-          <BackendWarmup />
-          <ThemeBridge />
-          {/* <SmoothScroll> */}
-          <Navbar />
-          {/* <FloatingChatButton /> */}
-          <MobileBottomNav />
-          <ScrollToTop />
-          {children}
-          {modal}
-          <AskEpicAiOverlay />
-          {/* </SmoothScroll> */}
+          <FeatureShowcaseProvider>
+            <GlobalErrorToastBridge />
+            <BackendWarmup />
+            <ThemeBridge />
+            {/* <SmoothScroll> */}
+            <Navbar />
+            {/* <FloatingChatButton /> */}
+            <MobileBottomNav />
+            <ScrollToTop />
+            {children}
+            {modal}
+            <AskEpicAiOverlay />
+            {/* </SmoothScroll> */}
+          </FeatureShowcaseProvider>
         </AuthProvider>
       </body>
     </html>

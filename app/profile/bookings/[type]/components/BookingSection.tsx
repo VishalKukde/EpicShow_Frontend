@@ -5,8 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import BookingList from "./BookingList";
 import { apiFetch } from "@/lib/api";
 import type { Booking } from "@/types/Booking";
+import { useThemeStore } from "@/store/themeStore";
 
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 6;
 
 type BookingWithShow = Booking & {
   show: { name: string; imageUrl: string };
@@ -21,14 +22,18 @@ type BookingApiResponse = {
 
 export default function BookingSection({
   apiEndpoint,
+  title,
 }: {
   apiEndpoint: string;
+  title: string;
 }) {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [bookings, setBookings] = useState<BookingWithShow[]>([]);
+  const mode = useThemeStore((state) => state.mode);
+  const dark = mode === "dark";
 
   const fetchBookings = useCallback(
     async (nextPage: number, append: boolean) => {
@@ -83,24 +88,52 @@ export default function BookingSection({
   };
 
   return (
-    // <div className="bg-white/90 backdrop-blur-md border border-gray-200 rounded-2xl shadow-sm relative">
     <AnimatePresence initial={false}>
       <motion.div
-        initial={{ height: 0, opacity: 0 }}
-        animate={{ height: "auto", opacity: 1 }}
-        exit={{ height: 0, opacity: 0 }}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -12 }}
         transition={{ duration: 0.35 }}
-        // className="px-6 py-6"
+        className="flex h-full min-h-0 flex-col pt-5 lg:pt-6"
       >
-        <BookingList
-          loading={loading}
-          loadingMore={loadingMore}
-          hasMore={hasMore}
-          onLoadMore={handleLoadMore}
-          filteredBookings={bookings}
-        />
+        <div
+          className={`flex min-h-0 flex-1 flex-col overflow-hidden rounded-[1.8rem] border shadow-sm ${
+            dark
+              ? "border-zinc-700 bg-zinc-900"
+              : "border-gray-200 bg-white"
+          }`}
+        >
+          <div className={`shrink-0 flex flex-col gap-3 border-b px-4 py-4 sm:px-4 ${dark ? "border-zinc-700" : "border-gray-200"}`}>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className={`text-xs font-semibold uppercase tracking-[0.16em] ${dark ? "text-zinc-500" : "text-gray-500"}`}>
+                  Booking Collection
+                </p>
+                <h2 className={`mt-1 text-xl font-semibold tracking-tight ${dark ? "text-zinc-100" : "text-gray-900"}`}>
+                  {title}
+                </h2>
+              </div>
+              <span
+                className={`inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-medium ${
+                  dark
+                    ? "bg-zinc-800 text-zinc-300"
+                    : "bg-gray-100 text-gray-700"
+                }`}
+              >
+                {loadingMore ? "Loading bookings" : `Total ${bookings.length} bookings`}
+              </span>
+            </div>
+          </div>
+
+          <BookingList
+            loading={loading}
+            loadingMore={loadingMore}
+            hasMore={hasMore}
+            onLoadMore={handleLoadMore}
+            filteredBookings={bookings}
+          />
+        </div>
       </motion.div>
     </AnimatePresence>
-    // </div>
   );
 }
