@@ -74,7 +74,7 @@ export default function Navbar() {
     router.replace("/");
   };
 
-  const hiddenRoutes = ["/profile", "/payment", "/review"];
+  const hiddenRoutes = ["/profile", "/my-coupons", "/payment", "/review","/admin"];
   const isAuthEntryPage = pathname === "/login" || pathname === "/register";
   const hideNavbar = hiddenRoutes.some((route) => pathname.includes(route));
   const showSeatTimer = pathname.includes("/seat-layout");
@@ -135,16 +135,14 @@ export default function Navbar() {
             type="button"
             onClick={openShowcase}
             aria-label="Open app feature guide"
-            className={`inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl border px-3.5 text-xs font-semibold transition hover:-translate-y-0.5 sm:text-sm ${
-              dark
-                ? "border-white/10 bg-slate-900/70 text-zinc-100 hover:bg-slate-800"
-                : "border-slate-200 bg-white/85 text-slate-700 hover:bg-white"
-            }`}
+            className={`inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl border px-3.5 text-xs font-semibold transition hover:-translate-y-0.5 sm:text-sm`}
             style={{
-              backdropFilter: "blur(14px)",
-              boxShadow: dark
-                ? "0 14px 32px rgba(2, 6, 23, 0.28)"
-                : "0 14px 32px rgba(148, 163, 184, 0.2)",
+              borderColor: "var(--hero-header-btn-border)",
+                background: "var(--hero-header-btn-bg)",
+                color: "var(--hero-header-btn-text)",
+                boxShadow: "var(--hero-header-btn-shadow)",
+                transform: "translateY(0)",
+              backdropFilter: "blur(14px)"
             }}
           >
             <Layers3 className="h-4 w-4" />

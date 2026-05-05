@@ -19,6 +19,7 @@ const routeTitle: Array<{ match: string; title: string }> = [
   { match: "/profile/activity", title: "Activity" },
   { match: "/profile/menu", title: "Profile Menu" },
   { match: "/profile", title: "Profile" },
+  { match: "/my-coupons", title: "My Coupons" },
 ];
 
 export default function MobileProfileHeader() {

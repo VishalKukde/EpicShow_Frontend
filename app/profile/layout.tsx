@@ -17,7 +17,7 @@ export default function ProfileLayout({
   const mainClass = isChatRoute
     ? "flex-1 p-0 lg:p-8"
     : isBookingRoute
-      ? "flex flex-1 min-h-0 flex-col overflow-hidden p-0 pb-24 pt-14 lg:p-8 lg:pt-0"
+      ? "flex flex-1 min-h-0 flex-col overflow-hidden p-0 py-14 lg:p-8 lg:py-0"
       : "flex-1 p-0 pb-24 pt-14 lg:p-8 lg:pt-0";
 
   return (

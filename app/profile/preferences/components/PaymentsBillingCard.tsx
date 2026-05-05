@@ -28,7 +28,7 @@ export function PaymentsBillingCard({
 }: PaymentsBillingCardProps) {
   return (
     <article
-      className={`rounded-2xl border p-5 shadow-sm ${dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-white"}`}
+      className={`rounded-3xl border p-5 shadow-sm ${dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-white"}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -55,7 +55,7 @@ export function PaymentsBillingCard({
                 key={method}
                 type="button"
                 onClick={() => setPreferredPaymentMethod(method)}
-                className={`rounded-lg border px-2 py-2 text-xs font-medium uppercase transition ${
+                className={`rounded-lg border px-2 py-2 text-xs font-medium uppercase transition cursor-pointer ${
                   preferredPaymentMethod === method
                     ? dark
                       ? "border-indigo-400 bg-zinc-900 text-zinc-100"

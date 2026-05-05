@@ -1,15 +1,12 @@
 "use client";
 import MovieRow, { type MovieRowItem } from "./components/MovieRow";
-import CategoryGateway from "./components/CategoryGateway";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
-import CinematicHeroSpotlight from "@/components/HeroSection";
 import TrendingFooter from "./components/TrendingFooter";
 import HeroSectionNewAgain from "@/components/HeroSectionNewAgain";
 import HeroCategoryCards from "@/components/hero/HeroCategoryCards";
 import { apiFetch } from "@/lib/api";
-import UpcomingMovieModal from "./components/UpcomingMovieModal";
+import HomeTestimonials from "./components/HomeTestimonials";
 
 
 // page.tsx (or wherever you use the component)
@@ -33,7 +30,6 @@ import UpcomingMovieModal from "./components/UpcomingMovieModal";
 export default function LandingPage() {
   const router = useRouter();
   const [latestReleaseItems, setLatestReleaseItems] = useState<MovieRowItem[]>([]);
-  const [upcomingItems, setUpcomingItems] = useState<MovieRowItem[]>([]);
   const [latestLoading, setLatestLoading] = useState(true);
   // const [upcomingLoading, setUpcomingLoading] = useState(true);
   // const [selectedUpcoming, setSelectedUpcoming] = useState<MovieRowItem | null>(null);
@@ -174,6 +170,8 @@ export default function LandingPage() {
           )}
 
           <HeroCategoryCards className="mt-8" />
+
+          {/* <HomeTestimonials /> */}
 
           {/* <CategoryGateway /> */}
 

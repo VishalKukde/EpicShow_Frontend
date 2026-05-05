@@ -9,7 +9,9 @@ import ThemeBridge from "@/components/ThemeBridge";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import AskEpicAiOverlay from "@/components/AskEpicAiOverlay";
 import GlobalErrorToastBridge from "@/components/GlobalErrorToastBridge";
+
 import { FeatureShowcaseProvider } from "@/components/FeatureShowcaseProvider";
+import NotificationBridge from "./components/NotificationBridge";
 
 export const metadata: Metadata = {
   title: "Epic Show",
@@ -21,22 +23,28 @@ const themeInitScript = `
   try {
     let mode = "light";
     const raw = localStorage.getItem("user-theme-preferences-v1");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
     if (raw) {
       const parsed = JSON.parse(raw);
       const storedMode = parsed?.state?.mode;
+
       if (storedMode === "dark" || storedMode === "light") {
         mode = storedMode;
       } else {
         const userThemes = parsed?.state?.userThemes || {};
         const lastUserId = parsed?.state?.lastUserId;
+
         if (lastUserId && userThemes[lastUserId]) {
           mode = userThemes[lastUserId];
         } else {
-          mode = userThemes.guest || mode;
+          mode = userThemes.guest || (prefersDark ? "dark" : "light");
         }
       }
+    } else {
+      mode = prefersDark ? "dark" : "light";
     }
-    if (mode !== "dark" && mode !== "light") mode = "light";
+
     const html = document.documentElement;
     html.classList.remove("theme-light", "theme-dark", "light", "dark");
     html.classList.add(mode === "dark" ? "theme-dark" : "theme-light");
@@ -64,6 +72,7 @@ export default function RootLayout({
         <AuthProvider>
           <FeatureShowcaseProvider>
             <GlobalErrorToastBridge />
+            <NotificationBridge />
             <BackendWarmup />
             <ThemeBridge />
             {/* <SmoothScroll> */}

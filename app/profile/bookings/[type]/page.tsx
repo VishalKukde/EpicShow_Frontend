@@ -70,7 +70,7 @@ export default async function BookingPage({
   const HeroIcon = hero.icon;
 
   return (
-    <div className="h-full min-h-0 select-none">
+    <div className="h-[100vh] min-h-0 select-none">
       {/* <section className="overflow-hidden rounded-[1.75rem] border border-gray-200 bg-gradient-to-br from-white/95 via-slate-50/90 to-white/95 p-5 shadow-sm dark:border-zinc-700 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-950 sm:p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">

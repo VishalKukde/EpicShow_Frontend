@@ -13,7 +13,7 @@ export default function FreePlanCard({ features }: FreePlanCardProps) {
 
   return (
     <article
-      className={`rounded-2xl border p-5 shadow-sm ${
+      className={`rounded-3xl border p-5 shadow-sm ${
         dark
           ? "border-zinc-700/45 bg-zinc-900 shadow-[0_12px_30px_rgba(0,0,0,0.3)]"
           : "border-gray-200 bg-white"

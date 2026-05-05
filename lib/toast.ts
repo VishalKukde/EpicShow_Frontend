@@ -1,6 +1,10 @@
 "use client";
 
 type ToastLevel = "success" | "error" | "warning" | "info";
+type ToastOptions = {
+  position?: "top-end" | "bottom-end";
+  slide?: boolean;
+};
 
 const DEFAULT_TIMER_MS = 5000;
 
@@ -17,31 +21,39 @@ async function getSwal() {
   return mod.default;
 }
 
-async function fireToast(level: ToastLevel, message: string, title?: string) {
+async function fireToast(
+  level: ToastLevel,
+  message: string,
+  title?: string,
+  options: ToastOptions = {}
+) {
   if (typeof window === "undefined") return;
 
   const Swal = await getSwal();
   const timer = getToastTimer();
+  const popupClass = options.slide
+    ? "app-toast-popup app-toast-slide"
+    : "app-toast-popup";
 
   await Swal.fire({
     toast: true,
     icon: level,
     title: title || message,
     text: title ? message : undefined,
-    position: "bottom-end",
+    position: options.position || "bottom-end",
     timer,
     timerProgressBar: false,
     showConfirmButton: false,
     showCloseButton: true,
     showClass: {
-      popup: "",
+      popup: options.slide ? "app-toast-slide-in" : "",
     },
     hideClass: {
-      popup: "",
+      popup: options.slide ? "app-toast-slide-out" : "",
     },
     customClass: {
       container: "app-toast-container",
-      popup: "app-toast-popup",
+      popup: popupClass,
       title: "app-toast-title",
       htmlContainer: "app-toast-text",
       closeButton: "app-toast-close",
@@ -56,8 +68,8 @@ async function fireToast(level: ToastLevel, message: string, title?: string) {
         const topOffset = getComputedStyle(root)
           .getPropertyValue("--app-toast-top")
           .trim();
-        if (topOffset) {
-          container.style.top = topOffset;
+        if (topOffset || options.position === "top-end") {
+          container.style.top = topOffset || "1rem";
           container.style.bottom = "auto";
         } else {
           container.style.bottom = bottomOffset || "1rem";
@@ -76,6 +88,12 @@ async function fireToast(level: ToastLevel, message: string, title?: string) {
 export const toast = {
   success: (message: string, title?: string) => {
     void fireToast("success", message, title);
+  },
+  walletCredit: (message: string) => {
+    void fireToast("success", message, undefined, {
+      position: "bottom-end",
+      slide: true,
+    });
   },
   error: (message: string, title?: string) => {
     void fireToast("error", message, title);

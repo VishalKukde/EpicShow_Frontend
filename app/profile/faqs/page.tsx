@@ -105,7 +105,7 @@ export default function FAQPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search FAQ by keyword..."
-            className="w-full text-sm text-gray-800 outline-none bg-zinc-800"
+            className={`w-full text-sm text-gray-800 outline-none ${dark ? "bg-zinc-800" : "bg-white"} `}
           />
         </label>
 

@@ -71,9 +71,9 @@ export default function TicketFooter({
           {bookingStatus === BOOKING_STATUS.CANCELLED ? (
             <button
               disabled
-              className="h-9 rounded-lg border border-yellow-200 bg-yellow-50 px-3 text-xs font-medium text-yellow-700 cursor-not-allowed sm:h-10 sm:rounded-xl sm:px-4 sm:text-sm"
+              className="h-9 rounded-lg border border-red-200 bg-red-50 px-3 text-xs font-medium text-red-700 cursor-not-allowed sm:h-10 sm:rounded-xl sm:px-4 sm:text-sm"
             >
-              Refund Initiated
+              Cancelled
             </button>
           ) : bookingStatus === BOOKING_STATUS.UPCOMING ? (
             <button

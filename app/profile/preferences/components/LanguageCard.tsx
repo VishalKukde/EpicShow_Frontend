@@ -10,7 +10,7 @@ type LanguageCardProps = {
 export function LanguageCard({ dark, language, setLanguage }: LanguageCardProps) {
   return (
     <article
-      className={`rounded-2xl border p-5 shadow-sm ${
+      className={`rounded-3xl border p-5 shadow-sm ${
         dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-white"
       }`}
     >

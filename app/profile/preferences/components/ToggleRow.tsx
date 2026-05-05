@@ -26,7 +26,7 @@ export function ToggleRow({ dark, title, subtitle, checked, onToggle, icon }: To
         onClick={onToggle}
         role="switch"
         aria-checked={checked}
-        className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition ${
+        className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition cursor-pointer ${
           checked ? "bg-indigo-600" : dark ? "bg-zinc-700" : "bg-gray-300"
         }`}
       >

@@ -55,14 +55,18 @@ export default function ActivityPage() {
         </p>
       </section>
 
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      {/* <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Metric title="Bookings This Month" value="6" icon={Ticket} />
         <Metric title="Successful Payments" value="5" icon={CheckCircle2} />
         <Metric title="Wallet Credits" value="₹1,120" icon={Wallet} />
-      </section>
+      </section> */}
 
-      <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <section className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
+
+         <p className={`py-10 text-center text-sm ${dark ? "text-zinc-400" : "text-gray-500"}`}>
+             This feature is coming soon. Check back shortly or explore other sections in the meantime.
+          </p>
+        {/* <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
             <p className="text-sm text-gray-500">Latest account events</p>
@@ -70,9 +74,9 @@ export default function ActivityPage() {
           <button className="rounded-xl border border-indigo-700 bg-indigo-600 px-3 py-2 text-xs font-medium text-white hover:bg-indigo-700">
             Filter
           </button>
-        </div>
+        </div> */}
 
-        <div className="space-y-3">
+        {/* <div className="space-y-3">
           {activityFeed.map((item) => (
             <article
               key={`${item.title}-${item.time}`}
@@ -95,7 +99,7 @@ export default function ActivityPage() {
               </div>
             </article>
           ))}
-        </div>
+        </div> */}
       </section>
     </div>
   );

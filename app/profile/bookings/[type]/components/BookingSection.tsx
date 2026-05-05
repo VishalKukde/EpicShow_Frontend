@@ -94,25 +94,20 @@ export default function BookingSection({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -12 }}
         transition={{ duration: 0.35 }}
-        className="flex h-full min-h-0 flex-col pt-5 lg:pt-6"
+        className="flex h-full flex-col pt-5 lg:pt-0"
       >
-        <div
+        {/* <div
           className={`flex min-h-0 flex-1 flex-col overflow-hidden rounded-[1.8rem] border shadow-sm ${
             dark
               ? "border-zinc-700 bg-zinc-900"
               : "border-gray-200 bg-white"
           }`}
-        >
+        > */}
           <div className={`shrink-0 flex flex-col gap-3 border-b px-4 py-4 sm:px-4 ${dark ? "border-zinc-700" : "border-gray-200"}`}>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className={`text-xs font-semibold uppercase tracking-[0.16em] ${dark ? "text-zinc-500" : "text-gray-500"}`}>
-                  Booking Collection
-                </p>
+            <div className="flex gap-3 flex-row items-end justify-between">
                 <h2 className={`mt-1 text-xl font-semibold tracking-tight ${dark ? "text-zinc-100" : "text-gray-900"}`}>
                   {title}
                 </h2>
-              </div>
               <span
                 className={`inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-medium ${
                   dark
@@ -120,7 +115,7 @@ export default function BookingSection({
                     : "bg-gray-100 text-gray-700"
                 }`}
               >
-                {loadingMore ? "Loading bookings" : `Total ${bookings.length} bookings`}
+                {loadingMore ? "Loading bookings" : `${bookings.length} bookings`}
               </span>
             </div>
           </div>
@@ -132,7 +127,7 @@ export default function BookingSection({
             onLoadMore={handleLoadMore}
             filteredBookings={bookings}
           />
-        </div>
+        {/* </div> */}
       </motion.div>
     </AnimatePresence>
   );

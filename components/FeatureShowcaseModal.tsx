@@ -256,8 +256,8 @@ export default function FeatureShowcaseModal({
               onClick={onClose}
               className={`absolute right-4 top-4 z-20 inline-flex h-11 w-11 items-center justify-center rounded-2xl border transition sm:right-5 sm:top-5 cursor-pointer ${
                 dark
-                  ? "border-white/10 bg-white/5 text-zinc-200 hover:bg-white/10"
-                  : "border-slate-200 bg-white/80 text-slate-700 hover:bg-white"
+                  ? "border-zinc-400 bg-zinc-800/80 text-zinc-200 hover:bg-white/10"
+                  : "border-slate-200 bg-white text-slate-700 hover:bg-white"
               }`}
               aria-label="Close feature showcase"
             >

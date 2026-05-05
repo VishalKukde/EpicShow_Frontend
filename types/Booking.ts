@@ -26,6 +26,12 @@ export interface Booking {
 
   showType: ShowType;
 
+  showTime?: string;
+  showTimePassed?: boolean;
+  canReview?: boolean;
+  reviewSubmitted?: boolean;
+  reviewId?: string | null;
+
   createdAt: string;  // ISO string from backend
 }
 

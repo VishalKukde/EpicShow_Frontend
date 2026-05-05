@@ -18,7 +18,7 @@ export default function SecurityHero() {
         Security Center
       </p>
       <h1 className="mt-2 text-2xl font-semibold sm:text-3xl">Protect your account</h1>
-      <p className="mt-2 max-w-xl text-sm text-indigo-100/90">
+      <p className={`mt-2 max-w-xl text-sm ${dark ? "text-zinc-400" : "text-gray-500"}`}>
         Control password, verification, and device sessions from one secure place.
       </p>
     </section>

@@ -5,7 +5,10 @@ import { apiFetch } from "@/lib/api";
 import { User, AuthResponse } from "@/types/Auth";
 import { getToken, setToken } from "@/lib/tokenStore";
 import { useBookingStore } from "@/store/bookingStore";
+import { useEventBookingStore } from "@/store/eventBookingStore";
+import { useGamingBookingStore } from "@/store/gamingBookingStore";
 import { usePaymentStore } from "@/store/paymentStore";
+import { useSportBookingStore } from "@/store/sportBookingStore";
 import { useThemeStore } from "@/store/themeStore";
 
 interface AuthContextType {
@@ -68,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const bootstrapAuth = async () => {
       try {
-        const data: AuthResponse = await apiFetch("/auth/refresh", { method: "POST" });
+        const data: AuthResponse = await apiFetch("/auth/refresh", { method: "POST",  credentials: "include" });
         setSession(data.user, data.accessToken);
       } catch {
         const token = getToken();
@@ -140,6 +143,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setToken(null);
 
       useBookingStore.getState().resetBooking();
+      useEventBookingStore.getState().resetBooking();
+      useGamingBookingStore.getState().resetBooking();
+      useSportBookingStore.getState().resetBooking();
       usePaymentStore.getState().resetPayment();
       useThemeStore.getState().initializeForUser(null);
       useThemeStore.getState().setTheme(currentMode);

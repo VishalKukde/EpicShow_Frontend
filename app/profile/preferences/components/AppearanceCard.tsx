@@ -10,7 +10,7 @@ type AppearanceCardProps = {
 export function AppearanceCard({ dark, setTheme, toggleTheme }: AppearanceCardProps) {
   return (
     <article
-      className={`rounded-2xl border p-5 shadow-sm ${
+      className={`rounded-3xl border p-5 shadow-sm ${
         dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-white"
       }`}
     >
@@ -34,7 +34,7 @@ export function AppearanceCard({ dark, setTheme, toggleTheme }: AppearanceCardPr
         <button
           type="button"
           onClick={() => setTheme("light")}
-          className={`inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition ${
+          className={`inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition cursor-pointer ${
             !dark
               ? "border-gray-900 bg-gray-900 text-white"
               : "border-zinc-700 bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
@@ -46,7 +46,7 @@ export function AppearanceCard({ dark, setTheme, toggleTheme }: AppearanceCardPr
         <button
           type="button"
           onClick={() => setTheme("dark")}
-          className={`inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition ${
+          className={`inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition cursor-pointer ${
             dark ? "border-indigo-400 bg-zinc-950 text-zinc-50" : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
           }`}
         >
@@ -71,7 +71,7 @@ export function AppearanceCard({ dark, setTheme, toggleTheme }: AppearanceCardPr
           onClick={toggleTheme}
           role="switch"
           aria-checked={dark}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition focus-visible:outline-none focus-visible:ring-2 ${
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition focus-visible:outline-none focus-visible:ring-2 cursor-pointer ${
             dark ? "bg-indigo-500 focus-visible:ring-indigo-300" : "bg-zinc-400 focus-visible:ring-gray-400"
           }`}
         >

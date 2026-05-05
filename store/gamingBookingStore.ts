@@ -1,15 +1,10 @@
 import type { Gaming } from "@/types/Gaming";
+import type { AppliedCoupon } from "@/types/Offer";
 import { Seat } from "@/types/Seat";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 export type BookingType = "gaming";
-
-type Coupon = {
-  code: string;
-  off: number;
-  best?: boolean;
-};
 
 type BookingState = {
   bookingId: string | null;
@@ -19,7 +14,7 @@ type BookingState = {
   venue: string | null;
   date: string | null;
   slot: string | null;
-  appliedCoupon: Coupon | null;
+  appliedCoupon: AppliedCoupon | null;
   redeemReward: boolean;
   seats: Seat[];
   totalPrice: number;
@@ -30,7 +25,7 @@ type BookingState = {
   setShow: (venueId: string, venue: string, date: string, slot: string) => void;
   setSeats: (seats: Seat[], price: number) => void;
   setExpireAt: (time: string | null) => void;
-  applyCoupon: (coupon: Coupon) => void;
+  applyCoupon: (coupon: AppliedCoupon) => void;
   removeCoupon: () => void;
   setRedeemReward: (enabled: boolean) => void;
   resetBooking: () => void;

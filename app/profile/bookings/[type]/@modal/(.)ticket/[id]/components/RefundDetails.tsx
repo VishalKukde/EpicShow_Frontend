@@ -1,7 +1,9 @@
 import { BadgeIndianRupee, CircleDashed, Clock3 } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
 
-const RefundDetails = () => {
+const RefundDetails = ({ status, amount, date }: { status: string | null; amount: number | null; date: string | null }) => {
+  const isRefundActive =
+  status === "refund_initiated" || status === "refunded";
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:p-4">
       <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
@@ -9,17 +11,26 @@ const RefundDetails = () => {
       </h3>
 
       <div className="space-y-2.5">
-        <Row label="Refund Amount" value="₹0" icon={BadgeIndianRupee} />
+        <Row label="Refund Amount" value={ isRefundActive && amount ? `₹${amount.toFixed(2)}` : "-"} icon={BadgeIndianRupee} />
         <Row
           label="Status"
-          value={
-            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-gray-600 ring-1 ring-gray-200">
-              Not initiated
-            </span>
+          value={isRefundActive ? ( 
+            <span className={`rounded-full ring-2 ${status == "refund_initiated" ? "bg-yellow-100 text-yellow-600 ring-yellow-200" : status == "refunded" ? "bg-green-100 text-green-600 ring-green-200" : "bg-gray-100 text-gray-600 ring-gray-200"}  px-2 py-0.5 text-[10px] font-semibold uppercase  `}>
+              {status == "refund_initiated" ? "Refund Initiated" : status == "refunded" ? "Refunded" : ""}
+            </span>):"-"
           }
           icon={CircleDashed}
         />
-        <Row label="Processed On" value="—" icon={Clock3} />
+        <Row label="Processed On" value={isRefundActive && date
+          ? new Date(date).toLocaleDateString("en-IN", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          })
+          : "-"} icon={Clock3} />
       </div>
     </div>
   )

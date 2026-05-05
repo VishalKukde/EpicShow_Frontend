@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { apiFetch } from "@/lib/api";
-import { getToken } from "@/lib/tokenStore";
+// import { getToken } from "@/lib/tokenStore";
 import { useThemeStore } from "@/store/themeStore";
 import {
   MAX_TOPUP,
@@ -196,7 +196,7 @@ export default function WalletPage() {
       }
 
       try {
-        const token = getToken();
+        // const token = getToken();
         const query = new URLSearchParams({
           page: String(nextPage),
           limit: String(WALLET_ACTIVITY_PAGE_SIZE),
@@ -206,7 +206,7 @@ export default function WalletPage() {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            // ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
         });
 

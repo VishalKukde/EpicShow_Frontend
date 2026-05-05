@@ -1,11 +1,10 @@
 "use client";
 
 import { motion } from 'framer-motion'
-import React, { useEffect, useState } from 'react'
 import Image from "next/image";
 import QuickAction from './QuickAction'
 import { Movie } from '@/types/Movie';
-import { useThemeStore } from '@/store/themeStore';
+import { Backlight } from '@/app/components/Backlight';
 
 type IMovieCardProps = {
     movie: Movie;
@@ -13,6 +12,10 @@ type IMovieCardProps = {
 const MovieCard = ({ movie }: IMovieCardProps) => {
     const fallbackPoster = "/dummy.webp";
     const posterSrc = movie.imageUrl ?? fallbackPoster;
+    const reviewCount = Number(movie.total_reviews ?? 0);
+    const averageRating = Number(movie.avg_rating ?? 0);
+    const hasAudienceRating = reviewCount > 0;
+
     return (
         <motion.section
             initial={{ opacity: 0, y: 20 }}
@@ -21,6 +24,8 @@ const MovieCard = ({ movie }: IMovieCardProps) => {
             className="p-2">
             <div className="relative flex flex-col sm:flex-row gap-6 sm:gap-8">
                 {/* Poster */}
+                <Backlight className="">
+
                 <div className="relative flex-shrink-0">
                     <div
                         className="
@@ -46,6 +51,7 @@ const MovieCard = ({ movie }: IMovieCardProps) => {
                         />
                     </div>
                 </div>
+                </Backlight>
 
 
                 {/* Info */}
@@ -62,6 +68,15 @@ const MovieCard = ({ movie }: IMovieCardProps) => {
                         <span>{movie.language}</span>
                         <span className="w-1 h-1 rounded-full bg-gray-400" />
                         <span className="font-medium text-gray-800">⭐ {movie.rating}</span>
+                        {hasAudienceRating ? (
+                            <>
+                                <span className="w-1 h-1 rounded-full bg-gray-400" />
+                                <span className="font-medium text-amber-700">
+                                    Audience {averageRating.toFixed(1)}/5
+                                </span>
+                                <span className="text-gray-500">({reviewCount} reviews)</span>
+                            </>
+                        ) : null}
                     </div>
 
                     {/* 🎭 Genres */}
@@ -82,7 +97,13 @@ const MovieCard = ({ movie }: IMovieCardProps) => {
                     </p>
 
 
-                    <QuickAction movieTitle={movie.name} releaseDate={movie.releaseDate} movieId={movie._id} />
+                    <QuickAction
+                        movieTitle={movie.name}
+                        releaseDate={movie.releaseDate}
+                        movieId={movie._id}
+                        reviewCount={reviewCount}
+                        averageRating={averageRating}
+                    />
                 </div>
             </div>
         </motion.section>

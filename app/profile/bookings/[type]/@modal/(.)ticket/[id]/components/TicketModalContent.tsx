@@ -124,7 +124,7 @@ export default function TicketModalContent({
             <PaymentCard payment={data.payment} />
           </div>
 
-          <RefundDetails />
+          <RefundDetails status={data.payment?.status!} amount={data.payment?.amount!} date={data.payment?.createdAt!} />
         </div>
       </div>
 

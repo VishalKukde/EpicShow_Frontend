@@ -81,7 +81,7 @@ export default function PreferencesPage() {
   const [refundStatusAlerts, setRefundStatusAlerts] = useState(true);
 
   return (
-    <div className="select-none space-y-4 px-3 pb-6 sm:px-4 lg:space-y-6 lg:px-0">
+    <div className="select-none space-y-4 px-3 py-3 pb-6 sm:space-y-5 sm:px-4 lg:space-y-6 lg:px-0 ">
       <PreferencesIntroCard dark={dark} />
 
       <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">

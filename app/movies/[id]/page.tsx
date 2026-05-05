@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import MovieCard from "./components/MovieCard";
 import Cinemas from "./components/Cinemas";
+import MovieReviewsSection from "./components/MovieReviewsSection";
 import { apiFetch } from "@/lib/api";
 import PageTransition from "@/app/components/PageTransition";
 import { useBookingStore } from "@/store/bookingStore";
@@ -122,6 +123,11 @@ export default function MovieDetailPage() {
           <MovieCard movie={movie} />
           <Cinemas setSelectedCinemaId={setSelectedCinemaId} setSelectedDate={setSelectedDate} setSelectedCinema={setSelectedCinema} setSelectedSlot={setSelectedSlot}
             selectedDate={selectedDate} selectedCinema={selectedCinema} selectedSlot={selectedSlot} selectedCinemaId={selectedCinemaId}/>
+          <MovieReviewsSection
+            movieId={String(id)}
+            initialReviewCount={movie.total_reviews ?? 0}
+            initialAverageRating={movie.avg_rating ?? 0}
+          />
         </div>
 
         {/* call to action button  */}

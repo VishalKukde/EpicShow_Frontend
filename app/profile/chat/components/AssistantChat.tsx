@@ -14,7 +14,7 @@ import { ArrowLeft, Loader2, SendHorizontal } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useThemeStore } from "@/store/themeStore";
 import { apiFetch } from "@/lib/api";
-import { getToken } from "@/lib/tokenStore";
+// import { getToken } from "@/lib/tokenStore";
 import { socket } from "@/app/Socket";
 import { toast } from "@/lib/toast";
 
@@ -451,14 +451,7 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
 
   useEffect(() => {
     if (!user) return;
-
-    const token = getToken();
-    if (!token) {
-      setErrorText("Socket auth token missing. Please login again.");
-      return;
-    }
-
-    socket.auth = { token };
+    
     socket.connect();
     setSocketConnected(socket.connected);
 

@@ -51,7 +51,7 @@ export default function ProfileOverview() {
   }, [data, now]);
 
   return (
-    <div className="space-y-6 px-3 py-3 pb-6 sm:px-4 lg:px-0">
+    <div className="space-y-6 px-3 py-3 pb-6 sm:px-4 lg:px-0 select-none">
       <section
         className={`rounded-3xl border p-6 text-white shadow-lg sm:p-8 ${
           dark
@@ -234,6 +234,7 @@ export default function ProfileOverview() {
           >
             <h3 className={`font-semibold ${dark ? "text-zinc-100" : "text-gray-900"}`}>Quick Action</h3>
             <button
+            onClick={() => router.push("/profile/payments")}
               className={`mt-3 inline-flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-white transition ${
                 dark ? "bg-zinc-700 hover:bg-zinc-600" : "bg-gray-900 hover:bg-gray-800"
               }`}

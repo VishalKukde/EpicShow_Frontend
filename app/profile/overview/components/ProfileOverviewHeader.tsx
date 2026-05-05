@@ -34,7 +34,7 @@ export default function ProfileHeader({ user }: UserProps) {
 
     setLoading(true);
     try {
-      console.log(name, phone, avatar)
+      // console.log(name, phone, avatar)
       await fetch('/profile/update-profile', {
         method: "PUT",
         headers: { "Content-Type": "application/json" },

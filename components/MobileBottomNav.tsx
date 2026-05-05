@@ -11,7 +11,7 @@ const items = [
   { href: "/", label: "Home", icon: Home },
   { href: "/explore", label: "Search", icon: Compass },
   { href: "/profile/favorite", label: "Favorites", icon: Heart },
-  { href: "/profile/offers", label: "Offers", icon: BadgePercent },
+  { href: "/offers", label: "Offers", icon: BadgePercent },
   { href: "/profile/menu", label: "Profile", icon: User2 },
 ];
 
@@ -28,6 +28,7 @@ export default function MobileBottomNav() {
     pathname === "/login" ||
     pathname === "/register" ||
     (isProfileRoute && !pathname.startsWith("/profile/menu")) ||
+    pathname.startsWith("/my-coupons") ||
     pathname.includes("/seat-layout") ||
     (!isProfileRoute && (pathname.includes("/payment") || pathname.includes("/review")));
 

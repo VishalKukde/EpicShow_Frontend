@@ -22,7 +22,7 @@ type PaymentTransactionApiItem = {
   method: string;
   amount: number;
   status: string;
-  showType:string
+  showType: string
   details?: string | null;
 };
 
@@ -145,11 +145,14 @@ export default function PaymentsPage() {
     setDownloadingStatement(true);
     setExportError("");
     try {
-      const { blob, fileName } = await apiDownload("/payment/export-statement", {
+      const result = await apiDownload("/payment/export-statement", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: statementType }),
       });
+
+      if (!result) return; 
+      const { blob, fileName } = result;
 
       const blobUrl = window.URL.createObjectURL(blob);
       const anchor = document.createElement("a");

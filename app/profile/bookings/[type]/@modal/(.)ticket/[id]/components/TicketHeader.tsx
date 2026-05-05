@@ -15,7 +15,7 @@ const STATUS_STYLES: Record<string, string> = {
   failed:
     "bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-200",
   cancelled:
-    "bg-gray-100 text-gray-600 ring-1 ring-inset ring-gray-200",
+    "bg-red-100 text-red-600 ring-1 ring-inset ring-red-200",
   refunded:
     "bg-indigo-50 text-gray-700 ring-1 ring-inset ring-indigo-200",
   expired:
@@ -37,7 +37,7 @@ export function TicketHeader({ id, name, closeHref, status }: TicketHeaderProps)
           <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-gray-900 sm:text-xl">
             <span>{name}</span>
             <span
-              className={`inline-flex shrink-0 items-center justify-center rounded-md px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest leading-none ${statusStyle}`}
+              className={`inline-flex shrink-0 items-center justify-center rounded-md px-2 py-1 text-[9px] font-bold uppercase tracking-widest leading-none ${statusStyle}`}
             >
               {status === BOOKING_STATUS.UPCOMING ? "UPCOMING" : status.toUpperCase()}
             </span>

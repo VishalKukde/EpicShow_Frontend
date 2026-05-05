@@ -62,7 +62,7 @@ const TicketReview = () => {
       if (!user?.id) {
         throw new Error("Session expired. Please login again.");
       }
-
+      
       const selectedSeatIds = seats.map(s => s.id);
 
       const data = await apiFetch("/payment/prepare", {
@@ -117,7 +117,7 @@ const TicketReview = () => {
 
 
   return (
-    <div className={`min-h-screen px-4 pb-12 pt-26 ${mode === "dark" ? "bg-zinc-950" : "bg-gradient-to-b from-slate-50 to-white"}`}>
+    <div className={`min-h-screen px-4 pb-12 pt-26 ${mode === "dark" ? "bg-zinc-950" : "bg-gradient-to-b from-slate-50 to-white"} select-none`}>
       <CheckoutNavbar
         backUrl={`/movies/${item?._id}/seat-layout`}
         title="Review Booking"
@@ -157,7 +157,7 @@ const TicketReview = () => {
               setError(null);
               setShowCoupon(value);
             }}
-            appliedCoupon={appliedCoupon?.code || null}
+            appliedCoupon={appliedCoupon}
           />
 
           <div className={`rounded-2xl border px-4 py-4 ${mode === "dark" ? "border-zinc-700 bg-zinc-900" : "border-slate-200 bg-white"}`}>
@@ -292,14 +292,16 @@ const TicketReview = () => {
       <AnimatePresence>
         {showCoupon && (
           <CouponModal
-            appliedCoupon={appliedCoupon?.code || null}
+            appliedCoupon={appliedCoupon}
             onClose={() => setShowCoupon(false)}
-            onApply={(code: string, amt: number) => {
+            bookingType="movie"
+            amount={totalPrice}
+            onApply={(coupon) => {
               if (redeemReward) {
                 setError("Coupon and reward redemption cannot be used together.");
                 return;
               }
-              applyCoupon({ code, off: amt });
+              applyCoupon(coupon);
               setShowCoupon(false);
             }}
             onRemove={() => {

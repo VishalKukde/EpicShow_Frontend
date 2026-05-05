@@ -145,13 +145,14 @@ export default function ProfileFavoritePage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-1 xl:grid-cols-4">
               {wishlist.map((movie) => (
                 <Link key={movie._id} href={`/movies/${movie._id}`} className="group block">
                   <MovieCard
                     title={movie.name}
                     imageUrl={movie.imageUrl}
                     releaseDate={movie.releaseDate}
+                    showTitle={false}
                     showReleaseDate
                   />
 

@@ -30,7 +30,7 @@ export default function BookingList({
   const dark = mode === "dark";
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 scrollbar-thin scrollbar-track-transparent sm:px-5 sm:py-6">
+    <div className="h-full flex-1 overflow-y-auto px-4 py-2 scrollbar-thin scrollbar-track-transparent sm:px-5 sm:py-6">
       {loading ? (
         <SkeletonList />
       ) : filteredBookings.length === 0 ? (

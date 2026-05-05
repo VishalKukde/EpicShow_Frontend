@@ -671,6 +671,115 @@ html.theme-dark .auth-input:focus {
   background: var(--profile-header-btn-hover);
 }
 
+html {
+  --admin-bg: var(--profile-desktop-bg);
+  --admin-surface: var(--surface);
+  --admin-soft: var(--profile-menu-section-bg);
+  --admin-soft-solid: rgba(248, 250, 252, 1);
+  --admin-border: var(--border);
+  --admin-text: var(--text-primary);
+  --admin-text-secondary: var(--text-secondary);
+  --admin-text-muted: var(--text-muted);
+  --admin-on-accent: #ffffff;
+  --admin-hero-bg: var(--profile-menu-hero-bg);
+  --admin-hero-border: var(--profile-menu-hero-border);
+  --admin-hero-text: #0f172a;
+  --admin-hero-muted: rgba(51, 65, 85, 0.72);
+  --admin-hero-accent: rgba(79, 70, 229, 1);
+  --admin-hero-metric-bg: rgba(255, 255, 255, 0.72);
+  --admin-hero-metric-border: rgba(219, 234, 254, 1);
+  --admin-chart-muted: rgba(148, 163, 184, 0.78);
+  --admin-success-bg: rgba(220, 252, 231, 1);
+  --admin-success-text: rgba(5, 150, 105, 1);
+}
+
+.admin-shell {
+  background: var(--admin-bg);
+  color: var(--admin-text);
+}
+
+html.theme-dark {
+  --admin-soft-solid: rgba(39, 39, 42, 1);
+  --admin-hero-text: #f8fafc;
+  --admin-hero-muted: rgba(203, 213, 225, 0.9);
+  --admin-hero-accent: rgba(199, 210, 254, 1);
+  --admin-hero-metric-bg: rgba(255, 255, 255, 0.09);
+  --admin-hero-metric-border: rgba(255, 255, 255, 0.12);
+  --admin-chart-muted: rgba(63, 63, 70, 1);
+  --admin-success-bg: rgba(6, 78, 59, 0.35);
+  --admin-success-text: rgba(110, 231, 183, 1);
+}
+
+.admin-surface {
+  background: var(--admin-surface);
+  border-color: var(--admin-border);
+  color: var(--admin-text);
+}
+
+.admin-soft-surface {
+  background: var(--admin-soft);
+  border-color: var(--admin-border);
+  color: var(--admin-text);
+}
+
+.admin-muted {
+  color: var(--admin-text-muted);
+}
+
+.admin-secondary {
+  color: var(--admin-text-secondary);
+}
+
+.admin-hero-panel {
+  background: var(--admin-hero-bg) !important;
+  border: 1px solid var(--admin-hero-border);
+  color: var(--admin-hero-text);
+}
+
+.admin-dashboard-card,
+.admin-stat-pill,
+.admin-table-shell,
+.admin-profile-modal {
+  background: var(--admin-surface) !important;
+  border-color: var(--admin-border) !important;
+  color: var(--admin-text);
+}
+
+.admin-kpi-card {
+  background: var(--admin-soft) !important;
+  border-color: var(--admin-border) !important;
+  color: var(--admin-text);
+}
+
+.admin-modal-header {
+  background: var(--auth-primary-bg);
+  color: var(--admin-on-accent);
+}
+
+.admin-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  color: var(--admin-text-secondary);
+  padding: 0 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease;
+}
+
+.admin-theme-toggle:hover {
+  background: var(--profile-header-btn-hover);
+  color: var(--admin-text);
+}
+
 html.theme-dark .shadow-sm,
 html.theme-dark .shadow-md,
 html.theme-dark .shadow-lg,
@@ -841,6 +950,36 @@ html.theme-dark .chat-scroll::-webkit-scrollbar-thumb:hover {
 .app-toast-popup .swal2-icon-content {
   animation: none !important;
   transition: none !important;
+}
+
+.app-toast-slide.swal2-show {
+  animation: app-toast-slide-in 180ms ease-out both !important;
+}
+
+.app-toast-slide.swal2-hide {
+  animation: app-toast-slide-out 140ms ease-in both !important;
+}
+
+@keyframes app-toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes app-toast-slide-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(1.25rem);
+  }
 }
 
 .app-toast-close {

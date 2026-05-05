@@ -157,7 +157,7 @@ const TicketReview = () => {
               setError(null);
               setShowCoupon(value);
             }}
-            appliedCoupon={appliedCoupon?.code || null}
+            appliedCoupon={appliedCoupon}
           />
 
           <div className={`rounded-2xl border px-4 py-4 ${mode === "dark" ? "border-zinc-700 bg-zinc-900" : "border-slate-200 bg-white"}`}>
@@ -262,16 +262,19 @@ const TicketReview = () => {
         {showCoupon && (
           <CouponModal
             onClose={() => setShowCoupon(false)}
-            onApply={(code, off) => {
+            appliedCoupon={appliedCoupon}
+            bookingType="event"
+            amount={totalPrice}
+            onApply={(coupon) => {
               setError(null);
               removeCoupon();
-              useEventBookingStore.getState().applyCoupon({ code, off });
+              useEventBookingStore.getState().applyCoupon(coupon);
+              setShowCoupon(false);
             }}
             onRemove={() => {
               setError(null);
               removeCoupon();
             }}
-            appliedCoupon={appliedCoupon?.code || null}
           />
         )}
       </AnimatePresence>

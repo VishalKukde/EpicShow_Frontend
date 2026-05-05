@@ -15,7 +15,7 @@ export default function ProPlanCard({ amount, label, features }: ProPlanCardProp
 
   return (
     <article
-      className={`rounded-2xl border p-5 shadow-sm ${
+      className={`rounded-3xl border p-5 shadow-sm ${
         dark
           ? "border-indigo-500/30 bg-zinc-900 shadow-[0_12px_30px_rgba(0,0,0,0.3)]"
           : "border-indigo-200 bg-indigo-50"
@@ -47,12 +47,13 @@ export default function ProPlanCard({ amount, label, features }: ProPlanCardProp
       </ul>
 
       <button
-        className={`mt-5 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-white transition ${
+        className={`mt-5 inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-white transition ${
           dark ? "bg-indigo-500 hover:bg-indigo-400" : "bg-indigo-600 hover:bg-indigo-700"
         }`}
       >
-        <Rocket className="h-4 w-4" />
-        Upgrade to Pro
+        {/* <Rocket className="h-4 w-4" /> */}
+        {/* Upgrade to Pro */}
+        Currently Unavailable
       </button>
     </article>
   );

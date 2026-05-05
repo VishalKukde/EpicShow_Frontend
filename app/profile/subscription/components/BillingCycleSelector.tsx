@@ -21,7 +21,7 @@ export default function BillingCycleSelector({
 
   return (
     <section
-      className={`select-none rounded-2xl border p-4 shadow-sm sm:p-5 ${
+      className={`select-none rounded-3xl border p-4 shadow-sm sm:p-5 ${
         dark
           ? "border-zinc-800/70 bg-zinc-950 shadow-[0_12px_30px_rgba(0,0,0,0.3)]"
           : "border-gray-200 bg-white"

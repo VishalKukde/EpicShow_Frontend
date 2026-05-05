@@ -10,7 +10,7 @@ export default function WalletBalanceCard({
   onOpenModal,
 }: WalletBalanceCardProps) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-card p-5 shadow-sm">
+    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
       <p className="text-sm text-muted-foreground">Available Balance</p>
       <p className="mt-2 text-3xl font-semibold text-foreground sm:text-4xl">
         ₹{walletBalance.toFixed(2)}

@@ -19,7 +19,7 @@ export default function WalletActivity({
   onLoadMore,
 }: WalletActivityProps) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-gray-200 bg-card p-4 shadow-sm sm:p-5">
+    <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold text-foreground">Wallet Activity</h2>

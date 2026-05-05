@@ -57,6 +57,7 @@ export async function apiFetch(path: string, options: ApiRequestOptions = {}) {
     toast.error(message);
   };
 
+  console.log("Access token expired. Attempting refresh...", path);
   const makeRequest = async (accessToken: string | null) => {
     return fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
       ...requestOptions,

@@ -1,16 +1,10 @@
 import { Movie } from "@/types/Movie";
+import type { AppliedCoupon } from "@/types/Offer";
 import { Seat } from "@/types/Seat";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 export type BookingType = "movie" | "sport" | "event" | "gaming";
-
-type Coupon = {
-  code: string;
-  off: number;
-  best?: boolean;
-};
-
 
 type BookingState = {
   bookingId: string | null;
@@ -28,7 +22,7 @@ type BookingState = {
   slot: string | null;
 
   // coupon
-  appliedCoupon: Coupon | null;
+  appliedCoupon: AppliedCoupon | null;
   redeemReward: boolean;
 
   // seats + pricing
@@ -43,7 +37,7 @@ type BookingState = {
   setSeats: (seats: Seat[], price: number) => void;
   setExpireAt: (time: string | null) => void;
 
-  applyCoupon: (coupon: Coupon) => void;
+  applyCoupon: (coupon: AppliedCoupon) => void;
   removeCoupon: () => void;
   setRedeemReward: (enabled: boolean) => void;
 

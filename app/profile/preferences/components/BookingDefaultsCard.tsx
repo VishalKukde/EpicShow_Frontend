@@ -28,7 +28,7 @@ export function BookingDefaultsCard({
 }: BookingDefaultsCardProps) {
   return (
     <article
-      className={`rounded-2xl border p-5 shadow-sm ${dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-white"}`}
+      className={`rounded-3xl border p-5 shadow-sm ${dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-white"}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -53,7 +53,7 @@ export function BookingDefaultsCard({
                 key={zone}
                 type="button"
                 onClick={() => setPreferredSeatZone(zone)}
-                className={`rounded-lg border px-2 py-2 text-xs font-medium capitalize transition ${
+                className={`rounded-lg border px-2 py-2 text-xs font-medium capitalize transition cursor-pointer ${
                   preferredSeatZone === zone
                     ? dark
                       ? "border-indigo-400 bg-zinc-900 text-zinc-100"
@@ -81,7 +81,7 @@ export function BookingDefaultsCard({
                 key={count}
                 type="button"
                 onClick={() => setDefaultTicketCount(count)}
-                className={`rounded-lg border px-2 py-2 text-xs font-medium transition ${
+                className={`rounded-lg border px-2 py-2 text-xs font-medium transition cursor-pointer ${
                   defaultTicketCount === count
                     ? dark
                       ? "border-indigo-400 bg-zinc-900 text-zinc-100"

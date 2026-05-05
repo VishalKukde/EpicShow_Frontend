@@ -7,6 +7,8 @@ export interface Movie {
   language: string;
   runtimeMinutes: number;
   rating: number;
+  avg_rating?: number;
+  total_reviews?: number;
   releaseDate?: string; // ✅ add this
   createdAt?: string;
   updatedAt?: string;
