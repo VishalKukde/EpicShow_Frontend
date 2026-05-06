@@ -74,7 +74,7 @@ export default function Navbar() {
     router.replace("/");
   };
 
-  const hiddenRoutes = ["/profile", "/my-coupons", "/payment", "/review","/admin"];
+  const hiddenRoutes = ["/profile", "/my-coupons", "/payment", "/review", "/admin"];
   const isAuthEntryPage = pathname === "/login" || pathname === "/register";
   const hideNavbar = hiddenRoutes.some((route) => pathname.includes(route));
   const showSeatTimer = pathname.includes("/seat-layout");
@@ -111,108 +111,116 @@ export default function Navbar() {
     bg-transparent shadow-none 
   `}
       >
-          <div
-            className={`relative flex justify-between items-center px-3 sm:px-6 lg:px-3 transition-all duration-500
+        <div
+          className={`relative flex justify-between items-center px-3 sm:px-6 lg:px-3 transition-all duration-500
       ${scrolled ? "py-2 sm:py-2" : "py-3 sm:py-2"}`}
+        >
+          {/* Logo */}
+          <div
+            onClick={handleHome}
+            className="text-xl sm:text-2xl font-bold tracking-tight lg:pl-2 text-gray-900 cursor-pointer transition-transform duration-300 hover:scale-110 hover:-rotate-1"
           >
-            {/* Logo */}
-           <div
-  onClick={handleHome}
-  className="text-xl sm:text-2xl font-bold tracking-tight lg:pl-2 text-gray-900 cursor-pointer transition-transform duration-300 hover:scale-110 hover:-rotate-1"
->
-  EpicShow
-</div>
+            EpicShow
+          </div>
 
-            {showSeatTimer ? (
-              <div className="absolute right-3 sm:left-1/2 sm:-translate-x-1/2">
-                <SeatTimer variant="navbar" />
-              </div>
-            ) : null}
+          {showSeatTimer ? (
+            <div className="absolute right-3 sm:left-1/2 sm:-translate-x-1/2">
+              <SeatTimer variant="navbar" />
+            </div>
+          ) : null}
 
-            {/* Right */}
+          {/* Right */}
           <div className="flex items-center gap-2 sm:gap-3">
-          <button
-            type="button"
-            onClick={openShowcase}
-            aria-label="Open app feature guide"
-            className={`inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl border px-3.5 text-xs font-semibold transition hover:-translate-y-0.5 sm:text-sm`}
-            style={{
-              borderColor: "var(--hero-header-btn-border)",
-                background: "var(--hero-header-btn-bg)",
-                color: "var(--hero-header-btn-text)",
-                boxShadow: "var(--hero-header-btn-shadow)",
-                transform: "translateY(0)",
-              backdropFilter: "blur(14px)"
-            }}
-          >
-            <Layers3 className="h-4 w-4" />
-            <span className="hidden md:inline">Inside App</span>
-          </button>
-
-          {pathname === "/" ? (
             <button
               type="button"
-              onClick={handleSearchClick}
-              aria-label="Open search"
-              className="hidden cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition sm:inline-flex sm:text-sm"
+              onClick={openShowcase}
+              aria-label="Open app feature guide"
+              className={`inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl border px-3.5 text-xs font-semibold transition hover:-translate-y-0.5 sm:text-sm`}
               style={{
                 borderColor: "var(--hero-header-btn-border)",
                 background: "var(--hero-header-btn-bg)",
                 color: "var(--hero-header-btn-text)",
-                backdropFilter: "blur(14px)",
                 boxShadow: "var(--hero-header-btn-shadow)",
                 transform: "translateY(0)",
-              }}
-              onMouseOver={(event) => {
-                const target = event.currentTarget;
-                target.style.transform = "translateY(-2px)";
-                target.style.borderColor = "var(--hero-header-btn-hover-border)";
-                target.style.boxShadow = "var(--hero-header-btn-shadow-hover)";
-              }}
-              onMouseOut={(event) => {
-                const target = event.currentTarget;
-                target.style.transform = "translateY(0)";
-                target.style.borderColor = "var(--hero-header-btn-border)";
-                target.style.boxShadow = "var(--hero-header-btn-shadow)";
+                backdropFilter: "blur(14px)"
               }}
             >
-              <Search className="h-4 w-4" />
-              <span>Search</span>
+              <Layers3 className="h-4 w-4" />
+              <span className="hidden md:inline">Inside App</span>
             </button>
-          ) : null}
 
-          {user ? (
-            <div className="hidden sm:block">
-              <ProfileDropdown />
-            </div>
-          ) : isAuthEntryPage ? (
-            <div className="flex items-center gap-2">
-              <span className="hidden sm:inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700">
-                Secure access portal
-              </span>
-              <Link href="/">
-                <button className="inline-flex items-center gap-2 cursor-pointer rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
-                  <Home className="h-4 w-4" />
-                  Home
+            {pathname === "/" ? (
+              <>
+                <button
+                  type="button"
+                  onClick={handleSearchClick}
+                  aria-label="Open search"
+                  className="hidden cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition sm:inline-flex sm:text-sm"
+                  style={{
+                    borderColor: "var(--hero-header-btn-border)",
+                    background: "var(--hero-header-btn-bg)",
+                    color: "var(--hero-header-btn-text)",
+                    backdropFilter: "blur(14px)",
+                    boxShadow: "var(--hero-header-btn-shadow)",
+                    transform: "translateY(0)",
+                  }}
+                  onMouseOver={(event) => {
+                    const target = event.currentTarget;
+                    target.style.transform = "translateY(-2px)";
+                    target.style.borderColor = "var(--hero-header-btn-hover-border)";
+                    target.style.boxShadow = "var(--hero-header-btn-shadow-hover)";
+                  }}
+                  onMouseOut={(event) => {
+                    const target = event.currentTarget;
+                    target.style.transform = "translateY(0)";
+                    target.style.borderColor = "var(--hero-header-btn-border)";
+                    target.style.boxShadow = "var(--hero-header-btn-shadow)";
+                  }}
+                >
+                  <Search className="h-4 w-4" />
+                  <span>Search</span>
                 </button>
-              </Link>
-            </div>
-          ) : (
-            <>
-              <Link href="/login">
-                <button className="cursor-pointer rounded-lg px-2 py-1 text-xs sm:text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition">
-                  Sign in
-                </button>
-              </Link>
+                {user?.role === "admin" && (
+                  <button 
+                   onClick={()=>{router.push("/admin")}}
+                  className="inline-flex items-center gap-2 cursor-pointer rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
+                    <Home className="h-4 w-4" />
+                    Admin
+                  </button>
+                )}
+              </>
+            ) : null}
 
-              <Link href="/register">
-                <button className="cursor-pointer px-3 sm:px-4 py-2 rounded-xl bg-gray-900 text-white text-xs sm:text-sm font-medium shadow-[0_6px_20px_rgba(0,0,0,0.12)] hover:scale-[1.03] active:scale-[0.97] transition">
-                  Get started
-                </button>
-              </Link>
-            </>
-          )}
-        </div>
+            {user ? (
+              <div className="hidden sm:block">
+                <ProfileDropdown />
+              </div>
+            ) : isAuthEntryPage ? (
+              <div className="flex items-center gap-2">
+
+                <Link href="/">
+                  <button className="inline-flex items-center gap-2 cursor-pointer rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
+                    <Home className="h-4 w-4" />
+                    Home
+                  </button>
+                </Link>
+              </div>
+            ) : (
+              <>
+                <Link href="/login">
+                  <button className="cursor-pointer rounded-lg px-2 py-1 text-xs sm:text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition">
+                    Sign in
+                  </button>
+                </Link>
+
+                <Link href="/register">
+                  <button className="cursor-pointer px-3 sm:px-4 py-2 rounded-xl bg-gray-900 text-white text-xs sm:text-sm font-medium shadow-[0_6px_20px_rgba(0,0,0,0.12)] hover:scale-[1.03] active:scale-[0.97] transition">
+                    Get started
+                  </button>
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </motion.nav>
     </>

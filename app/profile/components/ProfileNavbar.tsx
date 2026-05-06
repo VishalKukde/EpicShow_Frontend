@@ -82,7 +82,7 @@ export default function ProfileNavbar() {
         {/* RIGHT */}
         <div className="flex items-center gap-3">
 
-          {/* Upcoming Features */}
+          {/* Latest Release */}
           <div className="relative hidden sm:block" ref={upcomingRef}>
             <button
               type="button"
@@ -99,7 +99,7 @@ export default function ProfileNavbar() {
               aria-expanded={upcomingOpen}
             >
               <Sparkles className="h-4 w-4" />
-              Upcoming Features
+              Latest Release
               <ChevronDown
                 className={`h-3.5 w-3.5 transition-transform ${upcomingOpen ? "rotate-180" : "rotate-0"}`}
               />
@@ -231,7 +231,7 @@ export default function ProfileNavbar() {
 
           <div>
             <h1 className="text-sm font-semibold text-gray-700">
-              V 1.0.0
+              V 1.2.0
             </h1>
           </div>
 
