@@ -38,7 +38,7 @@ const LatestReleaseModal = ({ open, onClose, releases }: Props) => {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/45 px-4"
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/45 px-4 select-none"
       onClick={onClose}
     >
       {/* Modal */}
@@ -79,7 +79,7 @@ const LatestReleaseModal = ({ open, onClose, releases }: Props) => {
 
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-black/10 dark:hover:bg-white/10"
+            className="p-2 rounded-lg bg-black/10 dark:bg-white/10 cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
@@ -134,7 +134,7 @@ const LatestReleaseModal = ({ open, onClose, releases }: Props) => {
             <div>
               <button
                 onClick={() => setShowPrevious(!showPrevious)}
-                className="flex items-center gap-2 text-sm font-medium opacity-80 hover:opacity-100"
+                className="flex items-center gap-2 text-sm font-medium opacity-80 hover:opacity-100 cursor-pointer"
               >
                 <ChevronDown
                   className={`h-4 w-4 transition ${showPrevious ? "rotate-180" : ""
@@ -199,7 +199,7 @@ const FeatureItem = ({ f, dark }: any) => {
 
   return (
     <div
-      className={`flex items-center justify-between rounded-xl border px-3 py-2 transition hover:scale-[1.01] ${dark
+      className={`flex items-center justify-between rounded-xl border px-3 py-2 transition-all duration-200 hover:-translate-y-0.5 ${dark
           ? "border-zinc-800 bg-zinc-900 hover:border-zinc-700"
           : "border-slate-200 bg-slate-50 hover:border-indigo-200 hover:bg-white"
         }`}

@@ -56,6 +56,7 @@ export default function LandingPage() {
         const data = await apiFetch("/movies/latest?limit=5", {
           method: "GET",
           notifyOnError: false,
+          publicRequest: true,
         });
         const items = Array.isArray(data) ? data : data?.movies ?? [];
         const mapped = items.map((movie: { _id?: string; name?: string; imageUrl?: string }) => ({
@@ -171,8 +172,8 @@ export default function LandingPage() {
 
           <HeroCategoryCards className="mt-8" />
 
-          {/* <HomeTestimonials /> */}
-
+          <HomeTestimonials />
+          
           {/* <CategoryGateway /> */}
 
           {/* {upcomingLoading ? (

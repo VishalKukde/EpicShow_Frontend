@@ -10,6 +10,13 @@ import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import PaymentOption from "@/components/checkout/PaymentOption";
 import CheckoutNavbar from "@/components/checkout/CheckoutNavbar";
+import {
+  getDisabledPaymentMethods,
+  persistPaymentPreferences,
+  resolvePreferredPaymentMethod,
+  resolveWalletFallbackMethod,
+} from "@/lib/paymentPreferences";
+import type { PaymentMethod } from "@/types/Auth";
 
 const PaymentPage = () => {
   const router = useRouter();
@@ -22,11 +29,16 @@ const PaymentPage = () => {
   const mode = useThemeStore((s) => s.mode);
   const { item, seats, venueId, date, slot, appliedCoupon, type, redeemReward } =
     useBookingStore();
-  const [method, setMethod] = useState<"wallet" | "card" | "upi">("upi");
+  const [method, setMethod] = useState<PaymentMethod>("upi");
 
   const payableAmount = Number(verifiedAmount ?? 0);
   const walletBalance = Number(user?.walletBalance ?? 0);
   const walletInsufficient = method === "wallet" && walletBalance < payableAmount;
+  const disabledMethods = getDisabledPaymentMethods(user);
+
+  useEffect(() => {
+    setMethod(resolvePreferredPaymentMethod(user, payableAmount));
+  }, [payableAmount, user?.preferences?.payment, user?.walletBalance]);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -57,6 +69,34 @@ const PaymentPage = () => {
     });
   };
 
+  const handleSelectMethod = (nextMethod: PaymentMethod) => {
+    setActionError(null);
+
+    if (disabledMethods[nextMethod]) return;
+
+    if (nextMethod === "wallet" && walletBalance < payableAmount) {
+      const fallbackMethod = resolveWalletFallbackMethod(user, payableAmount);
+      setMethod(fallbackMethod);
+      setActionError(
+        `Wallet balance is low. We selected your last used payment method: ${fallbackMethod.toUpperCase()}.`
+      );
+      return;
+    }
+
+    setMethod(nextMethod);
+  };
+
+  const markLastUsedPaymentMethod = async () => {
+    try {
+      await persistPaymentPreferences({
+        preferences: { lastUsedMethod: method },
+        updateUser,
+      });
+    } catch (err) {
+      console.error("Failed to update last used payment method", err);
+    }
+  };
+
   const handlePayment = async () => {
     try {
       setActionError(null);
@@ -71,8 +111,17 @@ const PaymentPage = () => {
         return;
       }
 
+      if (disabledMethods[method]) {
+        setActionError("This payment method is disabled. Please enable another method from payment settings.");
+        return;
+      }
+
       if (method === "wallet" && walletBalance < payableAmount) {
-        setActionError("Insufficient wallet balance. Please top up or choose another method.");
+        const fallbackMethod = resolveWalletFallbackMethod(user, payableAmount);
+        setMethod(fallbackMethod);
+        setActionError(
+          `Wallet balance is low. We selected your last used payment method: ${fallbackMethod.toUpperCase()}.`
+        );
         return;
       }
 
@@ -114,6 +163,7 @@ const PaymentPage = () => {
           const prevRewardPoints = Number(user?.rewardPoints ?? 0);
           updateUser({ rewardPoints: prevRewardPoints + walletResult.earnedPoints });
         }
+        await markLastUsedPaymentMethod();
         await fetch("/api/wallet/transactions/revalidate", { method: "POST" });
 
         useBookingStore.getState().resetBooking();
@@ -161,6 +211,7 @@ const PaymentPage = () => {
                 rewardPoints: prevRewardPoints + verification.earnedPoints,
               });
             }
+            await markLastUsedPaymentMethod();
             await fetch("/api/wallet/transactions/revalidate", { method: "POST" });
 
             useBookingStore.getState().resetBooking();
@@ -265,31 +316,37 @@ const PaymentPage = () => {
               Choose Payment Method
             </div>
 
-            <PaymentOption
-              mode={mode}
-              active={method === "upi"}
-              onClick={() => setMethod("upi")}
-              title="UPI"
-              desc="Google Pay, PhonePe, Paytm"
-              badge="Fastest"
-            />
+            {!disabledMethods.upi && (
+              <PaymentOption
+                mode={mode}
+                active={method === "upi"}
+                onClick={() => handleSelectMethod("upi")}
+                title="UPI"
+                desc="Google Pay, PhonePe, Paytm"
+                badge="Fastest"
+              />
+            )}
 
-            <PaymentOption
-              mode={mode}
-              active={method === "card"}
-              onClick={() => setMethod("card")}
-              title="Credit / Debit Card"
-              desc="Visa, Mastercard, RuPay"
-            />
+            {!disabledMethods.card && (
+              <PaymentOption
+                mode={mode}
+                active={method === "card"}
+                onClick={() => handleSelectMethod("card")}
+                title="Credit / Debit Card"
+                desc="Visa, Mastercard, RuPay"
+              />
+            )}
 
-            <PaymentOption
-              mode={mode}
-              active={method === "wallet"}
-              onClick={() => setMethod("wallet")}
-              title="Wallet Balance"
-              desc={`Available: ₹${walletBalance.toFixed(2)}`}
-              badge={walletBalance >= payableAmount ? "Ready" : "Low Balance"}
-            />
+            {!disabledMethods.wallet && (
+              <PaymentOption
+                mode={mode}
+                active={method === "wallet"}
+                onClick={() => handleSelectMethod("wallet")}
+                title="Wallet Balance"
+                desc={`Available: ₹${walletBalance.toFixed(2)}`}
+                badge={walletBalance >= payableAmount ? "Ready" : "Low Balance"}
+              />
+            )}
           </div>
 
           {(error || actionError) && (

@@ -54,7 +54,7 @@ export default function BookingList({
                   delay: index * 0.03,
                 }}
                 whileHover={{
-                  y: -4,
+                  y: 0,
                   transition: { duration: 0.18 },
                 }}
                 className="group h-full"

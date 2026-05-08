@@ -12,6 +12,15 @@ import { useSeatLayout } from "@/hooks/useSeatLayout";
 import { useSeatActions } from "@/hooks/useSeatActions";
 import { useShowSeatRealtime } from "@/hooks/useShowSeatRealtime";
 import { toast } from "@/lib/toast";
+import { useAuth } from "@/context/AuthContext";
+import { getTicketLimit } from "@/lib/proPerks";
+import type { MovieSeatPreference } from "@/types/Auth";
+
+const movieSeatRecommendation: Record<MovieSeatPreference, { label: string; rows: string }> = {
+  front: { label: "Front", rows: "A-D" },
+  middle: { label: "Middle", rows: "E-G" },
+  back: { label: "Back", rows: "H-J" },
+};
 
 export default function SeatLayout() {
   const router = useRouter();
@@ -22,6 +31,10 @@ export default function SeatLayout() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   const setSelectedSeats = useBookingStore((state) => state.setSeats);
+  const { user } = useAuth();
+  const ticketLimit = getTicketLimit(user?.membership);
+  const preferredMovieSeat = user?.preferences?.seat?.movieSeat ?? "middle";
+  const recommendedZone = movieSeatRecommendation[preferredMovieSeat];
 
   const booking = useBookingStore();
   const { seats, setSeats } = useSeatLayout(booking);
@@ -62,8 +75,8 @@ export default function SeatLayout() {
       toast.warning("Please select at least one seat before continuing.");
       return;
     }
-    if (selectedSeats.length > 2) {
-      toast.warning("You can select a maximum of 2 seats.");
+    if (selectedSeats.length > ticketLimit) {
+      toast.warning(`You can select a maximum of ${ticketLimit} seats.`);
       return;
     }
 
@@ -79,10 +92,21 @@ export default function SeatLayout() {
         {/* 🎬 Screen */}
         <ScreenIndicator />
 
+        {/* <div className="mx-auto mb-4 max-w-5xl px-3 sm:px-0">
+          <div className="inline-flex flex-wrap items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-medium text-indigo-900 dark:border-indigo-500/40 dark:bg-indigo-500/10 dark:text-indigo-100">
+            <span className="font-semibold">Recommended from your preference:</span>
+            <span>{recommendedZone.label} rows</span>
+            <span className="rounded-full bg-white px-2 py-0.5 text-indigo-700 dark:bg-zinc-900 dark:text-indigo-200">
+              {recommendedZone.rows}
+            </span>
+          </div>
+        </div> */}
+
         {/* 🪑 Seats */}
         <Seats
           seats={seats}
           scale={scale}
+          recommendedSeatZone={preferredMovieSeat}
           toggleSeat={toggleSeat}
           setHoverSeat={setHoverSeat}
           setMousePos={setMousePos}

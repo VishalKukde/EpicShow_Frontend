@@ -80,7 +80,7 @@ export default function NotificationsPage() {
           <p className="py-10 text-center text-sm text-red-500">{error}</p>
         ) : notifications.length === 0 ? (
           <p className={`py-10 text-center text-sm ${dark ? "text-zinc-400" : "text-gray-500"}`}>
-             This feature is coming soon. Check back shortly or explore other sections in the meantime.
+             no notifications yet. Refund credits and account updates will appear here after they are saved.
           </p>
         ) : (
           <div className="space-y-3">
@@ -96,10 +96,10 @@ export default function NotificationsPage() {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="flex min-w-0 items-start gap-3">
                     <div
-                      className={`rounded-lg p-2 ${
+                      className={`rounded-lg p-2 border ${
                         item.type === "wallet_refund"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-indigo-100 text-indigo-700"
+                          ? "text-emerald-700  border-emerald-500"
+                          : "text-indigo-700 border-indigo-500"
                       }`}
                     >
                       {item.type === "wallet_refund" ? (

@@ -453,7 +453,7 @@ export default function SportDetailPage() {
                       </div>
                     </div>
                     <div className={`rounded-2xl border px-4 py-3 text-xs shadow-sm ${dark ? "border-zinc-700/70 bg-zinc-900/70 text-zinc-300" : "border-slate-200/70 bg-white/80 text-slate-600"}`}>
-                      Max 2 seats per booking. You can select seats by stand on the next screen.
+                      Free users can book 2 seats. Pro members can book up to 5 seats.
                     </div>
                   </div>
                 </motion.section>
@@ -519,7 +519,7 @@ export default function SportDetailPage() {
             className="hidden sm:flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
           >
             <div className={`text-sm ${dark ? "text-zinc-400" : "text-slate-600"}`}>
-              Secure your seats now. You can pick up to 2 seats per booking.
+              Secure your seats now. Free users can pick 2 seats, Pro members up to 5.
             </div>
             <button
               onClick={handleProceed}

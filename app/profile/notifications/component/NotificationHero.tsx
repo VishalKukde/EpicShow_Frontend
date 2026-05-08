@@ -7,10 +7,10 @@ const NotificationHero = () => {
       const dark = mode === "dark";
   return (
     <section
-        className={`rounded-3xl border p-6 text-black shadow-sm sm:p-8 ${
-          dark
-            ? "border-zinc-700"
-          : "border-gray-200  bg-white "
+        className={`rounded-3xl border p-6 text-white shadow-sm sm:p-8 ${
+         dark
+          ? "border-zinc-700 bg-zinc-900"
+          : "border-gray-200 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900"
      }`}
       >
         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -21,7 +21,7 @@ const NotificationHero = () => {
             <h1 className="mt-2 text-2xl font-semibold sm:text-3xl">
               Previous notifications
             </h1>
-            <p className={`mt-2 max-w-xl text-sm ${dark ? "text-zinc-400" : "text-gray-500"}`}>
+            <p className={`mt-2 max-w-xl text-sm ${dark ? "text-zinc-400" : "text-gray-400"}`}>
               Refund credits and account updates appear here after they are saved.
             </p>
           </div>

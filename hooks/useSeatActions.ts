@@ -3,9 +3,9 @@ import { apiFetch } from "@/lib/api";
 import { SeatRow } from "@/types/Seat";
 import { useBookingStore } from "@/store/bookingStore";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
 import type { Dispatch, SetStateAction } from "react";
 import { toast } from "@/lib/toast";
+import { getTicketLimit } from "@/lib/proPerks";
 
 type BookingForSeatActions = {
     item: { _id: string } | null;
@@ -34,8 +34,6 @@ export function useSeatActions(
     booking: BookingForSeatActions,
     store: BookingStoreApi = useBookingStore,
 ) {
-
-    const router = useRouter();
     const { user, loading } = useAuth();
     const toggleSeat = async (rowIndex: number, seatIndex: number) => {
 
@@ -43,8 +41,7 @@ export function useSeatActions(
         if (loading) return;
 
         if (!user) {
-            toast.warning("Login required to select seats.");
-            // router.push(`/login?redirect=${window.location.pathname}`);
+            toast.error("Please log in to select seats.");
             return;
         }
         if (!booking.item?._id || !booking.venueId || !booking.date || !booking.slot) {
@@ -60,9 +57,10 @@ export function useSeatActions(
         const selectedCount = seats
             .flatMap(r => r.seats)
             .filter(s => s.status === "selected").length;
+        const ticketLimit = getTicketLimit(user.membership);
 
-        if (!isUnlocking && selectedCount >= 2) {
-            toast.warning("Max 2 seats allowed.");
+        if (!isUnlocking && selectedCount >= ticketLimit) {
+            toast.warning(`Max ${ticketLimit} seats allowed for your plan.`);
             return;
         }
 

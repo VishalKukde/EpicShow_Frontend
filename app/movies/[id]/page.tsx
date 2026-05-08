@@ -38,7 +38,7 @@ export default function MovieDetailPage() {
     async function loadMovie() {
       try {
         setLoading(true);
-        const data = await apiFetch(`/movies/${id}`);
+        const data = await apiFetch(`/movies/${id}`, { publicRequest: true });
         setMovie(data);
       } catch {
         setError("Failed to load movie details");

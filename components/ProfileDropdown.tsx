@@ -143,15 +143,23 @@ export default function ProfileDropdown() {
               }`}
             >
               <div className="flex items-center gap-3.5">
-                <div className="relative h-12 w-12 overflow-hidden rounded-2xl border border-white/50 shadow-sm">
-                  <Image
-                    src={user.avatar || "/assets/profiles/user.webp"}
-                    alt="Profile avatar"
-                    fill
-                    className="object-cover"
-                    sizes="48px"
-                  />
-                </div>
+                <div
+  className={`relative h-12 w-12 rounded-3xl p-[2px] ${
+    user?.membership === "pro"
+      ? "bg-gradient-to-br from-purple-500 via-indigo-500 to-purple-600"
+      : ""
+  }`}
+>
+  <div className="relative h-full w-full overflow-hidden rounded-2xl border border-white/50 shadow-sm">
+    <Image
+      src={user.avatar || "/assets/profiles/user.webp"}
+      alt="Profile avatar"
+      fill
+      className="object-cover"
+      sizes="50px"
+    />
+  </div>
+</div>
 
                 <div className="min-w-0 flex-1">
                   <p className={`truncate text-sm font-semibold ${dark ? "text-zinc-100" : "text-slate-900"}`}>

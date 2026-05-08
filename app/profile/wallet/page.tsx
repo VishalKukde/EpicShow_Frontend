@@ -17,6 +17,7 @@ import WalletBalanceCard from "./components/WalletBalanceCard";
 import WalletHero from "./components/WalletHero";
 import WalletTopupModal from "./components/WalletTopupModal";
 import WalletUsageHint from "./components/WalletUsageHint";
+import { getToken } from "@/lib/tokenStore";
 
 type RazorpayResponse = {
   razorpay_order_id: string;
@@ -196,7 +197,7 @@ export default function WalletPage() {
       }
 
       try {
-        // const token = getToken();
+        const token = getToken();
         const query = new URLSearchParams({
           page: String(nextPage),
           limit: String(WALLET_ACTIVITY_PAGE_SIZE),
@@ -206,15 +207,16 @@ export default function WalletPage() {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            // ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
         });
 
+        
         const result = (await response.json()) as WalletTransactionsApiResponse;
         if (!response.ok) {
           throw new Error(result?.message || "Failed to fetch wallet transactions");
         }
-
+        
         const mapped = (result.transactions ?? []).map((txn) => ({
           id: txn.id,
           type: txn.type,
@@ -222,7 +224,8 @@ export default function WalletPage() {
           date: formatWalletDate(txn.createdAt),
           amount: Number(txn.amount.toFixed(2)),
         }));
-
+        
+        console.log("Fetch transactions response:", mapped);
         setTransactions((prev) => (append ? [...prev, ...mapped] : mapped));
         setTransactionsPage(nextPage);
 

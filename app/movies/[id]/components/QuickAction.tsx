@@ -4,13 +4,14 @@ import { Heart, Info, MessageSquareText, Play } from "lucide-react";
 import { useEffect, useEffectEvent, useState } from "react";
 import AskAiModal from "./AskAiModal";
 import { apiFetch } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "@/lib/toast";
 
 type QuickActionProps = {
   movieTitle: string;
   releaseDate?: string;
   movieId: string;
   reviewCount?: number;
-  averageRating?: number;
 };
 
 const QuickAction = ({
@@ -18,12 +19,17 @@ const QuickAction = ({
   releaseDate,
   movieId,
   reviewCount = 0,
-  averageRating = 0,
 }: QuickActionProps) => {
   const [askOpen, setAskOpen] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const { user, loading } = useAuth();
 
   const fetchWishlistStatus = useEffectEvent(async () => {
+    if (loading || !user) {
+      setIsWishlisted(false);
+      return;
+    }
+
     try {
       const res = await apiFetch("/getwishlist");
       const isPresent = res?.data?.some(
@@ -38,9 +44,16 @@ const QuickAction = ({
 
   useEffect(() => {
     void fetchWishlistStatus();
-  }, [movieId]);
+  }, [movieId, user, loading]);
 
   const toggleWishlist = async (movieId: string) => {
+    if (loading) return;
+
+    if (!user) {
+      toast.error("Please log in to use wishlist.");
+      return;
+    }
+
     const prevState = isWishlisted;
     // 🔥 instant UI update
     setIsWishlisted(!prevState);
@@ -109,7 +122,7 @@ const QuickAction = ({
           <MessageSquareText size={16} />
           <span className="inline">
             Reviews {reviewCount > 0 ? `(${reviewCount})` : ""}
-            {reviewCount > 0 ? ` • ${averageRating.toFixed(1)}/5` : ""}
+            {/* {reviewCount > 0 ? ` • ${averageRating.toFixed(1)}/5` : ""} */}
           </span>
         </button>
       </div>

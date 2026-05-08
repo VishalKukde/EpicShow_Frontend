@@ -17,8 +17,8 @@ function LoginPageContent() {
     const { login } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const [email, setEmail] = useState("vishal@gmail.com");
-    const [password, setPassword] = useState("123456");
+    const [email, setEmail] = useState("demo@gmail.com");
+    const [password, setPassword] = useState("Demo$$123456");
     const [rememberMe, setRememberMe] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);

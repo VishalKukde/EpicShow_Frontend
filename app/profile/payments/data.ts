@@ -36,7 +36,7 @@ export function buildPaymentStats({
 }
 
 export const savedMethods: SavedMethod[] = [
-  { label: "UPI", detail: "vishal@okaxis" },
-  { label: "Card", detail: "Visa •••• 4381" },
-  { label: "Wallet", detail: "EpicShow Wallet" },
+  { method: "upi", label: "UPI", detail: "vishal@okaxis" },
+  { method: "card", label: "Card", detail: "Visa •••• 4381" },
+  { method: "wallet", label: "Wallet", detail: "EpicShow Wallet" },
 ];

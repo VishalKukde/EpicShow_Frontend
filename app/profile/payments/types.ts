@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import type { PaymentMethod } from "@/types/Auth";
 
 export type PaymentStatus = "Success" | "Refunded" | "Failed";
 
@@ -14,6 +15,7 @@ export type PaymentTransaction = {
 };
 
 export type SavedMethod = {
+  method: PaymentMethod;
   label: string;
   detail: string;
 };

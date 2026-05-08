@@ -12,6 +12,8 @@ import { useSeatLayout } from "@/hooks/useSeatLayout";
 import { useSeatActions } from "@/hooks/useSeatActions";
 import { useShowSeatRealtime } from "@/hooks/useShowSeatRealtime";
 import { toast } from "@/lib/toast";
+import { useAuth } from "@/context/AuthContext";
+import { getTicketLimit } from "@/lib/proPerks";
 
 export default function EventSeatLayout() {
   const router = useRouter();
@@ -21,6 +23,8 @@ export default function EventSeatLayout() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   const setSelectedSeats = useEventBookingStore((state) => state.setSeats);
+  const { user } = useAuth();
+  const ticketLimit = getTicketLimit(user?.membership);
 
   const booking = useEventBookingStore();
   const { seats, setSeats } = useSeatLayout(booking);
@@ -61,8 +65,8 @@ export default function EventSeatLayout() {
       toast.warning("Please select at least one seat before continuing.");
       return;
     }
-    if (selectedSeats.length > 2) {
-      toast.warning("You can select a maximum of 2 seats.");
+    if (selectedSeats.length > ticketLimit) {
+      toast.warning(`You can select a maximum of ${ticketLimit} seats.`);
       return;
     }
 

@@ -1,10 +1,32 @@
 "use client";
 
 import { useThemeStore } from "@/store/themeStore";
+import type { SubscriptionStatusResponse } from "../types";
 
-export default function SubscriptionHero() {
+type SubscriptionHeroProps = {
+  status: SubscriptionStatusResponse | null;
+  loading: boolean;
+};
+
+function formatDate(value?: string) {
+  if (!value) return "";
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(value));
+}
+
+export default function SubscriptionHero({ status, loading }: SubscriptionHeroProps) {
   const mode = useThemeStore((s) => s.mode);
   const dark = mode === "dark";
+  const subscription = status?.subscription;
+  const headline = status?.isPro
+    ? "Your Pro benefits are active"
+    : "Choose the plan that fits your booking style";
+  const copy = subscription?.endDate
+    ? `Current access runs until ${formatDate(subscription.endDate)}.`
+    : "Compare Free vs Pro and upgrade using your wallet balance.";
 
   return (
     <section
@@ -18,10 +40,10 @@ export default function SubscriptionHero() {
         Subscription Plans
       </p>
       <h1 className="mt-2 text-2xl font-semibold sm:text-3xl">
-        Choose the plan that fits your booking style
+        {loading ? "Checking your subscription" : headline}
       </h1>
       <p className="mt-2 max-w-2xl text-sm text-indigo-100/90">
-        Compare Free vs Pro and select monthly, quarterly, or yearly billing.
+        {loading ? "Keeping your membership status in sync." : copy}
       </p>
     </section>
   );

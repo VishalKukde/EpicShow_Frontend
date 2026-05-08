@@ -131,7 +131,9 @@ export default function Navbar() {
 
           {/* Right */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <button
+            {pathname === "/" ? (
+              <>
+                 <button
               type="button"
               onClick={openShowcase}
               aria-label="Open app feature guide"
@@ -148,9 +150,6 @@ export default function Navbar() {
               <Layers3 className="h-4 w-4" />
               <span className="hidden md:inline">Inside App</span>
             </button>
-
-            {pathname === "/" ? (
-              <>
                 <button
                   type="button"
                   onClick={handleSearchClick}
@@ -188,6 +187,9 @@ export default function Navbar() {
                     Admin
                   </button>
                 )}
+
+              
+
               </>
             ) : null}
 

@@ -73,7 +73,7 @@ export default function MovieReviewsSection({
 
         const response = (await apiFetch(
           `/movies/reviews?movieId=${encodeURIComponent(movieId)}&page=${nextPage}&limit=${PAGE_SIZE}`,
-          { notifyOnError: !append }
+          { notifyOnError: !append, publicRequest: true }
         )) as ReviewListResponse;
 
         if (!active) {
@@ -123,7 +123,7 @@ export default function MovieReviewsSection({
       setLoadingMore(true);
       const response = (await apiFetch(
         `/movies/reviews?movieId=${encodeURIComponent(movieId)}&page=${page + 1}&limit=${PAGE_SIZE}`,
-        { notifyOnError: false }
+        { notifyOnError: false, publicRequest: true }
       )) as ReviewListResponse;
 
       const nextReviews = Array.isArray(response.data) ? response.data : [];
@@ -159,11 +159,11 @@ export default function MovieReviewsSection({
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <SummaryChip
+          {/* <SummaryChip
             dark={dark}
             label="Average"
             value={summary.total_reviews > 0 ? `${summary.avg_rating.toFixed(1)}/5` : "No rating"}
-          />
+          /> */}
           <SummaryChip
             dark={dark}
             label="Reviews"

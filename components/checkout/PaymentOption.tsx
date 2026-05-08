@@ -20,7 +20,7 @@ const PaymentOption = ({
   <button
     onClick={onClick}
     disabled={disabled}
-    className={`w-full flex items-center justify-between rounded-2xl border px-4 py-4 text-left transition-all duration-200 sm:px-5 ${
+    className={`w-full flex items-center justify-between rounded-2xl border px-4 py-4 text-left transition-all duration-200 sm:px-5 cursor-pointer ${
       disabled
         ? mode === "dark"
           ? "cursor-not-allowed border-zinc-700 bg-zinc-800 opacity-60"

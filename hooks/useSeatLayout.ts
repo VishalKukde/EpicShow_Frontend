@@ -36,7 +36,8 @@ export function useSeatLayout(booking: BookingForSeatLayout) {
           `?movieId=${movieId}` +
           `&showDate=${booking.date}` +
           `&showSlot=${encodeURIComponent(slot)}` +
-          `&userId=${user?.id}`
+          `&userId=${user?.id ?? ""}`,
+          { publicRequest: true }
         );
 
         setSeats(layout);

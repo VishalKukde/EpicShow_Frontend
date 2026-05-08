@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { User, AuthResponse } from "@/types/Auth";
 import { getToken, setToken } from "@/lib/tokenStore";
@@ -152,9 +152,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const updateUser = (data: Partial<User>) => {
+  const updateUser = useCallback((data: Partial<User>) => {
     setUser((prev) => (prev ? { ...prev, ...data } : prev));
-  };
+  }, []);
 
   return (
     <AuthContext.Provider

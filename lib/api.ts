@@ -8,6 +8,7 @@ let isRefreshing = false;
 
 type ApiRequestOptions = RequestInit & {
   notifyOnError?: boolean;
+  publicRequest?: boolean;
 };
 
 function extractErrorMessage(payload: unknown, fallback = "Request failed") {
@@ -42,7 +43,7 @@ function shouldShowErrorToast(path: string, notifyOnError?: boolean) {
 }
 
 export async function apiFetch(path: string, options: ApiRequestOptions = {}) {
-  const { notifyOnError, ...requestOptions } = options;
+  const { notifyOnError, publicRequest, ...requestOptions } = options;
   const isAuthPublicPath =
     path.includes("/auth/login") ||
     path.includes("/auth/register") ||
@@ -57,7 +58,6 @@ export async function apiFetch(path: string, options: ApiRequestOptions = {}) {
     toast.error(message);
   };
 
-  console.log("Access token expired. Attempting refresh...", path);
   const makeRequest = async (accessToken: string | null) => {
     return fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
       ...requestOptions,
@@ -65,7 +65,7 @@ export async function apiFetch(path: string, options: ApiRequestOptions = {}) {
       headers: {
         "Content-Type": "application/json",
         ...(requestOptions.headers || {}),
-        ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        ...(!publicRequest && accessToken && { Authorization: `Bearer ${accessToken}` }),
       },
     });
   };
@@ -86,7 +86,7 @@ export async function apiFetch(path: string, options: ApiRequestOptions = {}) {
     }
 
     // Handle access token expiry.
-    if (res.status === 401) {
+    if (res.status === 401 && !publicRequest) {
       if (!isRefreshing) {
         isRefreshing = true;
 

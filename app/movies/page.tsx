@@ -19,7 +19,7 @@ useEffect(() => {
   async function loadMovies() {
     try {
       setLoading(true);
-      const data = await apiFetch("/movies");
+      const data = await apiFetch("/movies", { publicRequest: true });
       setMovies(data);
     } catch (err) {
       console.error(err);

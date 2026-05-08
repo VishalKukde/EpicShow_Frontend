@@ -152,7 +152,7 @@ export default function BookingCard({
   return (
     <>
       <article
-        className={`group relative isolate h-full overflow-hidden rounded-[1.7rem] border transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_26px_70px_rgba(15,23,42,0.14)] select-none ${cardSurface}`}
+        className={`group relative isolate h-full overflow-hidden rounded-[1.7rem] border transition-all duration-300  hover:shadow-[0_26px_70px_rgba(15,23,42,0.14)] select-none ${cardSurface}`}
       >
         <div className={`pointer-events-none absolute inset-0 opacity-90 ${accentGlow}`} />
 
@@ -186,7 +186,7 @@ export default function BookingCard({
                   src={posterUrl}
                   alt={title}
                   fill
-                  className="object-cover transition duration-700 group-hover:scale-105"
+                  className="object-cover transition duration-600 group-hover:scale-105"
                 />
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-slate-300 via-slate-200 to-slate-100 dark:from-zinc-800 dark:via-zinc-900 dark:to-black" />

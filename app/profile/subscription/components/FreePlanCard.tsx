@@ -5,9 +5,10 @@ import { useThemeStore } from "@/store/themeStore";
 
 type FreePlanCardProps = {
   features: string[];
+  isCurrent?: boolean;
 };
 
-export default function FreePlanCard({ features }: FreePlanCardProps) {
+export default function FreePlanCard({ features, isCurrent = true }: FreePlanCardProps) {
   const mode = useThemeStore((s) => s.mode);
   const dark = mode === "dark";
 
@@ -22,7 +23,7 @@ export default function FreePlanCard({ features }: FreePlanCardProps) {
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className={`text-xs font-medium uppercase tracking-wide ${dark ? "text-zinc-400" : "text-gray-500"}`}>
-            Current Plan
+            {isCurrent ? "Current Plan" : "Included"}
           </p>
           <h2 className={`mt-1 text-xl font-semibold ${dark ? "text-zinc-100" : "text-gray-900"}`}>Free</h2>
         </div>
@@ -48,7 +49,7 @@ export default function FreePlanCard({ features }: FreePlanCardProps) {
             : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
         }`}
       >
-        Continue Free
+        {isCurrent ? "Continue Free" : "Free backup plan"}
       </button>
     </article>
   );

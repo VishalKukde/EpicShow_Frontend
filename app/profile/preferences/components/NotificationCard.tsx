@@ -28,7 +28,7 @@ export function NotificationCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className={`text-base font-semibold ${dark ? "text-zinc-100" : "text-gray-900"}`}>Notification Preferences</h2>
-          <p className={`mt-1 text-sm ${dark ? "text-zinc-400" : "text-gray-600"}`}>
+          <p className={`mt-1 text-xs ${dark ? "text-zinc-400" : "text-gray-600"}`}>
             Control communication and booking alerts.
           </p>
         </div>
@@ -38,13 +38,13 @@ export function NotificationCard({
       <div className="mt-4 space-y-2">
         <ToggleRow
           dark={dark}
-          title="Booking reminders"
+          title="Notification"
           subtitle="Get reminders before your show starts"
           checked={bookingReminders}
           onToggle={onToggleBookingReminders}
           icon={<Bell className="h-4 w-4" />}
         />
-        <ToggleRow
+        {/* <ToggleRow
           dark={dark}
           title="Email updates"
           subtitle="Receive booking receipts and account updates"
@@ -59,7 +59,7 @@ export function NotificationCard({
           checked={offerAlerts}
           onToggle={onToggleOfferAlerts}
           icon={<Sparkles className="h-4 w-4" />}
-        />
+        /> */}
       </div>
     </article>
   );

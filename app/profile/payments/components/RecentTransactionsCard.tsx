@@ -90,7 +90,7 @@ export default function RecentTransactionsCard({
                   payment.status === "Success"
                     ?  dark ? "border-emerald-300 text-emerald-300" : "border-emerald-500 text-emerald-900 bg-emerald-200"
                     : payment.status === "Refunded"
-                      ? "border-amber-300 bg-amber-100 text-amber-800"
+                      ? "border-amber-300 bg-amber-300 text-amber-800"
                       : "border-red-300 bg-red-100 text-red-800"
                 }`}
               >

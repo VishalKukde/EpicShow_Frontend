@@ -80,18 +80,27 @@ export default function Sidebar() {
             {/* Avatar */}
             <div
               className={`w-12 h-12 rounded-full overflow-hidden flex items-center justify-center text-lg font-semibold
-    ${loading ? "bg-gray-200 dark:bg-gray-700 animate-pulse" : "bg-white text-white"}`}
+             ${loading ? "bg-gray-200 dark:bg-gray-700 animate-pulse" : "bg-white text-white"}`}
             >
               {loading ? (
                 <div className="w-full h-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-200 dark:via-gray-300 dark:to-gray-200 animate-[shimmer_1.5s_infinite]"></div>
               ) : (
-                <Image
-                  src={user?.avatar || "/assets/profiles/user.webp"}
-                  alt="avatar"
-                  width={48}
-                  height={48}
-                  className="w-full h-full object-cover"
-                />
+                <div
+                  className={`relative h-12 w-12 rounded-full p-[2px] ${user?.membership === "pro"
+                    ? "bg-gradient-to-br from-purple-300 via-indigo-500 to-purple-500 shadow-[0_0_18px_rgba(234,179,8,0.45)]"
+                    : ""
+                    }`}
+                >
+                  <div className="h-full w-full overflow-hidden rounded-full">
+                    <Image
+                      src={user?.avatar || "/assets/profiles/user.webp"}
+                      alt="avatar"
+                      width={48}
+                      height={48}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                </div>
               )}
             </div>
 
@@ -103,14 +112,19 @@ export default function Sidebar() {
                   <div className="h-3 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
                 </>
               ) : (
-                <>
-                  <p className="font-semibold ">
-                    {user?.name || "Guest"}
-                  </p>
-                  <p className="text-sm ">
-                    {user?.email}
-                  </p>
-                </>
+                <div className="flex items-center justify-between gap-3">
+                  {/* LEFT SIDE */}
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold">
+                      {user?.name || "Guest"} 
+                    </p>
+
+                    <p className="truncate text-sm text-zinc-500 dark:text-zinc-400">
+                      {user?.email}
+                    </p>
+                  </div>
+
+                </div>
               )}
             </div>
           </div>
@@ -225,13 +239,13 @@ export default function Sidebar() {
               </div>
             </div>
 
-             <button
+            <button
               onClick={() => route.push("/profile/refunds")}
               className="flex items-center justify-between w-full px-3 py-2 mt-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition cursor-pointer"
             >
               <div className="flex items-center gap-2">
                 <RotateCcw className="w-4 h-4" />
-                Refunds
+                Refunds History
               </div>
             </button>
           </div>
@@ -322,24 +336,25 @@ export default function Sidebar() {
           </div>
 
           {/* 🔥 PRO CARD */}
+          {user?.membership !== "pro" && (
+            <div className="bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-xl p-4 shadow-md">
+              <div className="flex items-center gap-2 mb-2">
+                <Star className="w-5 h-5" />
+                <p className="font-semibold">Upgrade to Pro</p>
+              </div>
 
-          <div className="bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-xl p-4 shadow-md">
-            <div className="flex items-center gap-2 mb-2">
-              <Star className="w-5 h-5" />
-              <p className="font-semibold">Upgrade to Pro</p>
+              <p className="text-xs opacity-90 mb-3">
+                Get priority booking, exclusive deals & rewards.
+              </p>
+
+              <button
+                onClick={() => route.push("/profile/subscription")}
+                className="w-full bg-white text-indigo-600 text-sm font-medium py-1.5 rounded-md hover:bg-gray-100 transition cursor-pointer"
+              >
+                Upgrade Now
+              </button>
             </div>
-
-            <p className="text-xs opacity-90 mb-3">
-              Get priority booking, exclusive deals & rewards.
-            </p>
-
-            <button
-              onClick={() => route.push("/profile/subscription")}
-              className="w-full bg-white text-indigo-600 text-sm font-medium py-1.5 rounded-md hover:bg-gray-100 transition cursor-pointer"
-            >
-              Upgrade Now
-            </button>
-          </div>
+          )}
         </div>
 
         {/* FOOTER */}

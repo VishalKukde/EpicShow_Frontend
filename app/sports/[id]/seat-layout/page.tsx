@@ -11,6 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import { toSportBookingItem, type SportMatch } from "@/app/sports/data";
 import { fetchSportById } from "@/lib/sportsApi";
 import { useThemeStore } from "@/store/themeStore";
+import { getTicketLimit } from "@/lib/proPerks";
 
 const DEFAULT_PRICES = {
   standard: 320,
@@ -264,6 +265,7 @@ export default function SportSeatLayout() {
   );
 
   const totalPrice = selectedSeats.reduce((sum, seat) => sum + seat.price, 0);
+  const ticketLimit = getTicketLimit(user?.membership);
 
   useEffect(() => {
     setSelectedSeats(selectedSeats, totalPrice);
@@ -286,8 +288,8 @@ export default function SportSeatLayout() {
     const isUnlocking = seat.status === "selected";
     const selectedCount = selectedSeats.length;
 
-    if (!isUnlocking && selectedCount >= 2) {
-      toast.warning("You can select a maximum of 2 seats.");
+    if (!isUnlocking && selectedCount >= ticketLimit) {
+      toast.warning(`You can select a maximum of ${ticketLimit} seats.`);
       return;
     }
 
@@ -316,8 +318,8 @@ export default function SportSeatLayout() {
       toast.warning("Please select at least one seat before continuing.");
       return;
     }
-    if (selectedSeats.length > 2) {
-      toast.warning("You can select a maximum of 2 seats.");
+    if (selectedSeats.length > ticketLimit) {
+      toast.warning(`You can select a maximum of ${ticketLimit} seats.`);
       return;
     }
 
@@ -409,7 +411,7 @@ export default function SportSeatLayout() {
               {match.teamA} vs {match.teamB}
             </h2>
             <p className={`text-sm ${dark ? "text-zinc-400" : "text-slate-600"}`}>
-              Tap a stand to choose your seats. Max 2 seats per booking.
+              Tap a stand to choose your seats. Your plan allows up to {ticketLimit} seats.
             </p>
           </div>
 

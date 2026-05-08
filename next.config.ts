@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
     ],
   },
   devIndicators: false,
+  allowedDevOrigins: [
+    "https://epicshow.vercel.app",
+    "http://192.168.29.21:3000",
+  ],
 }
 
 export default nextConfig;

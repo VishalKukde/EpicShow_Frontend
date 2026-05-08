@@ -73,7 +73,7 @@ export default function MovieSearchModal({ open, onClose }: MovieSearchModalProp
       try {
         let movies = allMoviesRef.current;
         if (!movies.length) {
-          const payload = await apiFetch("/movies", { method: "GET", notifyOnError: false });
+          const payload = await apiFetch("/movies", { method: "GET", notifyOnError: false, publicRequest: true });
           movies = Array.isArray(payload) ? payload : payload?.movies ?? [];
           allMoviesRef.current = movies;
         }

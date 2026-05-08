@@ -102,7 +102,6 @@ const MovieCard = ({ movie }: IMovieCardProps) => {
                         releaseDate={movie.releaseDate}
                         movieId={movie._id}
                         reviewCount={reviewCount}
-                        averageRating={averageRating}
                     />
                 </div>
             </div>

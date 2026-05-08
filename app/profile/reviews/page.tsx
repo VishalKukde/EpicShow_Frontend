@@ -81,11 +81,8 @@ export default function ReviewPage() {
         }`}
       >
 
- <p className={`py-10 text-center text-sm ${dark ? "text-zinc-400" : "text-gray-500"}`}>
-            This feature is coming soon. Check back shortly or explore other sections in the meantime.
-          </p>
 
-        {/* {loading ? (
+        {loading ? (
           <div className="grid gap-3">
             {Array.from({ length: 3 }).map((_, index) => (
               <div
@@ -129,7 +126,7 @@ export default function ReviewPage() {
               </div>
             ) : null}
           </>
-        )} */}
+        )}
       </section>
     </div>
   );

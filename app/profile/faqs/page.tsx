@@ -13,9 +13,9 @@ const faqItems = [
   },
   {
     category: "Bookings",
-    question: "Why can I select only 2 seats?",
+    question: "How many seats can I book?",
     answer:
-      "Current booking flow is configured with a maximum of 2 seats per transaction for the selected show flow.",
+      "Free users can book up to 2 seats per transaction. Pro members can book up to 5 seats.",
   },
   {
     category: "Payments",
