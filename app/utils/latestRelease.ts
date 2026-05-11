@@ -49,7 +49,6 @@ export const releases: Release[] = [
             { title: "Auto Top-up", status: "planned" },
             { title: "User Activity Log", status: "planned" },
             { title: "Admin Dashboard", status: "planned" },
-            { title: "Invite and Share", status: "planned" },
         ],
     },
     {

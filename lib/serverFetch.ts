@@ -22,7 +22,8 @@ export async function serverFetch(
     .getAll()
     .map((cookie) => `${cookie.name}=${cookie.value}`)
     .join("; ");
-  const accessToken = cookieStore.get("accessToken")?.value 
+  const accessToken = cookieStore.get("accessToken")?.value
+    || cookieStore.get("epicshowClientAccessToken")?.value;
 
   const headers = new Headers(options.headers);
   if (!headers.has("Content-Type")) {
