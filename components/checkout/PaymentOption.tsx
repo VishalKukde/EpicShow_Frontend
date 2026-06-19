@@ -1,3 +1,4 @@
+"use client";
 type PaymentOptionProps = {
   mode: "light" | "dark";
   active: boolean;
