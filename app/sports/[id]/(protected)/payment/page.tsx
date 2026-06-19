@@ -29,9 +29,7 @@ export default function SportsPaymentPage() {
 
   const { verifiedAmount, loading, error } = usePaymentStore();
   const { item, seats, venue, venueId, date, slot, totalPrice, appliedCoupon, type, redeemReward } =
-    useSportBookingStore();
-
-    // console.log("Booking details:", { item, seats, venue, venueId, date, slot, totalPrice, appliedCoupon, type, redeemReward });  
+    useSportBookingStore();  
 
   const [match, setMatch] = useState<SportMatch | null>(null);
 

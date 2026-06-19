@@ -7,6 +7,7 @@ import AdminBookingTable from "./components/AdminBookingTable";
 import AdminCustomersTable from "./components/AdminCustomersTable";
 import AdminOrdersTable from "./components/AdminOrdersTable";
 import AdminRefundsTable from "./components/AdminRefundsTable";
+import AdminVenuesPanel from "./components/AdminVenuesPanel";
 import AdminComingSoonPanel from "./components/adminDashboard/AdminComingSoonPanel";
 import AdminPageTitle from "./components/adminDashboard/AdminPageTitle";
 import AdminSidebar from "./components/adminDashboard/AdminSidebar";
@@ -70,10 +71,12 @@ export default function Dashboard() {
               <RouteOverview activeItem={activeItem} dashboard={dashboard} loading={loading} />
               <AdminBookingTable key={activeItem} type={activeItem} />
             </>
-          ) : activeItem === "concerts" || activeItem === "flights" || activeItem === "hotels" || activeItem === "trains" ? (
+          ) : activeItem === "concerts" || activeItem === "flights" || activeItem === "hotels" ? (
             <AdminComingSoonPanel label={activeLabel} />
           ) : activeItem === "orders" ? (
             <AdminOrdersTable />
+          ) : activeItem === "venues" ? (
+            <AdminVenuesPanel />
           ) : activeItem === "customers" ? (
             <AdminCustomersTable />
           ) : (

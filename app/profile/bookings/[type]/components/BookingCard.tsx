@@ -5,11 +5,11 @@ import { Booking } from "@/types/Booking";
 import { Calendar, CheckCircle2, Clock3, Eye, MapPin, PenSquare, Ticket } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 import { useState, type ComponentType } from "react";
 import ReviewModal from "./ReviewModal";
 
 interface BookingCardProps {
+  type: string;
   booking: Booking;
   title: string;
   posterUrl?: string;
@@ -100,20 +100,18 @@ const formatCreatedAt = (value: string) => {
 };
 
 export default function BookingCard({
+  type,
   booking,
   title,
   posterUrl,
 }: BookingCardProps) {
-  const params = useParams();
   const mode = useThemeStore((state) => state.mode);
-  const type = params.type as string;
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [hasSubmittedReview, setHasSubmittedReview] = useState(Boolean(booking.reviewSubmitted));
   const dark = mode === "dark";
   const seatCount = booking.seatIds.length;
   const isSport = booking.showType === SHOW_TYPE.SPORT;
-  const visualStatus: VisualBookingStatus =
-    booking.status === BOOKING_STATUS.UPCOMING ? "upcoming" : booking.status;
+  const visualStatus: VisualBookingStatus = getVisualStatus(booking);
   const statusLabel = visualStatus.toUpperCase();
   const amountLabel = `₹${new Intl.NumberFormat("en-IN").format(booking.amount)}`;
   const compactSeatPreview =
@@ -224,13 +222,13 @@ export default function BookingCard({
             />
             <MetaPill
               dark={dark}
-              label="Booked"
+              label="Date"
               value={booking.showTime ? formatCreatedAt(booking.showTime) : "Recently"}
               icon={Calendar}
             />
             <MetaPill
               dark={dark}
-              label="Slot"
+              label="Slot/Time"
               value={booking.slot}
               icon={Clock3}
             />
@@ -307,6 +305,46 @@ export default function BookingCard({
         }}
       />
     </>
+  );
+}
+
+function getVisualStatus(booking: Booking): VisualBookingStatus {
+  if (booking.showType === SHOW_TYPE.TRAIN && booking.status === BOOKING_STATUS.PAID) {
+    return isTrainDeparturePast(booking.date, booking.slot) ? BOOKING_STATUS.EXPIRED : "upcoming";
+  }
+
+  return booking.status === BOOKING_STATUS.UPCOMING ? "upcoming" : booking.status;
+}
+
+function isTrainDeparturePast(dateValue?: string, timeValue?: string) {
+  const departure = parseTrainDateTime(dateValue, timeValue);
+  return departure ? departure.getTime() < Date.now() : false;
+}
+
+function parseTrainDateTime(dateValue?: string, timeValue?: string) {
+  if (!dateValue || !timeValue || timeValue === "-") return null;
+
+  const dateMatch = String(dateValue).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!dateMatch) return null;
+
+  const time = String(timeValue).trim();
+  const timeMatch = time.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?$/i);
+  if (!timeMatch) return null;
+
+  let hours = Number(timeMatch[1]);
+  const minutes = Number(timeMatch[2] || 0);
+  const meridiem = timeMatch[3]?.toUpperCase();
+
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return null;
+  if (meridiem === "PM" && hours < 12) hours += 12;
+  if (meridiem === "AM" && hours === 12) hours = 0;
+
+  return new Date(
+    Number(dateMatch[1]),
+    Number(dateMatch[2]) - 1,
+    Number(dateMatch[3]),
+    hours,
+    minutes
   );
 }
 

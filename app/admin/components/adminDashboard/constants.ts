@@ -19,7 +19,7 @@ import {
 import type { ActivePage, BookingType } from "./types";
 
 type NavItem = {
-  key: ActivePage | "venues" | "revenue" | "reports";
+  key: ActivePage | "revenue" | "reports";
   label: string;
   icon: LucideIcon;
 };
@@ -60,8 +60,8 @@ export const NAV_SECTIONS: { label: string; items: NavItem[] }[] = [
   },
 ];
 
-export const BOOKING_TYPES = new Set<string>(["movies", "sports", "events", "gaming"]);
-export const ACTIVE_PAGES = new Set<string>(["dashboard", "movies", "sports", "events", "gaming", "concerts", "flights", "hotels", "trains", "orders", "refunds", "customers"]);
+export const BOOKING_TYPES = new Set<string>(["movies", "sports", "events", "gaming", "trains"]);
+export const ACTIVE_PAGES = new Set<string>(["dashboard", "movies", "sports", "events", "gaming", "concerts", "flights", "hotels", "trains", "orders", "venues", "refunds", "customers"]);
 export const COLORS = ["#6C63FF", "#0EA5E9", "#10B981", "#F59E0B"];
 
 export const ADMIN_PAGE_ROUTES: Record<ActivePage, string> = {
@@ -75,6 +75,7 @@ export const ADMIN_PAGE_ROUTES: Record<ActivePage, string> = {
   hotels: "/admin/bookings/hotels",
   trains: "/admin/bookings/trains",
   orders: "/admin/operation/order",
+  venues: "/admin/operation/venues",
   refunds: "/admin/operation/refunds",
   customers: "/admin/operation/customers",
 };
@@ -98,6 +99,7 @@ export function getActivePageFromPath(pathname: string): ActivePage {
 
   if (section === "operation") {
     if (leaf === "order" || leaf === "orders") return "orders";
+    if (leaf === "venue" || leaf === "venues") return "venues";
     if (leaf === "refund" || leaf === "refunds") return "refunds";
     if (leaf === "customer" || leaf === "customers") return "customers";
   }
@@ -111,6 +113,6 @@ export function isBookingType(value: ActivePage): value is BookingType {
 
 export function getActiveArea(activeItem: ActivePage) {
   if (activeItem === "dashboard") return "Overview";
-  if (activeItem === "orders" || activeItem === "refunds" || activeItem === "customers") return "Operations";
+  if (activeItem === "orders" || activeItem === "venues" || activeItem === "refunds" || activeItem === "customers") return "Operations";
   return "Bookings";
 }

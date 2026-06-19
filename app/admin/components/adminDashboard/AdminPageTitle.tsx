@@ -20,8 +20,9 @@ export default function AdminPageTitle({ activeItem, activeLabel }: AdminPageTit
 function getPageDescription(activeItem: ActivePage, activeLabel: string) {
   if (activeItem === "dashboard") return "High-level booking, order, user, revenue, and payment intelligence.";
   if (activeItem === "orders") return "Track order payments, methods, and ticket volume.";
+  if (activeItem === "venues") return "Inspect venue seat layouts across booking categories.";
   if (activeItem === "refunds") return "Review eligible bookings and initiate refunds from one focused queue.";
   if (activeItem === "customers") return "Browse customers, account details, wallet balance, rewards, and preferences.";
-  if (activeItem === "concerts" || activeItem === "flights" || activeItem === "hotels" || activeItem === "trains") return `${activeLabel} admin tools are prepared for the next booking module.`;
+  if (activeItem === "concerts" || activeItem === "flights" || activeItem === "hotels") return `${activeLabel} admin tools are prepared for the next booking module.`;
   return `Track only ${activeLabel.toLowerCase()} bookings, sales, tickets, and route health.`;
 }

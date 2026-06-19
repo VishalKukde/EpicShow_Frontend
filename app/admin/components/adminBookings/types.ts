@@ -1,4 +1,4 @@
-export type BookingType = "movies" | "sports" | "events" | "gaming";
+export type BookingType = "movies" | "sports" | "events" | "gaming" | "trains";
 
 export type BookingRow = {
   _id: string;

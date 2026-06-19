@@ -1,4 +1,4 @@
-export type PaymentStatus = "success" | "failed";
+export type PaymentStatus = "success" | "failed" | "refund_initiated" | "refunded";
 
 export type PaymentMethod =
   | "upi"

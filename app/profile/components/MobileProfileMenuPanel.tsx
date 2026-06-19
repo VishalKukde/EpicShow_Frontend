@@ -32,6 +32,7 @@ import {
   TrainFront,
   Trophy,
   User,
+  UserRoundCheck,
   Wallet,
   Heart,
 } from "lucide-react";
@@ -58,6 +59,7 @@ const menuSections: MenuSection[] = [
       { href: "/profile/favorite", icon: Heart, label: "Favorites" },
       { href: "/offers", icon: BadgePercent, label: "Offers" },
       { href: "/profile/my-coupons", icon: TicketPercent, label: "My Coupons" },
+      { href: "/profile/saved-passengers", icon: UserRoundCheck, label: "Saved Passengers" },
     ],
   },
   {
@@ -65,10 +67,10 @@ const menuSections: MenuSection[] = [
     items: [
       { href: "/profile/bookings/movies", icon: Film, label: "Movies" },
       { href: "/profile/bookings/sports", icon: Trophy, label: "Sports" },
+      { href: "/profile/bookings/trains", icon: TrainFront, label: "Trains" },
       { href: "/profile/bookings/gaming", icon: Gamepad2, label: "Gaming" },
       { href: "/profile/bookings/events", icon: Ticket, label: "Events" },
       { href: "/profile/bookings/concerts", icon: Music2, label: "Concerts" },
-      { href: "/profile/bookings/trains", icon: TrainFront, label: "Trains" },
       { href: "/profile/bookings/flights", icon: Plane, label: "Flights" },
       { href: "/profile/bookings/hotels", icon: Hotel, label: "Hotels" },
       { href: "/profile/refunds", icon: RotateCcw, label: "Refunds" },

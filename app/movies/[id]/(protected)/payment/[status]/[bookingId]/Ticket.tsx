@@ -17,6 +17,7 @@ interface Props {
 }
 
 export default async function Ticket({ id, status, bookingId }: Props) {
+    console.log("Fetching booking details for ID:", bookingId);
     const data = await serverFetch(`/booking/${bookingId}`, {
         authRedirectPath: `/movies/${id}/payment/${status}/${bookingId}`,
     });

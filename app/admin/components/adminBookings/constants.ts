@@ -5,6 +5,7 @@ export const TYPE_LABELS: Record<BookingType, string> = {
   sports: "Sport",
   events: "Event",
   gaming: "Gaming",
+  trains: "Train",
 };
 
 export const STATUS_COLORS: Record<string, { bg: string; text: string }> = {

@@ -11,6 +11,10 @@ export const bookingTypeConfig = {
     title: "Gaming Bookings",
     api: "/bookings/gaming",
   },
+  concerts: {
+    title: "Concert Bookings",
+    api: "/bookings/concerts",
+  },
   sports: {
     title: "Sports Bookings",
     api: "/bookings/sports",
@@ -18,5 +22,9 @@ export const bookingTypeConfig = {
   events: {
     title: "Event Bookings",
     api: "/bookings/events",
+  },
+  trains: {
+    title: "Train Bookings",
+    api: "/trains/bookings/profile",
   },
 } as const;

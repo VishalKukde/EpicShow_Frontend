@@ -12,6 +12,7 @@ type BookingListItem = Booking & {
 };
 
 type BookingListProps = {
+  type: string;
   loading: boolean;
   loadingMore: boolean;
   hasMore: boolean;
@@ -20,6 +21,7 @@ type BookingListProps = {
 };
 
 export default function BookingList({
+  type,
   loading,
   loadingMore,
   hasMore,
@@ -60,6 +62,7 @@ export default function BookingList({
                 className="group h-full"
               >
                 <BookingCard
+                  type={type}
                   booking={booking}
                   title={booking.show.name}
                   posterUrl={booking.show.imageUrl}

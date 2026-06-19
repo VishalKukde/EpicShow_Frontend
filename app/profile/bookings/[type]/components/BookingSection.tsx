@@ -23,9 +23,11 @@ type BookingApiResponse = {
 export default function BookingSection({
   apiEndpoint,
   title,
+  type,
 }: {
   apiEndpoint: string;
   title: string;
+  type: string;
 }) {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -121,6 +123,7 @@ export default function BookingSection({
           </div>
 
           <BookingList
+            type={type}
             loading={loading}
             loadingMore={loadingMore}
             hasMore={hasMore}

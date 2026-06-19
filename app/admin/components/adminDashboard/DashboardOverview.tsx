@@ -95,6 +95,7 @@ function PaymentHealth({ dashboard }: { dashboard: DashboardData | null }) {
 
 function RevenueChart({ data }: { data: DashboardData["monthlyRevenue"] }) {
   const max = Math.max(...data.map((item) => item.revenue), 1);
+  const currentMonthIndex = new Date().getMonth();
   return (
     <div className="admin-dashboard-card" style={{ background: "var(--admin-surface)", border: "1px solid var(--admin-border)", borderRadius: 22, padding: 20, boxShadow: "0 18px 50px rgba(15,13,26,.05)" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
@@ -107,7 +108,7 @@ function RevenueChart({ data }: { data: DashboardData["monthlyRevenue"] }) {
       <div style={{ height: 190, display: "flex", alignItems: "end", gap: 9 }}>
         {data.map((item, index) => (
           <div key={item.month} style={{ flex: 1, display: "grid", gap: 8, alignItems: "end" }} title={formatCurrency(item.revenue)}>
-            <div style={{ minHeight: 8, height: `${Math.max((item.revenue / max) * 150, 8)}px`, borderRadius: "12px 12px 5px 5px", background: index === data.length - 1 ? "#6C63FF" : "var(--admin-chart-muted)" }} />
+            <div style={{ minHeight: 8, height: `${Math.max((item.revenue / max) * 150, 8)}px`, borderRadius: "12px 12px 5px 5px", background: index === currentMonthIndex ? "#6C63FF" : "var(--admin-chart-muted)" }} />
             <span style={{ color: "var(--admin-text-muted)", fontSize: 11, textAlign: "center" }}>{item.month}</span>
           </div>
         ))}

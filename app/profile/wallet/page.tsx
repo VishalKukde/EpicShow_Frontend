@@ -225,7 +225,6 @@ export default function WalletPage() {
           amount: Number(txn.amount.toFixed(2)),
         }));
         
-        console.log("Fetch transactions response:", mapped);
         setTransactions((prev) => (append ? [...prev, ...mapped] : mapped));
         setTransactionsPage(nextPage);
 

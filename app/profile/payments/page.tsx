@@ -46,6 +46,17 @@ function formatPaymentStatus(status: string): PaymentStatus {
   return "Failed";
 }
 
+function formatShowType(showType: string) {
+  const value = (showType || "").toLowerCase();
+  if (value === "movie") return "Movie";
+  if (value === "train") return "Train";
+  if (value === "sport" || value === "sports") return "Sport";
+  if (value === "event" || value === "events") return "Event";
+  if (value === "gaming" || value === "games") return "Gaming";
+  if (value === "subscription") return "Subscription";
+  return showType || "N/A";
+}
+
 function formatDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
@@ -90,13 +101,14 @@ export default function PaymentsPage() {
 
       try {
         const result = await apiFetch(`/payment/transactions?limit=10&page=${nextPage}`);
+        console.log("API Result:", result); // Debug log
 
         const mapped = ((result?.transactions ?? []) as PaymentTransactionApiItem[]).map(
           (txn) => ({
             id: txn.id,
-            title: txn.title,
+            title: txn.title || (String(txn.showType || "").toLowerCase() === "train" ? "Train booking" : "Booking payment"),
             date: formatDate(txn.date),
-            showType: txn.showType,
+            showType: formatShowType(txn.showType),
             details: txn.details ?? null,
             method: formatPaymentMethod(txn.method),
             amount: Number(txn.amount ?? 0),

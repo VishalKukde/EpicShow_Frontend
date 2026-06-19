@@ -15,6 +15,8 @@ import { toast } from "@/lib/toast";
 import { useAuth } from "@/context/AuthContext";
 import { getTicketLimit } from "@/lib/proPerks";
 import type { MovieSeatPreference } from "@/types/Auth";
+import Loadable from "next/dist/shared/lib/loadable.shared-runtime";
+import { useThemeStore } from "@/store/themeStore";
 
 const movieSeatRecommendation: Record<MovieSeatPreference, { label: string; rows: string }> = {
   front: { label: "Front", rows: "A-D" },
@@ -24,7 +26,7 @@ const movieSeatRecommendation: Record<MovieSeatPreference, { label: string; rows
 
 export default function SeatLayout() {
   const router = useRouter();
-
+  const mode = useThemeStore((s) => s.mode);
   // ✅ FIXED TYPE
   const [scale] = useState(1.9);
   const [hoverSeat, setHoverSeat] = useState<Seat | null>(null);
@@ -92,25 +94,38 @@ export default function SeatLayout() {
         {/* 🎬 Screen */}
         <ScreenIndicator />
 
-        {/* <div className="mx-auto mb-4 max-w-5xl px-3 sm:px-0">
-          <div className="inline-flex flex-wrap items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-medium text-indigo-900 dark:border-indigo-500/40 dark:bg-indigo-500/10 dark:text-indigo-100">
-            <span className="font-semibold">Recommended from your preference:</span>
-            <span>{recommendedZone.label} rows</span>
-            <span className="rounded-full bg-white px-2 py-0.5 text-indigo-700 dark:bg-zinc-900 dark:text-indigo-200">
-              {recommendedZone.rows}
-            </span>
-          </div>
-        </div> */}
+{/* Loader */}
+{seats.length ===  0 ? (
+  <div className="h-135 flex flex-col items-center justify-center py-16 ">
+    <div className="h-12 w-12 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
 
-        {/* 🪑 Seats */}
-        <Seats
-          seats={seats}
-          scale={scale}
-          recommendedSeatZone={preferredMovieSeat}
-          toggleSeat={toggleSeat}
-          setHoverSeat={setHoverSeat}
-          setMousePos={setMousePos}
-        />
+    <p
+      className={`mt-4 text-base font-semibold ${
+        mode === "dark" ? "text-zinc-100" : "text-slate-900"
+      }`}
+    >
+      Please wait
+    </p>
+
+    <p
+      className={`mt-1 text-sm ${
+        mode === "dark" ? "text-zinc-400" : "text-slate-500"
+      }`}
+    >
+      Loading seat layout...
+    </p>
+  </div>
+) : (
+  /* 🪑 Seats */
+  <Seats
+    seats={seats}
+    scale={scale}
+    recommendedSeatZone={preferredMovieSeat}
+    toggleSeat={toggleSeat}
+    setHoverSeat={setHoverSeat}
+    setMousePos={setMousePos}
+  />
+)}
 
         {/* 🧠 Hover tooltip */}
         {hoverSeat && (

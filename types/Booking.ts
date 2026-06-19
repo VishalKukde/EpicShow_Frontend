@@ -26,6 +26,14 @@ export interface Booking {
 
   showType: ShowType;
 
+  pnr?: string;
+  trainName?: string;
+  trainNumber?: string;
+  arrivalTime?: string;
+  seatStatus?: "pending" | "confirmed" | "waitlisted" | "partial_waitlisted";
+  confirmedSeatCount?: number;
+  waitlistNumbers?: number[];
+
   showTime?: string;
   showTimePassed?: boolean;
   canReview?: boolean;

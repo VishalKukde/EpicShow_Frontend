@@ -5,8 +5,6 @@ import { useThemeStore } from "@/store/themeStore";
 export default function WalletHero() {
   const mode = useThemeStore((s) => s.mode);
   const dark = mode === "dark";
-  console.log("111WalletHero Rendered with mode:", mode);
-
   return (
     <section
       className={`rounded-3xl border p-6 text-white shadow-lg sm:p-8 ${

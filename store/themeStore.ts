@@ -30,7 +30,7 @@ const getInitialThemeMode = (): ThemeMode => {
         lastUserId?: string | null;
       };
     };
-    console.log("Loaded theme preferences from localStorage:", parsed);
+
     const storedMode = parsed?.state?.mode;
     if (storedMode === "dark" || storedMode === "light") {
       return storedMode;

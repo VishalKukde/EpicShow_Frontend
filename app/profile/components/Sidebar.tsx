@@ -33,6 +33,7 @@ import {
   RotateCcw,
   Bell,
   Share2,
+  UserRoundCheck,
 } from "lucide-react";
 
 import SidebarItem from "./SidebarItem";
@@ -155,6 +156,10 @@ export default function Sidebar() {
               <SidebarItem href="/profile/my-coupons" icon={TicketPercent}>
                 My Coupons
               </SidebarItem>
+
+              <SidebarItem href="/profile/saved-passengers" icon={UserRoundCheck}>
+                Saved Passengers
+              </SidebarItem>
             </nav>
           </div>
 
@@ -200,6 +205,13 @@ export default function Sidebar() {
                 />
 
                 <SubLink
+                  href="/profile/bookings/trains"
+                  icon={TrainFront}
+                  label="Trains"
+                  active={isActive("/profile/bookings/trains")}
+                />
+
+                <SubLink
                   href="/profile/bookings/gaming"
                   icon={Gamepad2}
                   label="Gaming"
@@ -218,12 +230,7 @@ export default function Sidebar() {
                   label="Concerts"
                   active={isActive("/profile/bookings/concerts")}
                 />
-                <SubLink
-                  href="/profile/bookings/trains"
-                  icon={TrainFront}
-                  label="Trains"
-                  active={isActive("/profile/bookings/trains")}
-                />
+               
                 <SubLink
                   href="/profile/bookings/flights"
                   icon={Plane}

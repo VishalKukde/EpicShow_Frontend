@@ -1,6 +1,6 @@
-export type BookingType = "movies" | "sports" | "events" | "gaming";
+export type BookingType = "movies" | "sports" | "events" | "gaming" | "trains";
 
-export type ActivePage = BookingType | "concerts" | "flights" | "hotels" | "trains" | "orders" | "refunds" | "customers" | "dashboard";
+export type ActivePage = BookingType | "concerts" | "flights" | "hotels" | "orders" | "venues" | "refunds" | "customers" | "dashboard";
 
 export type DashboardData = {
   kpis: {

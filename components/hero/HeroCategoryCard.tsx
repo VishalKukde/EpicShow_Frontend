@@ -8,7 +8,7 @@ export type HeroCategoryCardData = {
   label: string;
   accent: string;
   Icon: ComponentType<{ className?: string; size?: number, style?: React.CSSProperties }>;
-  comingSoon?: boolean;
+  isLive?: boolean;
   href?: string;
   bgImage?: string;
 };
@@ -53,9 +53,10 @@ export default function HeroCategoryCard({
 }: HeroCategoryCardProps) {
   const router = useRouter();
 
-  const isClickable = Boolean(card.href) && !card.comingSoon;
+  // const isClickable = Boolean(card.href) && card.isLive;
+  const isClickable = true
   const accentRgb = hexToRgb(card.accent);
-  const badgeText = card.comingSoon ? "Coming soon" : card.label;
+  const badgeText = card.label;
 
   const handleNavigate = () => {
     if (isClickable && card.href) {
@@ -72,7 +73,7 @@ export default function HeroCategoryCard({
   return (
     <div
       style={{ height: cardHeight }}
-      onMouseEnter={() => !card.comingSoon && onEnter(index)}
+      onMouseEnter={() => !card.isLive && onEnter(index)}
       onMouseLeave={onLeave}
       onClick={handleNavigate}
       role={isClickable ? "button" : undefined}
@@ -148,7 +149,25 @@ export default function HeroCategoryCard({
               : "0 8px 16px rgba(0,0,0,0.2)",
           }}
         >
-          {badgeText}
+          <div className="flex items-center gap-1.5">
+            <span
+              className={`relative flex h-1.5 w-1.5 ${card.isLive ? "text-green-500" : "text-red-500"
+                }`}
+            >
+              {/* Ping animation */}
+              {/* <span
+                className={`absolute inline-flex h-full w-full rounded-full animate-ping opacity-75 ${card.isLive ? "bg-green-500" : "bg-red-500"
+                  }`}
+              /> */}
+              {/* Solid dot */}
+              <span
+                className={`relative inline-flex h-1.5 w-1.5 rounded-full ${card.isLive ? "bg-green-500" : "bg-red-500"
+                  }`}
+              />
+            </span>
+
+            <span>{badgeText}</span>
+          </div>
         </div>
       )}
     </div>

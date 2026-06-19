@@ -14,7 +14,8 @@ export const SHOW_TYPE = {
   MOVIE: "movie",
   SPORT: "sport",
   EVENT: "event",
-  GAMING: "gaming"
+  GAMING: "gaming",
+  TRAIN: "train",
 } as const;
 
 export type ShowType = typeof SHOW_TYPE[keyof typeof SHOW_TYPE];

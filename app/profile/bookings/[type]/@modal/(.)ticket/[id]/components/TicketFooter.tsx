@@ -12,6 +12,8 @@ type TicketFooterProps = {
   showName?: string;
   bookingId: string;
   bookingStatus: string;
+  cancelEndpoint?: string;
+  cancelMethod?: "PATCH" | "PUT";
   movieId?: string;
   cinemaId?: string;
   date?: string;
@@ -25,6 +27,8 @@ export default function TicketFooter({
   showName,
   bookingId,
   bookingStatus,
+  cancelEndpoint,
+  cancelMethod = "PATCH",
   movieId,
   cinemaId,
   date,
@@ -53,7 +57,7 @@ export default function TicketFooter({
   const handleCancelConfirm = async () => {
     try {
       setLoading(true);
-      await apiFetch(`/cancel/${bookingId}`, { method: "PATCH" });
+      await apiFetch(cancelEndpoint || `/cancel/${bookingId}`, { method: cancelMethod });
       toast.success("Ticket cancelled successfully. Refreshing details...");
       window.setTimeout(() => window.location.reload(), 650);
     } catch {

@@ -10,6 +10,7 @@ const routeTitle: Array<{ match: string; title: string }> = [
   { match: "/profile/security", title: "Security" },
   { match: "/profile/account-settings", title: "Account Settings" },
   { match: "/profile/preferences", title: "Preferences" },
+  { match: "/profile/saved-passengers", title: "Saved Passengers" },
   { match: "/profile/subscription", title: "Subscription" },
   { match: "/profile/faqs", title: "FAQs" },
   { match: "/profile/chat", title: "Chat Support" },

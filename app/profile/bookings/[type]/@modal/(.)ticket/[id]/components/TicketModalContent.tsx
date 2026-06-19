@@ -42,7 +42,9 @@ export default function TicketModalContent({
               ? `/events/booking/${id}`
               : type === "gaming" || type === "games"
                 ? `/gaming/booking/${id}`
-                : `/booking/${id}`;
+                : type === "trains"
+                  ? `/trains/booking/${id}`
+                  : `/booking/${id}`;
         const bookingData = (await apiFetch(bookingEndpoint)) as {
           booking: Booking;
           payment: Payment | null;
@@ -55,10 +57,13 @@ export default function TicketModalContent({
             ? `/sports/${bookingData.booking.itemId}`
             : type === "gaming" || type === "games"
               ? `/gaming/${bookingData.booking.itemId}`
-              : `/${type}/${bookingData.booking.itemId}`;
+              : type === "trains"
+                ? `/trains/${bookingData.booking.itemId}`
+                : `/${type}/${bookingData.booking.itemId}`;
         const showData = (await apiFetch(showEndpoint)) as {
           name?: string;
           title?: string;
+          trainName?: string;
           imageUrl?: string;
           teamA?: string;
           teamB?: string;
@@ -68,6 +73,7 @@ export default function TicketModalContent({
         const showName =
           showData?.name ||
           showData?.title ||
+          showData?.trainName ||
           (showData?.teamA && showData?.teamB
             ? `${showData.teamA} vs ${showData.teamB}`
             : "Show");
@@ -124,7 +130,11 @@ export default function TicketModalContent({
             <PaymentCard payment={data.payment} />
           </div>
 
-          <RefundDetails status={data.payment?.status!} amount={data.payment?.amount!} date={data.payment?.createdAt!} />
+          <RefundDetails
+            status={data.payment?.status ?? null}
+            amount={data.payment?.amount ?? null}
+            date={data.payment?.createdAt ?? null}
+          />
         </div>
       </div>
 

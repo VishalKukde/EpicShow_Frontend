@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://epicshow.in";
+const siteUrl = process.env.NEXT_PUBLIC_API_URL || "https://epicshow-backend.onrender.com";
 const inviteCode = "VISHAL50";
 const title = "Join EpicShow with an invite code";
 const description = "Use an EpicShow invite code for booking rewards on movies, sports, events, and more.";
