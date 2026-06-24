@@ -70,6 +70,7 @@ export const metadata: Metadata = {
         type: "image/png",
       },
     ],
+    
   },
   category: "Entertainment",
 };
