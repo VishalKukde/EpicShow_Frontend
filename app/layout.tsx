@@ -48,8 +48,8 @@ export const metadata: Metadata = {
   },
 
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
   },
 
   openGraph: {
@@ -60,14 +60,14 @@ export const metadata: Metadata = {
     siteName: "EpicShow",
     locale: "en_US",
     type: "website",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "EpicShow - Ticket Booking Platform",
-      },
-    ],
+   images: [
+  {
+    url: "https://epicshow.vercel.app/og-image.png",
+    width: 1200,
+    height: 630,
+    alt: "EpicShow",
+  },
+],
   },
   category: "Entertainment",
 };
