@@ -19,12 +19,12 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
 
   title: {
-    default: "EpicShow - Premium Ticket Booking Platform",
-    template: "%s | EpicShow",
+    default: "Epic Show - Premium Ticket Booking Platform",
+    template: "%s | Epic Show",
   },
 
   description:
-    "EpicShow is a modern ticket booking platform developed by Vishal Kukde. Book tickets, select seats in real-time, make secure payments, and enjoy a seamless cinema experience.",
+    "Epic Show is a modern ticket booking platform developed by Vishal Kukde. Book tickets, select seats in real-time, make secure payments, and enjoy a seamless cinema experience.",
 
   authors: [
     {
@@ -34,9 +34,9 @@ export const metadata: Metadata = {
   ],
 
   creator: "Vishal Kukde",
-  publisher: "EpicShow",
+  publisher: "Epic Show",
 
-  applicationName: "EpicShow",
+  applicationName: "Epic Show",
 
   robots: {
     index: true,
@@ -53,11 +53,11 @@ export const metadata: Metadata = {
   },
 
   openGraph: {
-    title: "EpicShow - Premium Ticket Booking Platform",
+    title: "Epic Show - Premium Ticket Booking Platform",
     description:
-      "EpicShow is a modern ticket booking platform developed by Vishal Kukde. Book tickets, select seats in real-time, make secure payments, and enjoy a seamless cinema experience.",
+      "Epic Show is a modern ticket booking platform developed by Vishal Kukde. Book tickets, select seats in real-time, make secure payments, and enjoy a seamless cinema experience.",
     url: siteUrl,
-    siteName: "EpicShow",
+    siteName: "Epic Show",
     locale: "en_US",
     type: "website",
     images: [
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
         secureUrl: `${siteUrl}/opengraph-image.png`,
         width: 1200,
         height: 630,
-        alt: "EpicShow - Developed by Vishal Kukde",
+        alt: "Epic Show - Developed by Vishal Kukde",
         type: "image/png",
       },
     ],
