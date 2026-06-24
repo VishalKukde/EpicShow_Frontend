@@ -55,19 +55,21 @@ export const metadata: Metadata = {
   openGraph: {
     title: "EpicShow - Premium Ticket Booking Platform",
     description:
-      "Book tickets, choose your favorite seats, and enjoy a premium cinema booking experience with EpicShow.",
+      "EpicShow is a modern ticket booking platform developed by Vishal Kukde. Book tickets, select seats in real-time, make secure payments, and enjoy a seamless cinema experience.",
     url: siteUrl,
     siteName: "EpicShow",
     locale: "en_US",
     type: "website",
-   images: [
-  {
-    url: "https://epicshow.vercel.app/og-image.png",
-    width: 1200,
-    height: 630,
-    alt: "EpicShow",
-  },
-],
+    images: [
+      {
+        url: `${siteUrl}/opengraph-image.png`,
+        secureUrl: `${siteUrl}/opengraph-image.png`,
+        width: 1200,
+        height: 630,
+        alt: "EpicShow - Developed by Vishal Kukde",
+        type: "image/png",
+      },
+    ],
   },
   category: "Entertainment",
 };
