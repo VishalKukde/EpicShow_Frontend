@@ -10,7 +10,7 @@ interface TicketGridProps {
 export default function TicketGrid({ items, loading }: TicketGridProps) {
     return (
         <section className="max-w-7xl mx-auto px-5 pb-24">
-            <div className="grid gap-8 sm:gap-8 lg:gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+            <div className="grid gap-6 sm:gap-6 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
 
                 {loading
                     ? Array.from({ length: 5 }).map((_, i) => (

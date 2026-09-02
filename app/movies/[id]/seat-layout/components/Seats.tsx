@@ -20,7 +20,7 @@ const rowZoneMap: Record<MovieSeatPreference, string[]> = {
 
 const Seats = ({
   seats,
-  recommendedSeatZone = "middle",
+  recommendedSeatZone,
   toggleSeat,
   setHoverSeat,
   setMousePos,
@@ -32,6 +32,7 @@ const dark  = mode === "dark";
     return (row === "A" || row === "B" || row === "C" || row === "D") && hiddenSeatIndexes.includes(seatIndex);
   }
   function isRecommendedRow(row: string) {
+    if (!recommendedSeatZone) return false;
     return rowZoneMap[recommendedSeatZone].includes(row);
   }
   const getRowPrice = (row: SeatRow) =>

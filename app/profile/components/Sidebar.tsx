@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   User,
@@ -27,9 +27,6 @@ import {
   BadgePercent,
   TicketPercent,
   TrainFront,
-  Plane,
-  Hotel,
-  Music2,
   RotateCcw,
   Bell,
   Share2,
@@ -48,6 +45,30 @@ export default function Sidebar() {
   const [openBookings, setOpenBookings] = useState(true);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [showSupportChatNewMessage, setShowSupportChatNewMessage] = useState(false);
+
+  useEffect(() => {
+    const updateBadge = () => {
+      const hasUnread =
+        typeof window !== "undefined" &&
+        !!window.localStorage.getItem("epicshow_support_chat_new_message");
+      const onChatPage = pathname === "/profile/chat";
+      setShowSupportChatNewMessage(Boolean(hasUnread && !onChatPage));
+    };
+
+    updateBadge();
+    const onNewMessage = () => updateBadge();
+    const onRead = () => updateBadge();
+    window.addEventListener("support-chat:new-message", onNewMessage);
+    window.addEventListener("support-chat:read", onRead);
+    window.addEventListener("storage", onRead);
+
+    return () => {
+      window.removeEventListener("support-chat:new-message", onNewMessage);
+      window.removeEventListener("support-chat:read", onRead);
+      window.removeEventListener("storage", onRead);
+    };
+  }, [pathname]);
 
   // 🔥 Improved active check
   const isActive = (path: string) => pathname.startsWith(path);
@@ -218,7 +239,7 @@ export default function Sidebar() {
                   active={isActive("/profile/bookings/gaming")}
                 />
 
-                <SubLink
+                {/* <SubLink
                   href="/profile/bookings/events"
                   icon={Trophy}
                   label="Events"
@@ -242,7 +263,7 @@ export default function Sidebar() {
                   icon={Hotel}
                   label="Hotels"
                   active={isActive("/profile/bookings/hotels")}
-                />
+                /> */}
               </div>
             </div>
 
@@ -325,7 +346,12 @@ export default function Sidebar() {
               </SidebarItem>
 
               <SidebarItem href="/profile/chat" icon={MessageCircle}>
-                Chat with us
+                <span className="flex w-full items-center justify-between gap-2">
+                  <span>Chat with us</span>
+                  {showSupportChatNewMessage ? (
+                    <span className="ml-auto inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500 shadow-[0_0_0_2px_rgba(16,185,129,0.18)]" aria-label="new support message" />
+                  ) : null}
+                </span>
               </SidebarItem>
 
               <SidebarItem href="/profile/about" icon={Info}>

@@ -5,12 +5,21 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Search, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { gsap } from "gsap";
 import { apiFetch } from "@/lib/api";
 import type { Movie } from "@/types/Movie";
+
+type SearchOrigin = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
 type MovieSearchModalProps = {
   open: boolean;
   onClose: () => void;
+  origin?: SearchOrigin | null;
 };
 
 function normalizeText(value: string) {
@@ -34,9 +43,10 @@ function filterMovies(movies: Movie[], query: string) {
   });
 }
 
-export default function MovieSearchModal({ open, onClose }: MovieSearchModalProps) {
+export default function MovieSearchModal({ open, onClose, origin }: MovieSearchModalProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const allMoviesRef = useRef<Movie[]>([]);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -127,12 +137,88 @@ export default function MovieSearchModal({ open, onClose }: MovieSearchModalProp
       setLoading(false);
       return;
     }
-    requestAnimationFrame(() => inputRef.current?.focus());
-  }, [open]);
+
+    const panel = panelRef.current;
+    if (!panel) {
+      requestAnimationFrame(() => inputRef.current?.focus());
+      return;
+    }
+
+    const panelWidth = Math.min(window.innerWidth - 32, 760);
+    const panelHeight = Math.min(window.innerHeight - 32, 760);
+    const startX = origin?.x ?? window.innerWidth / 2 - 60;
+    const startY = origin?.y ?? window.innerHeight / 2 - 24;
+    const startW = origin?.width ?? 120;
+    const startH = origin?.height ?? 42;
+    const finalX = (window.innerWidth - panelWidth) / 2;
+    const finalY = (window.innerHeight - panelHeight) / 2;
+
+    gsap.set(panel, {
+      left: startX,
+      top: startY,
+      width: startW,
+      height: startH,
+      borderRadius: 18,
+      opacity: 0,
+      x: 0,
+      y: 0,
+      scale: 0.98,
+      transformOrigin: "center center",
+      willChange: "transform, left, top, width, height, opacity",
+    });
+
+    gsap.to(panel, {
+      left: finalX,
+      top: finalY,
+      width: panelWidth,
+      height: panelHeight,
+      borderRadius: 28,
+      opacity: 1,
+      scale: 1,
+      duration: 0.28,
+      ease: "power2.out",
+      onStart: () => {
+        requestAnimationFrame(() => inputRef.current?.focus());
+      },
+    });
+  }, [open, origin]);
+
+  const closePanel = () => {
+    const panel = panelRef.current;
+    if (!panel) {
+      onClose();
+      return;
+    }
+
+    const panelWidth = Math.min(window.innerWidth - 32, 760);
+    const panelHeight = Math.min(window.innerHeight - 32, 760);
+    const startX = origin?.x ?? window.innerWidth / 2 - 60;
+    const startY = origin?.y ?? window.innerHeight / 2 - 24;
+    const startW = origin?.width ?? 120;
+    const startH = origin?.height ?? 42;
+    const finalX = (window.innerWidth - panelWidth) / 2;
+    const finalY = (window.innerHeight - panelHeight) / 2;
+
+    gsap.to(panel, {
+      left: startX,
+      top: startY,
+      width: startW,
+      height: startH,
+      borderRadius: 18,
+      opacity: 0,
+      scale: 0.98,
+      duration: 0.22,
+      ease: "power2.in",
+      onComplete: onClose,
+      onReverseComplete: () => {
+        gsap.set(panel, { left: finalX, top: finalY, width: panelWidth, height: panelHeight, scale: 1 });
+      },
+    });
+  };
 
   const handleSelect = (movieId: string) => {
-    onClose();
-    router.push(`/movies/${movieId}`);
+    closePanel();
+    setTimeout(() => router.push(`/movies/${movieId}`), 80);
   };
 
   return (
@@ -147,16 +233,21 @@ export default function MovieSearchModal({ open, onClose }: MovieSearchModalProp
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            onClick={onClose}
+            onClick={closePanel}
           />
 
-          <motion.div
-            initial={{ opacity: 0, y: 18, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 14, scale: 0.98 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
+          <div
+            ref={panelRef}
             onClick={(event) => event.stopPropagation()}
-            className="relative z-10 flex h-[min(92dvh,760px)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_32px_90px_rgba(15,23,42,0.35)] sm:rounded-3xl sm:border-slate-200/70"
+            className="pointer-events-auto relative z-10 flex flex-col overflow-hidden border border-slate-200 bg-white shadow-[0_32px_90px_rgba(15,23,42,0.35)] sm:rounded-3xl sm:border-slate-200/70"
+            style={{
+              position: "fixed",
+              left: origin?.x ?? window.innerWidth / 2 - 60,
+              top: origin?.y ?? window.innerHeight / 2 - 24,
+              width: origin?.width ?? 120,
+              height: origin?.height ?? 42,
+              borderRadius: 18,
+            }}
           >
             <div className="flex items-center justify-between border-b border-slate-200/70 px-4 py-3 sm:px-6">
               <div>
@@ -168,7 +259,7 @@ export default function MovieSearchModal({ open, onClose }: MovieSearchModalProp
               <button
                 type="button"
                 aria-label="Close"
-                onClick={onClose}
+                onClick={closePanel}
                 className="cursor-pointer inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
               >
                 <X className="h-4 w-4" />
@@ -250,7 +341,7 @@ export default function MovieSearchModal({ open, onClose }: MovieSearchModalProp
                 ))}
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       ) : null}
     </AnimatePresence>

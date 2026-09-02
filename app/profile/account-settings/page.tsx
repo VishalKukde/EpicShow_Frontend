@@ -5,9 +5,11 @@ import type { ComponentType } from "react";
 import {
   Camera,
   Check,
+  Loader2,
   Mail,
   Phone,
   Save,
+  Sparkles,
   UserRound,
   X,
 } from "lucide-react";
@@ -39,8 +41,6 @@ export default function AccountSettingsPage() {
   const mode = useThemeStore((s) => s.mode);
   const dark = mode === "dark";
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
   const [avatar, setAvatar] = useState("");
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
@@ -84,18 +84,13 @@ export default function AccountSettingsPage() {
   };
 
   const handleSaveProfile = async () => {
-    setError(null);
-    setSuccess(null);
-
     if (!user?.id) {
       const message = "Session expired. Please login again.";
-      setError(message);
       toast.error(message);
       return;
     }
     if (nameError || phoneError) {
       const message = nameError || phoneError || "Please review the form details.";
-      setError(message);
       toast.warning(message);
       return;
     }
@@ -118,18 +113,9 @@ export default function AccountSettingsPage() {
         avatar: avatar,
       });
 
-      setSuccess(res?.message || "Profile updated successfully.");
       toast.success(res?.message || "Profile updated successfully.");
-
-
-      // ✅ Clear success after 5 seconds
-      setTimeout(() => {
-        setSuccess(null);
-      }, 5000);
-
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to update profile";
-      setError(msg);
       toast.error(msg);
     } finally {
       setSaving(false);
@@ -325,6 +311,38 @@ function AvatarPickerModal({
   onSave: (avatar: string) => void;
 }) {
   const [selectedAvatar, setSelectedAvatar] = useState(currentAvatar || "");
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [generatedAiAvatar, setGeneratedAiAvatar] = useState<string | null>(null);
+  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+  const [aiGenerationsUsed, setAiGenerationsUsed] = useState(() => {
+    if (typeof window === "undefined") return 0;
+
+    try {
+      const saved = window.localStorage.getItem("epicshow-ai-avatar-generations");
+      return saved ? Math.min(Number(saved) || 0, 2) : 0;
+    } catch {
+      return 0;
+    }
+  });
+
+  const maxAiGenerations = 2;
+
+  useEffect(() => {
+    setSelectedAvatar(currentAvatar || "");
+    setGeneratedAiAvatar(null);
+    setAiPrompt("");
+    setIsGeneratingAi(false);
+  }, [currentAvatar, open]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    try {
+      window.localStorage.setItem("epicshow-ai-avatar-generations", String(aiGenerationsUsed));
+    } catch {
+      // ignore storage quota issues
+    }
+  }, [aiGenerationsUsed]);
 
   if (!open) return null;
 
@@ -334,10 +352,42 @@ function AvatarPickerModal({
     reader.onload = () => {
       if (typeof reader.result === "string") {
         setSelectedAvatar(reader.result);
+        setGeneratedAiAvatar(null);
       }
     };
     reader.readAsDataURL(file);
   };
+
+  const handleGenerateAiAvatar = async () => {
+    if (aiGenerationsUsed >= maxAiGenerations) {
+      toast.warning(`AI avatar generation limit reached. You have used all ${maxAiGenerations} images.`);
+      return;
+    }
+
+    try {
+      setIsGeneratingAi(true);
+      const data = await apiFetch("/profile/generate-avatar", {
+        method: "POST",
+        body: JSON.stringify({ prompt: aiPrompt.trim() || "" }),
+      });
+
+      if (!data?.imageData) {
+        throw new Error("No image was returned by the AI generator.");
+      }
+
+      setGeneratedAiAvatar(data.imageData);
+      setAiGenerationsUsed((prev) => prev + 1);
+      setAiPrompt("");
+      toast.success("AI avatar ready. Please review and confirm.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to generate avatar image.";
+      toast.error(message);
+    } finally {
+      setIsGeneratingAi(false);
+    }
+  };
+
+  const remainingAiGenerations = Math.max(maxAiGenerations - aiGenerationsUsed, 0);
 
   return (
     <div
@@ -352,7 +402,7 @@ function AvatarPickerModal({
           <div>
             <h3 className="text-xl font-semibold text-gray-900">Choose Avatar</h3>
             <p className="text-sm text-gray-500">
-              Select a predefined profile picture or upload from your device.
+              Select a predefined profile picture, upload from your device, or generate one with AI.
             </p>
           </div>
           <button
@@ -379,6 +429,62 @@ function AvatarPickerModal({
           )}
         </div>
 
+        <div className="mb-5 rounded-2xl border border-indigo-100 bg-indigo-50 p-3">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-indigo-800">
+              <Sparkles className="h-4 w-4" />
+              Generate with AI
+            </div>
+            <span className="rounded-full bg-white px-2 py-1 text-xs font-semibold text-indigo-700">
+              {remainingAiGenerations}/{maxAiGenerations} left
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleGenerateAiAvatar}
+            disabled={isGeneratingAi || aiGenerationsUsed >= maxAiGenerations}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-3 py-3 text-sm font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-indigo-300"
+          >
+            {isGeneratingAi ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            {isGeneratingAi ? "Generating Profile Picture..." : "Generate Profile Picture"}
+          </button>
+        </div>
+
+        {generatedAiAvatar && (
+          <div className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-3">
+            <p className="mb-2 text-sm font-medium text-emerald-800">AI preview ready</p>
+            <div className="flex items-center justify-center">
+              <Image
+                src={generatedAiAvatar}
+                alt="Generated avatar preview"
+                width={128}
+                height={128}
+                className="h-28 w-28 rounded-full border-4 border-white object-cover shadow-md"
+              />
+            </div>
+            <div className="mt-3 flex justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedAvatar(generatedAiAvatar);
+                  setGeneratedAiAvatar(null);
+                }}
+                className="rounded-xl bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+              >
+                Use this image
+              </button>
+              <button
+                type="button"
+                onClick={() => setGeneratedAiAvatar(null)}
+                className="rounded-xl border border-emerald-200 bg-white px-3 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-100"
+              >
+                Try another
+              </button>
+            </div>
+          </div>
+        )}
+
         <label className="mb-5 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100">
           <Camera className="h-4 w-4" />
           Upload from device
@@ -386,7 +492,6 @@ function AvatarPickerModal({
             type="file"
             accept="image/*"
             className="hidden"
-            disabled
             onChange={(e) => handleFileUpload(e.target.files?.[0])}
           />
         </label>
@@ -395,7 +500,10 @@ function AvatarPickerModal({
           {presetAvatars.map((img) => (
             <button
               key={img}
-              onClick={() => setSelectedAvatar(img)}
+              onClick={() => {
+                setGeneratedAiAvatar(null);
+                setSelectedAvatar(img);
+              }}
               className={`overflow-hidden rounded-full border-2 transition ${selectedAvatar === img
                 ? "border-indigo-600 ring-2 ring-indigo-200"
                 : "border-transparent hover:border-gray-200"
@@ -424,7 +532,8 @@ function AvatarPickerModal({
               onSave(selectedAvatar);
               onClose();
             }}
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-indigo-300"
+            disabled={!selectedAvatar}
           >
             <Check className="h-4 w-4" />
             Save Avatar

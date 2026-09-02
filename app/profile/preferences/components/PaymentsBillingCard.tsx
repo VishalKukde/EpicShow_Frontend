@@ -1,32 +1,20 @@
-import { CreditCard, Receipt } from "lucide-react";
 import type { PaymentMethod } from "./PreferenceTypes";
 import { ComingSoonChip } from "./ComingSoonChip";
-import { ToggleRow } from "./ToggleRow";
 
 type PaymentsBillingCardProps = {
   dark: boolean;
+  isPro: boolean;
   preferredPaymentMethod: PaymentMethod;
   setPreferredPaymentMethod: (method: PaymentMethod) => void;
   disabledPaymentMethods: Record<PaymentMethod, boolean>;
-  requirePayConfirm: boolean;
-  onToggleRequirePayConfirm: () => void;
-  saveBillingDetails: boolean;
-  onToggleSaveBillingDetails: () => void;
-  gstInvoice: boolean;
-  onToggleGstInvoice: () => void;
 };
 
 export function PaymentsBillingCard({
   dark,
+  isPro,
   preferredPaymentMethod,
   setPreferredPaymentMethod,
   disabledPaymentMethods,
-  requirePayConfirm,
-  onToggleRequirePayConfirm,
-  saveBillingDetails,
-  onToggleSaveBillingDetails,
-  gstInvoice,
-  onToggleGstInvoice,
 }: PaymentsBillingCardProps) {
   return (
     <article
@@ -39,7 +27,7 @@ export function PaymentsBillingCard({
             Keep checkout preferences ready for faster payments.
           </p>
         </div>
-        <ComingSoonChip dark={dark} />
+        <ComingSoonChip dark={dark} label={isPro ? "Pro" : "Pro only"} />
       </div>
 
       <div className="mt-4 space-y-3">
@@ -59,10 +47,10 @@ export function PaymentsBillingCard({
                 <button
                   key={method}
                   type="button"
-                  disabled={isDisabled}
+                  disabled={isDisabled || !isPro}
                   onClick={() => setPreferredPaymentMethod(method)}
                   className={`rounded-lg border px-2 py-2 text-xs font-medium uppercase transition ${
-                    isDisabled
+                    isDisabled || !isPro
                       ? dark
                         ? "cursor-not-allowed border-zinc-700 bg-zinc-800 text-zinc-500 opacity-70"
                         : "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400 opacity-80"

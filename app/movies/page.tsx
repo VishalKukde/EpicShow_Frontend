@@ -20,7 +20,12 @@ useEffect(() => {
     try {
       setLoading(true);
       const data = await apiFetch("/movies", { publicRequest: true });
-      setMovies(data);
+      const sorted = [...(Array.isArray(data) ? data : [])].sort((a, b) => {
+        const aTime = new Date(a.createdAt ?? a.updatedAt ?? 0).getTime();
+        const bTime = new Date(b.createdAt ?? b.updatedAt ?? 0).getTime();
+        return bTime - aTime;
+      });
+      setMovies(sorted);
     } catch (err) {
       console.error(err);
     } finally {
@@ -50,7 +55,7 @@ useEffect(() => {
 
                     <button
                         onClick={() => router.replace("/")}
-                        className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-100 hover:text-gray-900 transition-all duration-200 sm:px-4 sm:py-2">
+                        className="cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-100 hover:text-gray-900 transition-all duration-200 sm:px-4 sm:py-2">
                         <ArrowLeft size={16} />
                         Back
                     </button>
@@ -58,7 +63,7 @@ useEffect(() => {
                 </motion.div>
 
                 {/* ⭐ Filters / Highlights */}
-                <motion.section
+                {/* <motion.section
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1, duration: 0.4 }}
@@ -83,7 +88,7 @@ useEffect(() => {
                             )
                         )}
                     </div>
-                </motion.section>
+                </motion.section> */}
 
                 {/* 🎞 MOVIE GRID */}
                 <motion.div

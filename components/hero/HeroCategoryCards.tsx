@@ -3,16 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Ref } from "react";
 import { useThemeStore } from "@/store/themeStore";
-import {
-  Film,
-  Trophy,
-  CalendarDays,
-  Gamepad2,
-  TrainFront,
-  Plane,
-  Hotel,
-  Music2,
-} from "lucide-react";
+import { Film, Trophy, Gamepad2, TrainFront } from "lucide-react";
 
 import HeroCategoryCard, {
   type HeroCategoryCardData,
@@ -58,38 +49,38 @@ const DEFAULT_CARDS: HeroCategoryCardData[] = [
     isLive: true,
     bgImage: "/assets/category/Gaming.png",
   },
-   {
-    label: "Events",
-    accent: "#fb7185",
-    Icon: CalendarDays,
-    href: "/events",
-    isLive: false,
-    bgImage: "/assets/category/Event.png",
-  },
-  {
-    label: "Flight",
-    accent: "#4ade80",
-    Icon: Plane,
-    href: "/flights",
-    isLive: false,
-    bgImage: "/assets/category/Flight.png",
-  },
-  {
-    label: "Hotel",
-    accent: "#fbbf24",
-    Icon: Hotel,
-    href: "/hotels",
-        isLive: false,
-    bgImage: "/assets/category/Hotel.png",
-  },
-  {
-    label: "Concerts",
-    accent: "#e879f9",
-    Icon: Music2,
-    href: "/concerts",
-    isLive: false,
-    bgImage: "/assets/category/Concert.png",
-  },
+  //  {
+  //   label: "Events",
+  //   accent: "#fb7185",
+  //   Icon: CalendarDays,
+  //   href: "/events",
+  //   isLive: false,
+  //   bgImage: "/assets/category/Event.png",
+  // },
+  // {
+  //   label: "Flight",
+  //   accent: "#4ade80",
+  //   Icon: Plane,
+  //   href: "/flights",
+  //   isLive: false,
+  //   bgImage: "/assets/category/Flight.png",
+  // },
+  // {
+  //   label: "Hotel",
+  //   accent: "#fbbf24",
+  //   Icon: Hotel,
+  //   href: "/hotels",
+  //       isLive: false,
+  //   bgImage: "/assets/category/Hotel.png",
+  // },
+  // {
+  //   label: "Concerts",
+  //   accent: "#e879f9",
+  //   Icon: Music2,
+  //   href: "/concerts",
+  //   isLive: false,
+  //   bgImage: "/assets/category/Concert.png",
+  // },
 ];
 
 export default function HeroCategoryCards({
@@ -116,46 +107,37 @@ export default function HeroCategoryCards({
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  const cardHeight = isSmall ? "h-52" : "h-60 md:h-72";
+
   const gridCols = isSmall
-    ? "grid-flow-col auto-cols-[70%] grid-rows-1 overflow-x-auto pb-2 no-scrollbar"
-    : "grid-cols-4";
+    ? "grid-flow-col auto-cols-[78%] grid-rows-1 overflow-x-auto pb-3 pl-1 pr-1 no-scrollbar snap-x snap-mandatory scroll-smooth"
+    : "grid-cols-2 md:grid-cols-4";
 
   return (
     <div ref={containerRef} className={className}>
-      <div className="py-12">
-
-        {/* title */}
-
-        <div className="text-center mb-6 sm:mb-10">
-
+      <div className="py-12 sm:py-14">
+        <div className="mb-6 text-center sm:mb-10">
           <p
-            className={`font-bold uppercase tracking-[0.3em] 
-            ${isSmall ? "text-lg" : "text-2xl"}
-            ${dark ? "text-blue-300" : "text-blue-600"}`}
+            className={`font-black uppercase tracking-[0.28em] ${isSmall ? "text-lg" : "text-2xl"} ${
+              dark ? "text-blue-300" : "text-blue-600"
+            }`}
           >
             Browse by category
           </p>
-
         </div>
-
-        {/* grid */}
 
         <div
           className={`
             grid ${gridCols}
-            gap-3 sm:gap-6
-            max-w-[1360px]
-            mx-auto
+            mx-auto max-w-[1360px]
+            gap-3 sm:gap-4 md:gap-5
             px-1 sm:px-0
           `}
         >
           {cards.map((card, i) => (
             <div
               key={card.label}
-              className={`
-                rounded-2xl
-                transition
-              `}
+              className={`${isSmall ? "snap-start" : ""} ${cardHeight}`}
             >
               <HeroCategoryCard
                 card={card}
@@ -164,7 +146,6 @@ export default function HeroCategoryCards({
                 isActive={activeCard === i}
                 onEnter={setActiveCard}
                 onLeave={() => setActiveCard(null)}
-                // borderColor="transparent"
                 isSmall={isSmall}
                 isTiny={isTiny}
               />

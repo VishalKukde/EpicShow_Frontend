@@ -34,47 +34,43 @@ export default function MovieCard({
   const formattedDate = showReleaseDate ? formatDate(releaseDate) : null;
   return (
     <motion.div
-      className="group relative cursor-pointer bg-transparent"
+      className="group relative cursor-pointer"
       whileHover={{ y: -6 }}
       transition={{ duration: 0.25 }}
       onClick={onClick}
     >
-      {/* POSTER */}
-      <div className="relative h-[440px] sm:h-[300px] lg:h-[320px] rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.08)]">
-        <Image
-          src={imageUrl || "/dummy.webp"}
-          alt={title}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-          sizes="(max-width: 640px) 200px, (max-width: 1024px) 240px, 280px"
-        />
+      <div className="relative overflow-hidden rounded-[24px] border border-slate-200/80 bg-white/70 shadow-[0_18px_45px_rgba(15,23,42,0.08)] transition-all duration-300 group-hover:border-slate-300 group-hover:shadow-[0_22px_55px_rgba(15,23,42,0.12)] dark:border-slate-700 dark:bg-slate-900/70 dark:shadow-[0_18px_45px_rgba(2,6,23,0.35)]">
+        <div className="relative h-[360px] overflow-hidden sm:h-[300px] lg:h-[330px]">
+          <Image
+            src={imageUrl || "/dummy.webp"}
+            alt={title}
+            fill
+            className="object-cover transition-all duration-500 group-hover:scale-105"
+            sizes="(max-width: 640px) 200px, (max-width: 1024px) 240px, 280px"
+          />
 
-        {formattedDate && (
-          <div className="absolute top-3 left-3 rounded-full border border-white/40 bg-white/20 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-md shadow-sm">
-            {formattedDate}
-          </div>
-        )}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-900/10 to-transparent opacity-90" />
 
-        {showTitle && (
-          <>
-            {/* Soft gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent opacity-80" />
-
-            {/* Title overlay */}
-            <div className="absolute bottom-3 left-3 right-3">
-              <p className="text-white text-sm font-semibold leading-tight line-clamp-2 drop-shadow">
-                {title}
-              </p>
+          {formattedDate && (
+            <div className="absolute left-3 top-3 rounded-full border border-white/40 bg-white/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-md shadow-sm">
+              {formattedDate}
             </div>
-          </>
-        )}
+          )}
 
-        {/* Hover glow */}
-        <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10 group-hover:ring-white/30 transition" />
+          {/* <div className="absolute inset-x-0 bottom-0 p-3">
+            <div className="rounded-2xl border border-white/15 bg-black/15 px-3 py-2 backdrop-blur-sm transition duration-300 group-hover:bg-black/25">
+              {showTitle ? (
+                <p className="text-sm font-semibold leading-snug text-white drop-shadow-sm">{title}</p>
+              ) : (
+                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/80">Now showing</p>
+              )}
+            </div>
+          </div> */}
+        </div>
       </div>
 
       {showTitle && (
-        <p className="mt-3 text-sm font-medium text-slate-900 dark:text-slate-100 truncate group-hover:text-slate-700 dark:group-hover:text-white transition">
+        <p className="mt-3 line-clamp-1 text-sm font-medium text-slate-900 transition group-hover:text-slate-700 dark:text-slate-100 dark:group-hover:text-white">
           {title}
         </p>
       )}

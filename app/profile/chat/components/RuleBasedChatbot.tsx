@@ -223,15 +223,13 @@ const RuleBasedChatbot = forwardRef<RuleBasedChatbotHandle>(function RuleBasedCh
   return (
     <div
       className={`flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border ${
-        dark ? "border-zinc-700 bg-zinc-900" : "border-[#bfcfff] bg-[#eff4ff]"
+        dark ? "border-zinc-700 bg-zinc-900" : "border-slate-200 bg-slate-50"
       }`}
     >
       <div
         ref={listRef}
         className={`chat-scroll min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-[5px] py-[5px] sm:px-4 sm:py-3.5 ${
-          dark
-            ? "bg-zinc-900"
-            : "bg-[#f5f8ff] bg-[linear-gradient(rgba(59,130,246,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.08)_1px,transparent_1px)] bg-[size:22px_22px]"
+          dark ? "bg-zinc-900" : "bg-slate-50"
         }`}
       >
         <div className="space-y-2.5">
@@ -247,11 +245,11 @@ const RuleBasedChatbot = forwardRef<RuleBasedChatbotHandle>(function RuleBasedCh
                     className={`w-fit max-w-full rounded-2xl px-3 py-2 shadow-sm ${
                       isUser
                         ? dark
-                          ? "rounded-br-md bg-[#1d4ed8] text-[#eaf2ff]"
-                          : "rounded-br-md bg-[#dbeafe] text-[#1e3a8a]"
+                          ? "rounded-br-md bg-slate-700 text-slate-50"
+                          : "rounded-br-md bg-slate-900 text-white"
                         : dark
                           ? "rounded-bl-md bg-zinc-800 text-zinc-100"
-                          : "rounded-bl-md bg-white text-[#0f172a] ring-1 ring-[#d7e4ff]"
+                          : "rounded-bl-md bg-white text-slate-800 ring-1 ring-slate-200"
                     }`}
                   >
                     <p className="text-sm leading-6">{message.text}</p>
@@ -266,7 +264,7 @@ const RuleBasedChatbot = forwardRef<RuleBasedChatbotHandle>(function RuleBasedCh
                             className={`cursor-pointer rounded-full border px-2.5 py-1 text-[11px] transition ${
                               dark
                                 ? "border-zinc-600 bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
-                                : "border-[#bfdbfe] bg-[#eef4ff] text-[#1d4ed8] hover:bg-[#e0ecff]"
+                                : "border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200"
                             }`}
                           >
                             {reply.label}
@@ -304,7 +302,7 @@ const RuleBasedChatbot = forwardRef<RuleBasedChatbotHandle>(function RuleBasedCh
 
       <div
         className={`sticky bottom-0 z-10 shrink-0 border-t px-3 pt-2 pb-[calc(env(safe-area-inset-bottom)+0.55rem)] ${
-          dark ? "border-zinc-700 bg-zinc-900" : "border-[#bfcfff] bg-[#eff4ff]"
+          dark ? "border-zinc-700 bg-zinc-900" : "border-slate-200 bg-slate-50"
         }`}
       >
         <form
@@ -313,7 +311,7 @@ const RuleBasedChatbot = forwardRef<RuleBasedChatbotHandle>(function RuleBasedCh
             submitMessage();
           }}
           className={`flex items-center gap-2 rounded-xl px-1.5 py-1.5 shadow-xl ${
-            dark ? "bg-zinc-800 ring-1 ring-zinc-600" : "bg-white ring-1 ring-[#c7d7ff]"
+            dark ? "bg-zinc-800 ring-1 ring-zinc-600" : "bg-white ring-1 ring-slate-200"
           }`}
         >
           <input
@@ -328,7 +326,7 @@ const RuleBasedChatbot = forwardRef<RuleBasedChatbotHandle>(function RuleBasedCh
           />
           <button
             type="submit"
-            className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#1d4ed8] text-white transition hover:bg-[#1e40af]"
+            className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-slate-900 text-white transition hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
             aria-label="Send message"
           >
             <SendHorizontal className="h-4 w-4" />

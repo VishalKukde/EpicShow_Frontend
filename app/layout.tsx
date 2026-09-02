@@ -12,6 +12,7 @@ import GlobalErrorToastBridge from "@/components/GlobalErrorToastBridge";
 
 import { FeatureShowcaseProvider } from "@/components/FeatureShowcaseProvider";
 import NotificationBridge from "./components/NotificationBridge";
+import SmoothScroll from "@/components/SmoothScroll";
 
 const siteUrl = "https://epicshow.vercel.app";
 
@@ -131,9 +132,9 @@ export default function RootLayout({
           <FeatureShowcaseProvider>
             <GlobalErrorToastBridge />
             <NotificationBridge />
-            <BackendWarmup />
+            {/* <BackendWarmup /> */}
             <ThemeBridge />
-            {/* <SmoothScroll> */}
+            <SmoothScroll>
             <Navbar />
             {/* <FloatingChatButton /> */}
             <MobileBottomNav />
@@ -141,7 +142,7 @@ export default function RootLayout({
             {children}
             {modal}
             <AskEpicAiOverlay />
-            {/* </SmoothScroll> */}
+            </SmoothScroll>
           </FeatureShowcaseProvider>
         </AuthProvider>
       </body>

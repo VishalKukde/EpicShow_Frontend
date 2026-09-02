@@ -27,7 +27,7 @@ export default function BackendWarmup() {
 
     let idleHandle: number | undefined;
     let timeoutId: number | undefined;
-    let intervalId: number | undefined;
+    // let intervalId: number | undefined;
 
     if (typeof w.requestIdleCallback === "function") {
       idleHandle = w.requestIdleCallback(warm, { timeout: 2000 });
@@ -35,7 +35,7 @@ export default function BackendWarmup() {
       timeoutId = window.setTimeout(warm, 500);
     }
 
-    intervalId = window.setInterval(warm, intervalMs);
+   const intervalId = window.setInterval(warm, intervalMs);
 
     return () => {
       if (idleHandle !== undefined) w.cancelIdleCallback?.(idleHandle);

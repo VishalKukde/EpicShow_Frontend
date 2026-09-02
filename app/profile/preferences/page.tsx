@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useThemeStore, type ThemeMode } from "@/store/themeStore";
 import { useAuth } from "@/context/AuthContext";
 import { apiFetch } from "@/lib/api";
@@ -10,7 +10,6 @@ import {
   persistPaymentPreferences,
   resolvePreferredPaymentMethod,
 } from "@/lib/paymentPreferences";
-import { AccessibilityCard } from "./components/AccessibilityCard";
 import { AppearanceCard } from "./components/AppearanceCard";
 import { BookingDefaultsCard } from "./components/BookingDefaultsCard";
 import { LanguageCard } from "./components/LanguageCard";
@@ -23,7 +22,6 @@ import type {
   SeatPreferences,
 } from "./components/PreferenceTypes";
 import { PreferencesIntroCard } from "./components/PreferencesIntroCard";
-import { TicketRefundCard } from "./components/TicketRefundCard";
 
 export default function PreferencesPage() {
   const mode = useThemeStore((s) => s.mode);
@@ -32,17 +30,20 @@ export default function PreferencesPage() {
   const initializeForUser = useThemeStore((s) => s.initializeForUser);
   const { user, updateUser } = useAuth();
   const dark = mode === "dark";
+  const isPro = user?.membership === "pro";
 
   const persistThemePreference = async (nextMode: ThemeMode) => {
+    const safeMode = !isPro && nextMode === "dark" ? "light" : nextMode;
+
     if (user?.id) {
       initializeForUser(user.id);
     } else {
       initializeForUser(null);
     }
-    setTheme(nextMode);
-    setThemeForUser(null, nextMode);
+    setTheme(safeMode);
+    setThemeForUser(null, safeMode);
     if (user?.id) {
-      setThemeForUser(user.id, nextMode);
+      setThemeForUser(user.id, safeMode);
     }
 
     if (!user) return;
@@ -66,10 +67,20 @@ export default function PreferencesPage() {
   };
 
   const handleSetTheme = (nextMode: ThemeMode) => {
+    if (!isPro && nextMode === "dark") {
+      void persistThemePreference("light");
+      return;
+    }
+
     void persistThemePreference(nextMode);
   };
 
   const handleToggleTheme = () => {
+    if (!isPro) {
+      void persistThemePreference("light");
+      return;
+    }
+
     const nextMode: ThemeMode = mode === "dark" ? "light" : "dark";
     void persistThemePreference(nextMode);
   };
@@ -78,43 +89,19 @@ export default function PreferencesPage() {
   const [bookingReminders, setBookingReminders] = useState(true);
   const [emailUpdates, setEmailUpdates] = useState(true);
   const [offerAlerts, setOfferAlerts] = useState(false);
-  const [reduceMotion, setReduceMotion] = useState(false);
-  const [seatPreferences, setSeatPreferences] = useState<SeatPreferences>({
+  const [seatPreferences, setSeatPreferences] = useState<SeatPreferences>(() => ({
     movie: user?.preferences?.seat?.movieSeat ?? "middle",
     sport: user?.preferences?.seat?.sportSeat ?? "center_view",
     train: user?.preferences?.seat?.trainSeat ?? "window",
     flight: user?.preferences?.seat?.flightSeat ?? "window",
-  });
+  }));
   const [defaultTicketCount, setDefaultTicketCount] = useState(2);
   const [autoSelectSeats, setAutoSelectSeats] = useState(true);
   const [instantConfirmOnly, setInstantConfirmOnly] = useState(false);
-  const [preferredPaymentMethod, setPreferredPaymentMethod] = useState<PaymentMethod>(
+  const [preferredPaymentMethod, setPreferredPaymentMethod] = useState<PaymentMethod>(() =>
     resolvePreferredPaymentMethod(user, 0)
   );
   const disabledPaymentMethods = getDisabledPaymentMethods(user);
-  const [requirePayConfirm, setRequirePayConfirm] = useState(true);
-  const [saveBillingDetails, setSaveBillingDetails] = useState(true);
-  const [gstInvoice, setGstInvoice] = useState(false);
-  const [pushTicketToEmail, setPushTicketToEmail] = useState(true);
-  const [refundStatusAlerts, setRefundStatusAlerts] = useState(true);
-
-  useEffect(() => {
-    setPreferredPaymentMethod(resolvePreferredPaymentMethod(user, 0));
-  }, [user?.preferences?.payment?.preferredMethod, user?.preferences?.payment?.disabledMethods]);
-
-  useEffect(() => {
-    setSeatPreferences({
-      movie: user?.preferences?.seat?.movieSeat ?? "middle",
-      sport: user?.preferences?.seat?.sportSeat ?? "center_view",
-      train: user?.preferences?.seat?.trainSeat ?? "window",
-      flight: user?.preferences?.seat?.flightSeat ?? "window",
-    });
-  }, [
-    user?.preferences?.seat?.movieSeat,
-    user?.preferences?.seat?.sportSeat,
-    user?.preferences?.seat?.trainSeat,
-    user?.preferences?.seat?.flightSeat,
-  ]);
 
   const seatPreferenceFields: Record<SeatPreferenceCategory, string> = {
     movie: "movieSeat",
@@ -127,6 +114,11 @@ export default function PreferencesPage() {
     category: SeatPreferenceCategory,
     value: SeatPreferences[SeatPreferenceCategory]
   ) => {
+    if (!isPro) {
+      toast.error("Seat preferences are available for Pro members only.");
+      return;
+    }
+
     const previousPreferences = seatPreferences;
     const nextPreferences = { ...seatPreferences, [category]: value };
     setSeatPreferences(nextPreferences);
@@ -158,6 +150,11 @@ export default function PreferencesPage() {
   };
 
   const handlePreferredPaymentMethod = async (method: PaymentMethod) => {
+    if (!isPro) {
+      toast.error("Payment preferences are available for Pro members only.");
+      return;
+    }
+
     setPreferredPaymentMethod(method);
 
     try {
@@ -179,7 +176,7 @@ export default function PreferencesPage() {
       <PreferencesIntroCard dark={dark} />
 
       <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <AppearanceCard dark={dark} setTheme={handleSetTheme} toggleTheme={handleToggleTheme} />
+        <AppearanceCard dark={dark} isPro={isPro} setTheme={handleSetTheme} toggleTheme={handleToggleTheme} />
 
         <LanguageCard dark={dark} language={language} setLanguage={setLanguage} />
 
@@ -193,6 +190,7 @@ export default function PreferencesPage() {
 
         <BookingDefaultsCard
           dark={dark}
+          isPro={isPro}
           seatPreferences={seatPreferences}
           setSeatPreferences={handleSeatPreferenceChange}
           defaultTicketCount={defaultTicketCount}
@@ -202,18 +200,13 @@ export default function PreferencesPage() {
           instantConfirmOnly={instantConfirmOnly}
           onToggleInstantConfirmOnly={() => setInstantConfirmOnly((v) => !v)}
         />
-<div className="space-y-4">
-        <PaymentsBillingCard
-          dark={dark}
-          preferredPaymentMethod={preferredPaymentMethod}
-          setPreferredPaymentMethod={handlePreferredPaymentMethod}
-          disabledPaymentMethods={disabledPaymentMethods}
-          requirePayConfirm={requirePayConfirm}
-          onToggleRequirePayConfirm={() => setRequirePayConfirm((v) => !v)}
-          saveBillingDetails={saveBillingDetails}
-          onToggleSaveBillingDetails={() => setSaveBillingDetails((v) => !v)}
-          gstInvoice={gstInvoice}
-          onToggleGstInvoice={() => setGstInvoice((v) => !v)}
+        <div className="space-y-4">
+          <PaymentsBillingCard
+            dark={dark}
+            isPro={isPro}
+            preferredPaymentMethod={preferredPaymentMethod}
+            setPreferredPaymentMethod={handlePreferredPaymentMethod}
+            disabledPaymentMethods={disabledPaymentMethods}
           />
 
        <NotificationCard

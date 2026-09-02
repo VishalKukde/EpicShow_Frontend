@@ -14,10 +14,9 @@ export const freeFeatures = [
 ];
 
 export const proFeatures = [
-  "Priority booking windows",
-  "Premium support response",
-  "Exclusive discounts and coupons",
-  "Faster checkout experience",
-  "Early access for selected releases",
-  "Pro badge and rewards multiplier",
+  "Up to 5 seats per booking",
+  "Dark mode and light mode switching",
+  "Saved seat preferences for booking",
+  "Preferred payment method configuration",
+  "Premium profile preference controls",
 ];

@@ -1,30 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { BrainCircuit, X } from "lucide-react";
 import { useThemeStore } from "@/store/themeStore";
+import { apiFetch } from "@/lib/api";
 
-type WikiSummary = {
-  title?: string;
-  description?: string;
-  extract?: string;
-  type?: string;
-  wikibase_item?: string;
-  thumbnail?: {
-    source?: string;
-    width?: number;
-    height?: number;
-  };
-  originalimage?: {
-    source?: string;
-    width?: number;
-    height?: number;
-  };
-  content_urls?: {
-    desktop?: {
-      page?: string;
-    };
-  };
+type MovieMeta = {
+  cast?: string[];
+  director?: string | null;
+  writers?: string[];
+  genres?: string[];
+  runtime?: number | null;
+  releaseDate?: string | null;
 };
 
 type AskAiModalProps = {
@@ -34,205 +21,17 @@ type AskAiModalProps = {
   onClose: () => void;
 };
 
-type WikiDetails = {
-  cast: string[];
-  director: string[];
-  writer: string[];
-  composer: string[];
-  genres: string[];
-  productionCompanies: string[];
-  country: string[];
-  language: string[];
-  releaseDate?: string;
-  runtime?: string;
-  budget?: string;
-  boxOffice?: string;
-};
-
-const buildCandidates = (title: string, releaseDate?: string) => {
-  const trimmed = title.trim();
-  if (!trimmed) return [];
-  const parsed = releaseDate ? new Date(releaseDate) : null;
-  const year =
-    parsed && !Number.isNaN(parsed.getTime()) ? parsed.getFullYear() : null;
-  const candidates = [
-    trimmed,
-    `${trimmed} (film)`,
-    year ? `${trimmed} (${year} film)` : null,
-  ].filter(Boolean) as string[];
-  return Array.from(new Set(candidates));
-};
-
-const getUnitId = (unit?: string) => {
-  if (!unit) return null;
-  const parts = unit.split("/");
-  return parts[parts.length - 1] || null;
-};
-
-const formatWikidataDate = (value?: string) => {
+const formatReleaseDate = (value?: string | null) => {
   if (!value) return null;
-  const cleaned = value.startsWith("+") ? value.slice(1) : value;
-  const parsed = new Date(cleaned);
-  if (Number.isNaN(parsed.getTime())) return null;
-  return parsed.toLocaleDateString("en-US", {
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
-  });
-};
-
-const formatRuntime = (amount?: string, unit?: string) => {
-  if (!amount) return null;
-  const numeric = Number(amount.replace("+", ""));
-  if (Number.isNaN(numeric)) return null;
-  const unitId = getUnitId(unit);
-  if (unitId === "Q25240") {
-    return `${Math.round(numeric * 60)} min`;
-  }
-  if (unitId === "Q25235") {
-    return `${Math.round(numeric / 60)} min`;
-  }
-  return `${Math.round(numeric)} min`;
-};
-
-const currencyMap: Record<string, string> = {
-  Q4917: "USD",
-  Q25344: "GBP",
-  Q4916: "EUR",
-  Q80524: "INR",
-};
-
-const formatMoney = (amount?: string, unit?: string) => {
-  if (!amount) return null;
-  const numeric = Number(amount.replace("+", ""));
-  if (Number.isNaN(numeric)) return null;
-  const unitId = getUnitId(unit);
-  const currency = unitId ? currencyMap[unitId] : null;
-  if (currency) {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 0,
-    }).format(numeric);
-  }
-  return numeric.toLocaleString("en-US");
-};
-
-const fetchSummary = async (title: string, signal: AbortSignal) => {
-  const response = await fetch(
-    `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
-    {
-      signal,
-      headers: {
-        Accept: "application/json",
-      },
-    }
-  );
-
-  if (response.status === 404) {
-    return null;
-  }
-
-  if (!response.ok) {
-    throw new Error("Failed to load Wikipedia summary");
-  }
-
-  return (await response.json()) as WikiSummary;
-};
-
-const searchWikipedia = async (query: string, signal: AbortSignal) => {
-  const response = await fetch(
-    `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(
-      query
-    )}&format=json&origin=*`,
-    { signal }
-  );
-
-  if (!response.ok) {
-    throw new Error("Search request failed");
-  }
-
-  const data = (await response.json()) as {
-    query?: { search?: { title?: string }[] };
-  };
-  return data?.query?.search?.[0]?.title ?? null;
-};
-
-const fetchWikidataEntity = async (id: string, signal: AbortSignal) => {
-  const response = await fetch(
-    `https://www.wikidata.org/wiki/Special:EntityData/${id}.json`,
-    {
-      signal,
-      headers: {
-        Accept: "application/json",
-      },
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to load Wikidata");
-  }
-
-  return (await response.json()) as {
-    entities?: Record<string, { claims?: Record<string, any[]> }>;
-  };
-};
-
-const fetchLabels = async (ids: string[], signal: AbortSignal) => {
-  if (!ids.length) return {};
-  const response = await fetch(
-    `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${ids.join(
-      "|"
-    )}&props=labels&languages=en&format=json&origin=*`,
-    { signal }
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to load Wikidata labels");
-  }
-
-  const data = (await response.json()) as {
-    entities?: Record<string, { labels?: { en?: { value?: string } } }>;
-  };
-
-  const labels: Record<string, string> = {};
-  Object.entries(data.entities || {}).forEach(([id, entity]) => {
-    const label = entity?.labels?.en?.value;
-    if (label) labels[id] = label;
-  });
-  return labels;
-};
-
-const extractIds = (
-  claims: Record<string, any[]> | undefined,
-  prop: string,
-  limit?: number
-) => {
-  if (!claims?.[prop]) return [];
-  const ids: string[] = [];
-  for (const claim of claims[prop]) {
-    const id = claim?.mainsnak?.datavalue?.value?.id;
-    if (id) ids.push(id);
-    if (limit && ids.length >= limit) break;
-  }
-  return ids;
-};
-
-const extractTime = (claims: Record<string, any[]> | undefined, prop: string) => {
-  const value = claims?.[prop]?.[0]?.mainsnak?.datavalue?.value?.time;
-  return value as string | undefined;
-};
-
-const extractQuantity = (
-  claims: Record<string, any[]> | undefined,
-  prop: string
-) => {
-  const value = claims?.[prop]?.[0]?.mainsnak?.datavalue?.value;
-  if (!value) return null;
-  return {
-    amount: value?.amount as string | undefined,
-    unit: value?.unit as string | undefined,
-  };
+  }).format(date);
 };
 
 export default function AskAiModal({
@@ -243,34 +42,92 @@ export default function AskAiModal({
 }: AskAiModalProps) {
   const mode = useThemeStore((s) => s.mode);
   const dark = mode === "dark";
-  const [summary, setSummary] = useState<WikiSummary | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [summary, setSummary] = useState<string | null>(null);
+  const [displayText, setDisplayText] = useState("");
+  const [movieMeta, setMovieMeta] = useState<MovieMeta | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [details, setDetails] = useState<WikiDetails | null>(null);
-  const [detailsLoading, setDetailsLoading] = useState(false);
-
-  const candidates = useMemo(() => {
-    const next = buildCandidates(movieTitle, releaseDate);
-    return next;
-  }, [movieTitle, releaseDate]);
   const [retrySeed, setRetrySeed] = useState(0);
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const requestKeyRef = useRef<string>("");
+
+  const loadingMessages = [
+    "Analyzing your request...",
+    "Finding interesting insights...",
+    "Connecting the dots...",
+    "Preparing your response...",
+    "Almost there...",
+  ];
+
+  const isBusyError = (value?: string | null) =>
+    !!value && /rate limit|429|too many requests|try again in a moment|server busy|temporar/i.test(value);
 
   useEffect(() => {
     if (!open) return;
+
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
     };
+
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open, onClose]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!loading) {
+      setLoadingMessageIndex(0);
+      return;
+    }
+
+    const messageTimer = window.setInterval(() => {
+      setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length);
+    }, 1800);
+
+    return () => window.clearInterval(messageTimer);
+  }, [loading, loadingMessages.length]);
+
+  useEffect(() => {
+    if (!summary) {
+      setDisplayText("");
+      return;
+    }
+
+    setDisplayText("");
+    let currentIndex = 0;
+    const timer = window.setInterval(() => {
+      currentIndex += 1;
+      const nextValue = summary.slice(0, currentIndex);
+      setDisplayText(nextValue);
+
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      }
+
+      if (currentIndex >= summary.length) {
+        window.clearInterval(timer);
+      }
+    }, 18);
+
+    return () => window.clearInterval(timer);
+  }, [summary]);
+
+  useEffect(() => {
+    if (!open) {
+      requestKeyRef.current = "";
+      return;
+    }
+
+    const requestKey = `${movieTitle}|${releaseDate ?? ""}|${retrySeed}`;
+    if (requestKeyRef.current === requestKey) {
+      return;
+    }
+
+    requestKeyRef.current = requestKey;
     let active = true;
-    const controller = new AbortController();
 
     const loadSummary = async () => {
-      if (!candidates.length) {
+      if (!movieTitle.trim()) {
         setError("Movie title unavailable.");
         setSummary(null);
         setLoading(false);
@@ -280,144 +137,92 @@ export default function AskAiModal({
       setLoading(true);
       setError(null);
       setSummary(null);
+      setMovieMeta(null);
 
       try {
-        let found: WikiSummary | null = null;
+        const response = await apiFetch("/movies/ask-ai", {
+          method: "POST",
+          publicRequest: true,
+          body: JSON.stringify({ movieTitle, releaseDate }),
+        });
 
-        for (const title of candidates) {
-          const data = await fetchSummary(title, controller.signal);
-          if (data && data?.type !== "disambiguation") {
-            found = data;
-            break;
-          }
-        }
+        if (!active) return;
 
-        if (!found) {
-          const searchTitle = await searchWikipedia(
-            `${movieTitle} film`,
-            controller.signal
-          );
-          if (searchTitle) {
-            const data = await fetchSummary(searchTitle, controller.signal);
-            if (data && data?.type !== "disambiguation") {
-              found = data;
-            }
-          }
-        }
+        const generated = response?.summary || null;
+        const meta = response?.meta || null;
 
-        if (active) {
-          if (found) {
-            setSummary(found);
-          } else {
-            setError("No Wikipedia summary found for this title.");
-          }
+        if (generated) {
+          setMovieMeta(meta);
+          setSummary(generated);
+        } else {
+          setError("No AI summary was returned for this movie.");
         }
       } catch (err) {
-        if (!active || controller.signal.aborted) return;
-        setError("Unable to load Wikipedia details. Please try again.");
+        if (!active) return;
+        const message =
+          err instanceof Error ? err.message : "Unable to load AI movie details. Please try again.";
+
+        const showBusyMessage = isBusyError(message) || isBusyError(String((err as { status?: number } | null)?.status ?? ""));
+
+        setError(
+          showBusyMessage
+            ? "Server busy, please wait a moment before trying again"
+            : "Unable to load AI movie details. Please try again."
+        );
       } finally {
         if (active) setLoading(false);
       }
     };
 
-    loadSummary();
+    void loadSummary();
 
     return () => {
       active = false;
-      controller.abort();
     };
-  }, [open, candidates, movieTitle, retrySeed]);
+  }, [open, movieTitle, releaseDate, retrySeed]);
 
-  useEffect(() => {
-    if (!open) return;
-    const wikibaseId = summary?.wikibase_item;
-    if (!wikibaseId) {
-      setDetails(null);
-      setDetailsLoading(false);
-      return;
-    }
+  const renderSummary = (text: string) => {
+    const lines = text
+      .split(/\n/)
+      .map((line) => line.trim())
+      .filter(Boolean);
 
-    let active = true;
-    const controller = new AbortController();
-    setDetailsLoading(true);
-
-    const loadDetails = async () => {
-      try {
-        const data = await fetchWikidataEntity(wikibaseId, controller.signal);
-        const entity = data.entities?.[wikibaseId];
-        const claims = entity?.claims || {};
-
-        const castIds = extractIds(claims, "P161", 5);
-        const directorIds = extractIds(claims, "P57", 2);
-        const writerIds = extractIds(claims, "P58", 2);
-        const composerIds = extractIds(claims, "P86", 2);
-        const genreIds = extractIds(claims, "P136", 6);
-        const companyIds = extractIds(claims, "P272", 4);
-        const countryIds = extractIds(claims, "P495", 3);
-        const languageIds = extractIds(claims, "P364", 3);
-
-        const idsToLabel = Array.from(
-          new Set([
-            ...castIds,
-            ...directorIds,
-            ...writerIds,
-            ...composerIds,
-            ...genreIds,
-            ...companyIds,
-            ...countryIds,
-            ...languageIds,
-          ])
+    return lines.map((line, index) => {
+      const headingMatch = line.match(/^\*\*(.+?)\*\*:?$/);
+      if (headingMatch) {
+        return (
+          <p
+            key={`${line}-${index}`}
+            className="mt-3 text-base font-semibold text-indigo-600 dark:text-indigo-300"
+          >
+            {headingMatch[1]}
+          </p>
         );
-
-        const labels = await fetchLabels(idsToLabel, controller.signal);
-
-        const releaseDate = formatWikidataDate(extractTime(claims, "P577"));
-        const runtimeQuantity = extractQuantity(claims, "P2047");
-        const runtime = formatRuntime(runtimeQuantity?.amount, runtimeQuantity?.unit);
-        const budgetQuantity = extractQuantity(claims, "P2130");
-        const boxOfficeQuantity = extractQuantity(claims, "P2142");
-
-        const nextDetails: WikiDetails = {
-          cast: castIds.map((id) => labels[id]).filter(Boolean),
-          director: directorIds.map((id) => labels[id]).filter(Boolean),
-          writer: writerIds.map((id) => labels[id]).filter(Boolean),
-          composer: composerIds.map((id) => labels[id]).filter(Boolean),
-          genres: genreIds.map((id) => labels[id]).filter(Boolean),
-          productionCompanies: companyIds.map((id) => labels[id]).filter(Boolean),
-          country: countryIds.map((id) => labels[id]).filter(Boolean),
-          language: languageIds.map((id) => labels[id]).filter(Boolean),
-          releaseDate: releaseDate || undefined,
-          runtime: runtime || undefined,
-          budget: formatMoney(budgetQuantity?.amount, budgetQuantity?.unit) || undefined,
-          boxOffice: formatMoney(boxOfficeQuantity?.amount, boxOfficeQuantity?.unit) || undefined,
-        };
-
-        if (active) {
-          setDetails(nextDetails);
-        }
-      } catch (err) {
-        if (!active || controller.signal.aborted) return;
-        setDetails(null);
-      } finally {
-        if (active) setDetailsLoading(false);
       }
-    };
 
-    loadDetails();
+      const bulletMatch = line.match(/^[-•]\s*(.+)$/);
+      if (bulletMatch) {
+        return (
+          <li
+            key={`${line}-${index}`}
+            className="ml-5 list-disc text-sm leading-7"
+          >
+            {bulletMatch[1]}
+          </li>
+        );
+      }
 
-    return () => {
-      active = false;
-      controller.abort();
-    };
-  }, [open, summary?.wikibase_item]);
+      return (
+        <p key={`${line}-${index}`} className="text-sm leading-7">
+          {line.replace(/\*\*(.*?)\*\*/g, "$1")}
+        </p>
+      );
+    });
+  };
 
   if (!open) return null;
 
-  const wikiImage =
-    summary?.thumbnail?.source ||
-    summary?.originalimage?.source ||
-    null;
-  const wikiLink = summary?.content_urls?.desktop?.page;
+  const formattedReleaseDate = formatReleaseDate(releaseDate || movieMeta?.releaseDate);
 
   return (
     <div
@@ -439,7 +244,7 @@ export default function AskAiModal({
               dark ? "border-white/10" : "border-gray-200"
             }`}
           >
-            <div>
+            <div className="min-w-0">
               <p
                 className={`text-[10px] font-semibold uppercase tracking-[0.3em] ${
                   dark ? "text-indigo-200/80" : "text-indigo-500"
@@ -447,14 +252,18 @@ export default function AskAiModal({
               >
                 Ask AI
               </p>
-              <h2 className="text-lg font-semibold sm:text-xl">
-                {summary?.title || movieTitle}
-              </h2>
+              <h2 className="truncate text-lg font-semibold sm:text-xl">{movieTitle}</h2>
+              {formattedReleaseDate && (
+                <p className={`mt-1 text-xs ${dark ? "text-zinc-300" : "text-slate-500"}`}>
+                  Released {formattedReleaseDate}
+                </p>
+              )}
             </div>
+
             <button
               type="button"
               onClick={onClose}
-              className={`flex h-9 w-9 items-center justify-center rounded-full border text-xs transition ${
+              className={`cursor-pointer flex h-9 w-9 items-center justify-center rounded-full border text-xs transition ${
                 dark
                   ? "border-white/10 bg-white/5 hover:bg-white/10"
                   : "border-gray-200 bg-gray-50 hover:bg-gray-100"
@@ -465,13 +274,31 @@ export default function AskAiModal({
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-5 sm:py-5">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 sm:px-5 sm:py-5">
             {loading && (
-              <div className="space-y-3">
-                <div className={`h-5 w-32 animate-pulse rounded ${dark ? "bg-white/10" : "bg-gray-200"}`} />
-                <div className={`h-4 w-full animate-pulse rounded ${dark ? "bg-white/10" : "bg-gray-200"}`} />
-                <div className={`h-4 w-5/6 animate-pulse rounded ${dark ? "bg-white/10" : "bg-gray-200"}`} />
-                <div className={`h-4 w-4/6 animate-pulse rounded ${dark ? "bg-white/10" : "bg-gray-200"}`} />
+              <div className="flex min-h-[220px] items-start justify-start">
+                <div className="flex items-center gap-3 text-left">
+                  <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-indigo-500/20 bg-indigo-500/10 shadow-[0_0_24px_rgba(99,102,241,0.18)]">
+                    <BrainCircuit size={20} className="text-indigo-600 dark:text-indigo-300" />
+                    <span className="absolute inset-0 rounded-full border border-indigo-400/30 animate-spin border-t-transparent dark:border-indigo-300/30" />
+                  </div>
+
+                  <div className="min-w-0 text-left">
+                    <p
+                      key={loadingMessageIndex}
+                      className="text-sm font-semibold text-transparent bg-[linear-gradient(90deg,#4f46e5_0%,#c084fc_32%,#f472b6_62%,#4f46e5_100%)] bg-[length:220%_100%] bg-clip-text animate-pulse"
+                    >
+                      {loadingMessages[loadingMessageIndex]}
+                    </p>
+                    <p className={`mt-1 text-xs ${dark ? "text-zinc-300" : "text-slate-600"}`}>
+                      {loadingMessageIndex === 0 && "Gathering movie context"}
+                      {loadingMessageIndex === 1 && "Spotting the key highlights"}
+                      {loadingMessageIndex === 2 && "Linking story and themes"}
+                      {loadingMessageIndex === 3 && "Shaping the final answer"}
+                      {loadingMessageIndex === 4 && "Finalising the summary"}
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -483,10 +310,9 @@ export default function AskAiModal({
                   onClick={() => {
                     setError(null);
                     setSummary(null);
-                    setLoading(true);
                     setRetrySeed((prev) => prev + 1);
                   }}
-                  className={`rounded-xl px-4 py-2 text-sm font-medium ${
+                  className={`cursor-pointer rounded-xl px-4 py-2 text-sm font-medium ${
                     dark ? "bg-white/10 text-white hover:bg-white/20" : "bg-gray-900 text-white hover:bg-gray-800"
                   }`}
                 >
@@ -495,172 +321,67 @@ export default function AskAiModal({
               </div>
             )}
 
-            {!loading && !error && (
-              <div className="space-y-5">
-                <div className="flex flex-col gap-4 sm:flex-row">
-                  {wikiImage && (
-                    <div className="w-full flex-shrink-0 sm:w-[180px]">
-                      <div
-                        className={`aspect-[3/4] overflow-hidden rounded-2xl border ${
-                          dark ? "border-white/10 bg-white/5" : "border-gray-200 bg-gray-50"
-                        }`}
-                      >
-                        <img
-                          src={wikiImage}
-                          alt={summary?.title || movieTitle}
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex-1 space-y-3">
-                    {summary?.description && (
-                      <p
-                        className={`text-xs font-semibold uppercase tracking-[0.2em] ${
-                          dark ? "text-white/60" : "text-gray-500"
-                        }`}
-                      >
-                        {summary.description}
-                      </p>
-                    )}
-                    <p
-                      className={`text-sm leading-relaxed whitespace-pre-line ${
-                        dark ? "text-white/80" : "text-gray-700"
-                      }`}
-                    >
-                      {summary?.extract || "No summary available."}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <div
-                    className={`text-xs font-semibold uppercase tracking-[0.3em] ${
-                      dark ? "text-white/60" : "text-gray-500"
-                    }`}
-                  >
-                    Wikipedia details
-                  </div>
-
-                  {detailsLoading && (
-                    <div className="space-y-2">
-                      <div className={`h-4 w-full animate-pulse rounded ${dark ? "bg-white/10" : "bg-gray-200"}`} />
-                      <div className={`h-4 w-5/6 animate-pulse rounded ${dark ? "bg-white/10" : "bg-gray-200"}`} />
-                      <div className={`h-4 w-4/6 animate-pulse rounded ${dark ? "bg-white/10" : "bg-gray-200"}`} />
-                    </div>
-                  )}
-
-                  {!detailsLoading && details && (
-                    <div className="space-y-4">
-                      {details.cast.length > 0 && (
-                        <div>
-                          <span className={dark ? "text-white/50 text-xs" : "text-gray-500 text-xs"}>
-                            Lead cast
-                          </span>
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            {details.cast.map((name) => (
-                              <span
-                                key={name}
-                                className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                                  dark ? "bg-white/10 text-white/80" : "bg-gray-100 text-gray-700"
-                                }`}
-                              >
-                                {name}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="grid gap-3 text-xs sm:grid-cols-2">
-                        <div>
-                          <span className={dark ? "text-white/50" : "text-gray-500"}>Release date</span>
-                          <div className="font-semibold">{details.releaseDate || "N/A"}</div>
-                        </div>
-                        <div>
-                          <span className={dark ? "text-white/50" : "text-gray-500"}>Runtime</span>
-                          <div className="font-semibold">{details.runtime || "N/A"}</div>
-                        </div>
-                        <div>
-                          <span className={dark ? "text-white/50" : "text-gray-500"}>Genres</span>
-                          <div className="font-semibold">
-                            {details.genres.length ? details.genres.join(", ") : "N/A"}
-                          </div>
-                        </div>
-                        <div>
-                          <span className={dark ? "text-white/50" : "text-gray-500"}>Director</span>
-                          <div className="font-semibold">
-                            {details.director.length ? details.director.join(", ") : "N/A"}
-                          </div>
-                        </div>
-                        <div>
-                          <span className={dark ? "text-white/50" : "text-gray-500"}>Writer</span>
-                          <div className="font-semibold">
-                            {details.writer.length ? details.writer.join(", ") : "N/A"}
-                          </div>
-                        </div>
-                        <div>
-                          <span className={dark ? "text-white/50" : "text-gray-500"}>Composer</span>
-                          <div className="font-semibold">
-                            {details.composer.length ? details.composer.join(", ") : "N/A"}
-                          </div>
-                        </div>
-                        <div>
-                          <span className={dark ? "text-white/50" : "text-gray-500"}>Production</span>
-                          <div className="font-semibold">
-                            {details.productionCompanies.length
-                              ? details.productionCompanies.join(", ")
-                              : "N/A"}
-                          </div>
-                        </div>
-                        <div>
-                          <span className={dark ? "text-white/50" : "text-gray-500"}>Country</span>
-                          <div className="font-semibold">
-                            {details.country.length ? details.country.join(", ") : "N/A"}
-                          </div>
-                        </div>
-                        <div>
-                          <span className={dark ? "text-white/50" : "text-gray-500"}>Language</span>
-                          <div className="font-semibold">
-                            {details.language.length ? details.language.join(", ") : "N/A"}
-                          </div>
-                        </div>
-                        <div>
-                          <span className={dark ? "text-white/50" : "text-gray-500"}>Budget</span>
-                          <div className="font-semibold">{details.budget || "N/A"}</div>
-                        </div>
-                        <div>
-                          <span className={dark ? "text-white/50" : "text-gray-500"}>Box office</span>
-                          <div className="font-semibold">{details.boxOffice || "N/A"}</div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
+            {!loading && !error && summary && (
+              <div className="space-y-4">
                 <div
-                  className={`rounded-2xl border p-4 text-xs ${
-                    dark ? "border-white/10 bg-white/5 text-white/70" : "border-gray-200 bg-gray-50 text-gray-600"
+                  className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] ${
+                    dark
+                      ? "border-indigo-500/30 bg-indigo-500/10 text-indigo-200"
+                      : "border-indigo-200 bg-indigo-50 text-indigo-700"
                   }`}
                 >
-                  <p className="font-semibold uppercase tracking-[0.2em]">Source</p>
-                  <p className="mt-2">
-                    Wikipedia
-                    {wikiLink ? (
-                      <a
-                        href={wikiLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={`ml-2 font-semibold underline-offset-4 hover:underline ${
-                          dark ? "text-indigo-200" : "text-indigo-600"
+                  Gemini AI
+                </div>
+
+                {(movieMeta?.cast?.length || movieMeta?.director || movieMeta?.genres?.length || movieMeta?.runtime) && (
+                  <div className="flex flex-wrap gap-2">
+                    {movieMeta?.cast?.slice(0, 3).map((person) => (
+                      <span
+                        key={person}
+                        className={`rounded-full border px-2.5 py-1 text-[11px] ${
+                          dark ? "border-white/10 bg-white/5 text-zinc-200" : "border-slate-200 bg-slate-50 text-slate-700"
                         }`}
                       >
-                        Read more
-                      </a>
-                    ) : null}
-                  </p>
+                        {person}
+                      </span>
+                    ))}
+                    {movieMeta?.director && (
+                      <span
+                        className={`rounded-full border px-2.5 py-1 text-[11px] ${
+                          dark ? "border-white/10 bg-white/5 text-zinc-200" : "border-slate-200 bg-slate-50 text-slate-700"
+                        }`}
+                      >
+                        Dir: {movieMeta.director}
+                      </span>
+                    )}
+                    {movieMeta?.genres?.slice(0, 2).map((genre) => (
+                      <span
+                        key={genre}
+                        className={`rounded-full border px-2.5 py-1 text-[11px] ${
+                          dark ? "border-white/10 bg-white/5 text-zinc-200" : "border-slate-200 bg-slate-50 text-slate-700"
+                        }`}
+                      >
+                        {genre}
+                      </span>
+                    ))}
+                    {movieMeta?.runtime && (
+                      <span
+                        className={`rounded-full border px-2.5 py-1 text-[11px] ${
+                          dark ? "border-white/10 bg-white/5 text-zinc-200" : "border-slate-200 bg-slate-50 text-slate-700"
+                        }`}
+                      >
+                        {movieMeta.runtime} min
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                <div className={`${dark ? "text-zinc-200" : "text-slate-700"}`}>
+                  {displayText ? (
+                    <ul className="min-h-[200px]">{renderSummary(displayText)}</ul>
+                  ) : (
+                    <p className="min-h-[200px] text-sm">Loading summary...</p>
+                  )}
                 </div>
               </div>
             )}

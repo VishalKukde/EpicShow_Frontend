@@ -1,17 +1,19 @@
 "use client";
 
-import { Heart, Info, MessageSquareText, Play } from "lucide-react";
-import { useEffect, useEffectEvent, useState } from "react";
-import AskAiModal from "./AskAiModal";
+import { BrainCircuit, Heart, MessageSquareText, Play } from "lucide-react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/lib/toast";
+
+const ASK_AI_COOLDOWN_MS = 6000;
 
 type QuickActionProps = {
   movieTitle: string;
   releaseDate?: string;
   movieId: string;
   reviewCount?: number;
+  onOpenAskAi?: () => void;
 };
 
 const QuickAction = ({
@@ -19,9 +21,12 @@ const QuickAction = ({
   releaseDate,
   movieId,
   reviewCount = 0,
+  onOpenAskAi,
 }: QuickActionProps) => {
-  const [askOpen, setAskOpen] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isAskAiSearching, setIsAskAiSearching] = useState(false);
+  const askAiCooldownTimerRef = useRef<number | null>(null);
+  const askAiCooldownUntilRef = useRef<number>(0);
   const { user, loading } = useAuth();
 
   const fetchWishlistStatus = useEffectEvent(async () => {
@@ -84,6 +89,35 @@ const QuickAction = ({
     }
   };
 
+  useEffect(() => {
+    return () => {
+      if (askAiCooldownTimerRef.current) {
+        window.clearTimeout(askAiCooldownTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleAskAiClick = () => {
+    const now = Date.now();
+    const isLocked = isAskAiSearching || now < askAiCooldownUntilRef.current;
+
+    if (isLocked) return;
+
+    setIsAskAiSearching(true);
+    askAiCooldownUntilRef.current = now + ASK_AI_COOLDOWN_MS;
+
+    if (askAiCooldownTimerRef.current) {
+      window.clearTimeout(askAiCooldownTimerRef.current);
+    }
+
+    askAiCooldownTimerRef.current = window.setTimeout(() => {
+      setIsAskAiSearching(false);
+      askAiCooldownUntilRef.current = 0;
+    }, ASK_AI_COOLDOWN_MS);
+
+    onOpenAskAi?.();
+  };
+
   return (
     <>
       {/* ⚡ Quick Actions */}
@@ -107,11 +141,19 @@ const QuickAction = ({
         </button>
 
         <button
-          className="flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 cursor-pointer border border-gray-200"
-          onClick={() => setAskOpen(true)}
+          type="button"
+          className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl border border-transparent bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-300 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer"
+          onClick={handleAskAiClick}
+          disabled={isAskAiSearching}
+          aria-label={`Ask AI about ${movieTitle}${releaseDate ? `, released ${releaseDate}` : ""}`}
+          title={`Ask AI about ${movieTitle}`}
         >
-          <Info size={16} />
-          <span className="inline">Ask AI</span>
+          <span className="absolute inset-0 rounded-xl bg-[linear-gradient(135deg,#22d3ee,#a78bfa,#f472b6,#f59e0b)] opacity-80 blur-[1px]" />
+          <span className="absolute inset-[1.5px] rounded-[10px] bg-gray-100 group-hover:bg-gray-200" />
+          <span className="relative z-10 flex items-center gap-2">
+            <BrainCircuit size={16} className="text-violet-600" />
+            <span className="inline">{isAskAiSearching ? "Searching AI..." : "Ask AI"}</span>
+          </span>
         </button>
 
         <button
@@ -126,12 +168,6 @@ const QuickAction = ({
           </span>
         </button>
       </div>
-      <AskAiModal
-        open={askOpen}
-        movieTitle={movieTitle}
-        releaseDate={releaseDate}
-        onClose={() => setAskOpen(false)}
-      />
     </>
 
   )

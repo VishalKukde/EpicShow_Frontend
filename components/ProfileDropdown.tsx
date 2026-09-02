@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useThemeStore } from "@/store/themeStore";
+import { useFeatureShowcase } from "@/components/FeatureShowcaseProvider";
 import {
   User,
   Settings,
@@ -12,9 +13,8 @@ import {
   ChevronRight,
   Ticket,
   Crown,
-  Bug,
-  MessageCircle,
   BadgeCheck,
+  House,
 } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
 import Image from "next/image";
@@ -24,6 +24,7 @@ type NavAction = {
   label: string;
   href: string;
   hint?: string;
+  highlight?: boolean;
 };
 
 const MENU_ACTIONS: NavAction[] = [
@@ -31,12 +32,14 @@ const MENU_ACTIONS: NavAction[] = [
   { icon: Ticket, label: "My Bookings", href: "/profile/bookings/movies" },
   { icon: Crown, label: "Subscription", href: "/profile/subscription" },
   { icon: Settings, label: "Settings", href: "/profile/account-settings" },
+  { icon: House, label: "Inside App", href: "/", highlight: true },
 ];
 
 export default function ProfileDropdown() {
   const { user } = useAuth();
   const mode = useThemeStore((s) => s.mode);
   const router = useRouter();
+  const { openShowcase } = useFeatureShowcase();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<NodeJS.Timeout | null>(null);
@@ -78,8 +81,20 @@ export default function ProfileDropdown() {
 
   if (!user) return null;
 
-  const handleNavigate = (href: string) => {
+  const handleNavigate = (href: string, label?: string) => {
     setOpen(false);
+
+    if (label === "Inside App") {
+      if (window.location.pathname !== "/") {
+        router.push("/");
+        window.setTimeout(() => openShowcase(), 80);
+        return;
+      }
+
+      openShowcase();
+      return;
+    }
+
     router.push(href);
   };
 
@@ -96,15 +111,14 @@ export default function ProfileDropdown() {
       <button
         onClick={() => setOpen((prev) => !prev)}
         aria-label="Open profile menu"
-        className={`group relative flex items-center rounded-full border p-0.5 transition-all duration-300 cursor-pointer ${
-          open
+        className={`group relative flex items-center rounded-full border p-0.5 transition-all duration-300 cursor-pointer ${open
             ? dark
               ? "border-indigo-400/60 bg-zinc-900 ring-2 ring-indigo-400/25"
               : "border-indigo-300 bg-white ring-2 ring-indigo-300/35"
             : dark
               ? "border-zinc-700 bg-zinc-900/70 hover:border-zinc-500"
               : "border-slate-200 bg-white/85 hover:border-slate-300"
-        }`}
+          }`}
       >
         <div className="relative h-11 w-11 overflow-hidden rounded-full">
           <Image
@@ -116,9 +130,8 @@ export default function ProfileDropdown() {
           />
         </div>
         <span
-          className={`absolute bottom-0.5 right-0.5 h-3 w-3 rounded-full border-2 ${
-            dark ? "border-zinc-900 bg-emerald-400" : "border-white bg-emerald-500"
-          }`}
+          className={`absolute bottom-0.5 right-0.5 h-3 w-3 rounded-full border-2 ${dark ? "border-zinc-900 bg-emerald-400" : "border-white bg-emerald-500"
+            }`}
         />
       </button>
 
@@ -129,37 +142,34 @@ export default function ProfileDropdown() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.97 }}
             transition={{ type: "spring", stiffness: 380, damping: 30 }}
-            className={`absolute right-0 mt-4 w-[22rem] overflow-hidden rounded-3xl border shadow-[0_24px_60px_-16px_rgba(15,23,42,0.35)] ring-1 select-none ${
-              dark
-                ? "border-zinc-700/70 bg-zinc-950/95 ring-white/5"
-                : "border-slate-200 bg-white/95 ring-black/5"
-            }`}
+            className={`absolute right-0 mt-4 w-[16rem] overflow-hidden rounded-3xl border shadow-[0_24px_60px_-16px_rgba(15,23,42,0.35)] ring-1 select-none ${dark
+                ? "border-zinc-700/70 bg-zinc-950 ring-white/5"
+                : "border-slate-200 bg-white ring-black/5"
+              }`}
           >
             <div
-              className={`px-4 pb-4 pt-4 ${
-                dark
+              className={`px-3 pb-3 pt-3 ${dark
                   ? "bg-[radial-gradient(circle_at_top_right,rgba(79,70,229,0.22),transparent_58%),linear-gradient(180deg,rgba(39,39,42,0.95),rgba(24,24,27,0.98))]"
                   : "bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.14),transparent_58%),linear-gradient(180deg,#ffffff,#f8fafc)]"
-              }`}
+                }`}
             >
-              <div className="flex items-center gap-3.5">
+              <div className="flex items-center gap-3">
                 <div
-  className={`relative h-12 w-12 rounded-3xl p-[2px] ${
-    user?.membership === "pro"
-      ? "bg-gradient-to-br from-purple-500 via-indigo-500 to-purple-600"
-      : ""
-  }`}
->
-  <div className="relative h-full w-full overflow-hidden rounded-2xl border border-white/50 shadow-sm">
-    <Image
-      src={user.avatar || "/assets/profiles/user.webp"}
-      alt="Profile avatar"
-      fill
-      className="object-cover"
-      sizes="50px"
-    />
-  </div>
-</div>
+                  className={`relative h-10 w-10 rounded-4xl p-[2px] ${user?.membership === "pro"
+                      ? "bg-gradient-to-tr from-amber-400/40 to-amber-400/10 ring-1 ring-amber-400/30"
+                      : ""
+                    }`}
+                >
+                  <div className="relative h-full w-full overflow-hidden rounded-2xl border border-white/50 shadow-sm">
+                    <Image
+                      src={user.avatar || "/assets/profiles/user.webp"}
+                      alt="Profile avatar"
+                      fill
+                      className="object-cover"
+                      sizes="40px"
+                    />
+                  </div>
+                </div>
 
                 <div className="min-w-0 flex-1">
                   <p className={`truncate text-sm font-semibold ${dark ? "text-zinc-100" : "text-slate-900"}`}>
@@ -171,15 +181,14 @@ export default function ProfileDropdown() {
                 </div>
 
                 <span
-                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] ${
-                    isProMember
+                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] ${isProMember
                       ? dark
                         ? "border-amber-400/40 bg-amber-400/10 text-amber-200"
                         : "border-amber-200 bg-amber-50 text-amber-700"
                       : dark
                         ? "border-indigo-400/40 bg-indigo-400/10 text-indigo-200"
                         : "border-indigo-200 bg-indigo-50 text-indigo-700"
-                  }`}
+                    }`}
                 >
                   <Sparkles className="h-3 w-3" />
                   {membershipLabel}
@@ -188,14 +197,15 @@ export default function ProfileDropdown() {
 
             </div>
 
-            <div className="p-2">
+            <div className="p-1.5">
               {MENU_ACTIONS.map((item) => (
                 <MenuItem
                   key={item.label}
                   dark={dark}
                   icon={<item.icon className="h-4 w-4" />}
                   label={item.label}
-                  onClick={() => handleNavigate(item.href)}
+                  onClick={() => handleNavigate(item.href, item.label)}
+                  highlight={item.highlight}
                 />
               ))}
             </div>
@@ -218,37 +228,50 @@ function MenuItem({
   label,
   onClick,
   dark,
+  highlight = false,
 }: {
   icon: ReactNode;
   label: string;
   onClick?: () => void;
   dark: boolean;
+  highlight?: boolean;
 }) {
   return (
     <button
       onClick={onClick}
-      className={`group flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition cursor-pointer ${
-        dark
-          ? "text-zinc-200 hover:bg-zinc-900 hover:text-white"
-          : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
-      }`}
+      className={`group flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-sm font-medium transition cursor-pointer ${highlight
+          ? dark
+            ? "bg-gradient-to-r from-indigo-500/18 to-violet-500/18 text-indigo-100 ring-1 ring-indigo-400/35 hover:bg-gradient-to-r hover:from-indigo-500/25 hover:to-violet-500/25"
+            : "bg-gradient-to-r from-indigo-50 to-violet-50 text-indigo-700 ring-1 ring-indigo-200 hover:from-indigo-100 hover:to-violet-100"
+          : dark
+            ? "text-zinc-200 hover:bg-zinc-900 hover:text-white"
+            : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+        }`}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <span
-          className={`inline-flex h-7 w-7 items-center justify-center rounded-lg transition ${
-            dark
-              ? "bg-zinc-800 text-zinc-400 group-hover:bg-zinc-700 group-hover:text-indigo-300"
-              : "bg-slate-100 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600"
-          }`}
+          className={`inline-flex h-6 w-6 items-center justify-center rounded-md transition ${highlight
+              ? dark
+                ? "bg-indigo-500/20 text-indigo-200"
+                : "bg-indigo-100 text-indigo-700"
+              : dark
+                ? "bg-zinc-800 text-zinc-400 group-hover:bg-zinc-700 group-hover:text-indigo-300"
+                : "bg-slate-100 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600"
+            }`}
         >
           {icon}
         </span>
         {label}
       </div>
       <ChevronRight
-        className={`h-4 w-4 transition-transform group-hover:translate-x-0.5 ${
-          dark ? "text-zinc-600" : "text-slate-300"
-        }`}
+        className={`h-4 w-4 transition-transform group-hover:translate-x-0.5 ${highlight
+            ? dark
+              ? "text-indigo-200"
+              : "text-indigo-600"
+            : dark
+              ? "text-zinc-600"
+              : "text-slate-300"
+          }`}
       />
     </button>
   );

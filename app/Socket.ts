@@ -8,4 +8,5 @@ export const socket = io(SOCKET_URL, {
   withCredentials: true,
   reconnection: true,
   reconnectionAttempts: 20,
+  auth: { token: "" },
 });

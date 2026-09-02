@@ -15,7 +15,7 @@ export default function ProfileLayout({
   const isBookingRoute = pathname.startsWith("/profile/bookings");
 
   const mainClass = isChatRoute
-    ? "flex-1 p-0 lg:p-8"
+    ? "flex-1 p-0 lg:p-0"
     : isBookingRoute
       ? "flex flex-1 min-h-0 flex-col overflow-hidden p-0 py-14 lg:p-8 lg:py-0"
       : "flex-1 p-0 pb-24 pt-14 lg:p-8 lg:pt-0";

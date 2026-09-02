@@ -18,39 +18,27 @@ export const releases: Release[] = [
     {
         version: "1.2.0",
         releaseDate: "May 2026",
-        status: "latest",
+        status: "previous",
         features: [
-            { title: "Favorites", status: "live" },
-            { title: "Coupon", status: "live" }, 
-            { title: "Offers and Deals", status: "live" },
-            { title: "Cancelled Bookings", status: "live" },
-            { title: "User Feedback", status: "live" },
-            { title: "Refunded Bookings", status: "live" },
-            { title: "Subscription", status: "live" },
-            { title: "Notifications", status: "live" },
-            { title: "Testimonials", status: "live" },
-            { title: "User Reviews and Ratings", status: "live" },
-            { title: "Seat Preference", status: "live" },
-            { title: "Payment Preferences", status: "live" },
-            { title: "Faster Booking Flow", status: "live" },
-            { title: "Invite and Share", status: "live" },
-            { title: "UI Improvements", status: "live" },
-            { title: "Bug Fixes", status: "live" },
+            { title: "Favorites", status: "released" },
+            { title: "Coupon", status: "released" },
+            { title: "Offers and Deals", status: "released" },
+            { title: "Cancelled Bookings", status: "released" },
+            { title: "User Feedback", status: "released" },
+            { title: "Refunded Bookings", status: "released" },
+            { title: "Subscription", status: "released" },
+            { title: "Notifications", status: "released" },
+            { title: "Testimonials", status: "released" },
+            { title: "User Reviews and Ratings", status: "released" },
+            { title: "Seat Preference", status: "released" },
+            { title: "Payment Preferences", status: "released" },
+            { title: "Faster Booking Flow", status: "released" },
+            { title: "Invite and Share", status: "released" },
+            { title: "UI Improvements", status: "released" },
+            { title: "Bug Fixes", status: "released" },
         ],
     },
-    {
-        version: "1.3.0",
-        releaseDate: "TBD",
-        status: "planned",
-        features: [
-            { title: "Hotel Booking", status: "planned" },
-            { title: "Flight Booking", status: "planned" },
-            { title: "Train Booking", status: "planned" },
-            { title: "Auto Top-up", status: "planned" },
-            { title: "User Activity Log", status: "planned" },
-            { title: "Admin Dashboard", status: "planned" },
-        ],
-    },
+
     {
         version: "1.1.0",
         releaseDate: "April 2026",
@@ -75,4 +63,25 @@ export const releases: Release[] = [
             { title: "Event Booking", status: "released" }
         ],
     },
+    {
+        version: "1.3.0",
+        releaseDate: "Oct 2026",
+        status: "latest",
+        features: [
+            { title: "Train Booking", status: "live" },
+            { title: "AI Assistant (Movie)", status: "live" },
+            { title: "Admin Dashboard", status: "live" },
+            { title: "UI Update", status: "live" },
+            { title: "Added more bugs", status: "live" },
+        ],
+    },
+    {
+        version: "1.4.0",
+        releaseDate: "TBD",
+        status: "planned",
+        features: [
+            { title: "Auto Top-up", status: "planned" },
+            { title: "User Activity Log", status: "planned" }
+        ],
+    }
 ];

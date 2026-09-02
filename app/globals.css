@@ -878,7 +878,7 @@ html.theme-dark .shadow-2xl {
 
 .chat-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgba(59, 130, 246, 0.45) transparent;
+  scrollbar-color: rgba(148, 163, 184, 0.65) transparent;
 }
 
 .chat-scroll::-webkit-scrollbar {
@@ -890,24 +890,24 @@ html.theme-dark .shadow-2xl {
 }
 
 .chat-scroll::-webkit-scrollbar-thumb {
-  background: rgba(59, 130, 246, 0.45);
+  background: rgba(148, 163, 184, 0.7);
   border-radius: 999px;
 }
 
 .chat-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(59, 130, 246, 0.65);
+  background: rgba(100, 116, 139, 0.8);
 }
 
 html.theme-dark .chat-scroll {
-  scrollbar-color: rgba(161, 161, 170, 0.45) transparent;
+  scrollbar-color: rgba(113, 113, 122, 0.75) transparent;
 }
 
 html.theme-dark .chat-scroll::-webkit-scrollbar-thumb {
-  background: rgba(161, 161, 170, 0.45);
+  background: rgba(113, 113, 122, 0.75);
 }
 
 html.theme-dark .chat-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(212, 212, 216, 0.55);
+  background: rgba(161, 161, 170, 0.8);
 }
 
 .app-toast-popup {

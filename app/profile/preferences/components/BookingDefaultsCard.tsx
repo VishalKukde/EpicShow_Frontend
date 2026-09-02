@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
-import { Armchair, Film, Plane, Train, Trophy } from "lucide-react";
+import { Film, Plane, Train, Trophy } from "lucide-react";
 import type {
   FlightSeatPreference,
   MovieSeatZone,
@@ -13,6 +13,7 @@ import { ComingSoonChip } from "./ComingSoonChip";
 
 type BookingDefaultsCardProps = {
   dark: boolean;
+  isPro: boolean;
   seatPreferences: SeatPreferences;
   setSeatPreferences: (
     category: SeatPreferenceCategory,
@@ -61,6 +62,7 @@ const flightSeatOptions: SeatPreferenceGroup<FlightSeatPreference>["options"] = 
 
 export function BookingDefaultsCard({
   dark,
+  isPro,
   seatPreferences,
   setSeatPreferences,
 }: BookingDefaultsCardProps) {
@@ -113,7 +115,7 @@ export function BookingDefaultsCard({
             Pre-select options to speed up booking flow.
           </p>
         </div>
-        <ComingSoonChip dark={dark} />
+        <ComingSoonChip dark={dark} label={isPro ? "Pro" : "Pro only"} />
       </div>
 
       <div className="mt-4 space-y-3 ">
@@ -138,6 +140,7 @@ export function BookingDefaultsCard({
                     key={group.key}
                     type="button"
                     onClick={() => setActiveSeatCategory(group.key)}
+                    disabled={!isPro}
                     className={`inline-flex min-h-9 shrink-0 items-center gap-2 rounded-full border px-3 text-xs font-semibold transition cursor-pointer ${
                       active
                         ? dark
@@ -146,7 +149,7 @@ export function BookingDefaultsCard({
                         : dark
                           ? "border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
                           : "border-gray-200 bg-white text-gray-700 hover:bg-gray-100"
-                    }`}
+                    } ${!isPro ? "cursor-not-allowed opacity-50" : ""}`}
                     aria-pressed={active}
                   >
                     {group.icon}
@@ -185,6 +188,7 @@ export function BookingDefaultsCard({
                       <button
                         key={option.value}
                         type="button"
+                        disabled={!isPro}
                         onClick={() => setSeatPreferences(activeSeatGroup.key, option.value)}
                         className={`min-h-16 rounded-lg border px-3 py-2 text-left transition cursor-pointer ${
                           selected
@@ -194,7 +198,7 @@ export function BookingDefaultsCard({
                             : dark
                               ? "border-zinc-700 bg-zinc-700 text-zinc-300 hover:bg-zinc-800"
                               : "border-gray-200 bg-white text-gray-700 hover:bg-gray-100"
-                        }`}
+                        } ${!isPro ? "cursor-not-allowed opacity-50" : ""}`}
                       >
                         <span className="block text-xs font-semibold">{option.label}</span>
                         <span

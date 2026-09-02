@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useThemeStore } from "@/store/themeStore";
+import { useAuth } from "@/context/AuthContext";
 import { Seat } from '@/types/Seat';
 
 type SeatsQuickActionProps = {
@@ -12,6 +13,7 @@ const SeatsQuickAction = ({ selectedSeats, totalPrice,goToReviewBooking }: Seats
     const mode = useThemeStore((s) => s.mode);
     const dark = mode === "dark";
     const barRef = useRef<HTMLDivElement | null>(null);
+    const isPro = useAuth()?.user?.membership === "pro";
 
     useEffect(() => {
         const root = document.documentElement;
@@ -43,7 +45,7 @@ const SeatsQuickAction = ({ selectedSeats, totalPrice,goToReviewBooking }: Seats
             {selectedSeats.length > 0 ? (
                 <div ref={barRef} className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-800 px-5 py-4 z-50">
                     <div className="mb-3 flex justify-center sm:hidden">
-                        <LegendPanel dark={dark} compact />
+                        <LegendPanel dark={dark} compact showRecommended={isPro} />
                     </div>
                     <div className="max-w-6xl mx-auto flex justify-between items-center">
                         <div className="text-md">
@@ -67,7 +69,7 @@ const SeatsQuickAction = ({ selectedSeats, totalPrice,goToReviewBooking }: Seats
                 </div>
             ) : (
                 <div className="mt-4 flex items-center justify-center">
-                    <LegendPanel dark={dark} />
+                    <LegendPanel dark={dark} showRecommended={isPro} />
                 </div>
             )}
         </div>
@@ -76,7 +78,7 @@ const SeatsQuickAction = ({ selectedSeats, totalPrice,goToReviewBooking }: Seats
 
 export default SeatsQuickAction
 
-function LegendPanel({ dark, compact = true }: { dark: boolean; compact?: boolean }) {
+function LegendPanel({ dark, compact = true, showRecommended = false }: { dark: boolean; compact?: boolean; showRecommended?: boolean }) {
     return (
         <div className={`inline-flex flex-wrap items-center justify-center rounded-2xl border text-xs font-medium ${
             compact ? "gap-3.5 px-4 py-2" : "gap-4 px-4 py-2"
@@ -99,11 +101,13 @@ function LegendPanel({ dark, compact = true }: { dark: boolean; compact?: boolea
                 border={dark ? "border border-red-400" : "border border-red-400"}
                 label="Sold"
             />
-            <Legend
-                color={dark ? "bg-indigo-900" : "bg-indigo-100"}
-                border={dark ? "border border-indigo-400/40 ring-1 ring-indigo-400" : "border border-indigo-200 ring-1 ring-indigo-500"}
-                label="Recommended For You"
-            />
+            {showRecommended && (
+                <Legend
+                    color={dark ? "bg-indigo-900" : "bg-indigo-100"}
+                    border={dark ? "border border-indigo-400/40 ring-1 ring-indigo-400" : "border border-indigo-200 ring-1 ring-indigo-500"}
+                    label="Recommended For You"
+                />
+            )}
         </div>
     );
 }

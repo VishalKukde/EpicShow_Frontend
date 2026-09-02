@@ -11,21 +11,24 @@ import { unlockAllSeatsForCurrentShow } from "@/hooks/useSeatActions";
 // import { useSeatSession } from "@/hooks/useSeatSession";
 import { useSeatLayout } from "@/hooks/useSeatLayout";
 import { motion } from "framer-motion";
-import { Home, Layers3, Search } from "lucide-react";
+import { Home, Search } from "lucide-react";
 import SeatTimer from "@/app/components/SeatTimer";
 import { useThemeStore } from "@/store/themeStore";
-import { useFeatureShowcase } from "@/components/FeatureShowcaseProvider";
+import MovieSearchModal from "@/components/MovieSearchModal";
 
 export default function Navbar() {
   const { user } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
-  const mode = useThemeStore((state) => state.mode);
-  const dark = mode === "dark";
-  const { openShowcase } = useFeatureShowcase();
+  useThemeStore((state) => state.mode);
   const [scrolled, setScrolled] = useState(false);
   const [isNavbarVisible, setIsNavbarVisible] = useState(true);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchOrigin, setSearchOrigin] = useState<
+    { x: number; y: number; width: number; height: number } | null
+  >(null);
   const lastScrollY = useRef(0);
+  const searchButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     const onScroll = () => {
@@ -68,7 +71,9 @@ export default function Navbar() {
   const { setSeats } = useSeatLayout(booking);
 
   const handleHome = () => {
-    unlockAllSeatsForCurrentShow(setSeats, user?.id);
+    if(setSeats.length > 0) {
+      unlockAllSeatsForCurrentShow(setSeats, user?.id);
+    }
     useBookingStore.getState().resetBooking();
     usePaymentStore.getState().resetPayment();
     router.replace("/");
@@ -84,13 +89,27 @@ export default function Navbar() {
       window.location.href = "/explore";
       return;
     }
-    router.push("/explore");
+
+    const rect = searchButtonRef.current?.getBoundingClientRect();
+    setSearchOrigin(
+      rect
+        ? {
+          x: rect.left,
+          y: rect.top,
+          width: rect.width,
+          height: rect.height,
+        }
+        : null,
+    );
+    setIsSearchOpen(true);
   };
 
   if (hideNavbar) return null;
 
   return (
     <>
+      <MovieSearchModal open={isSearchOpen} onClose={() => setIsSearchOpen(false)} origin={searchOrigin} />
+
       <motion.nav
         initial={false}
         animate={{
@@ -113,7 +132,7 @@ export default function Navbar() {
       >
         <div
           className={`relative flex justify-between items-center px-3 sm:px-6 lg:px-3 transition-all duration-500
-      ${scrolled ? "py-2 sm:py-2" : "py-3 sm:py-2"}`}
+      ${scrolled ? "py-2 sm:py-2" : "py-3 sm:py-0"}`}
         >
           {/* Logo */}
           <div
@@ -133,24 +152,8 @@ export default function Navbar() {
           <div className="flex items-center gap-2 sm:gap-3">
             {pathname === "/" ? (
               <>
-                 <button
-              type="button"
-              onClick={openShowcase}
-              aria-label="Open app feature guide"
-              className={`inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl border px-3.5 text-xs font-semibold transition hover:-translate-y-0.5 sm:text-sm`}
-              style={{
-                borderColor: "var(--hero-header-btn-border)",
-                background: "var(--hero-header-btn-bg)",
-                color: "var(--hero-header-btn-text)",
-                boxShadow: "var(--hero-header-btn-shadow)",
-                transform: "translateY(0)",
-                backdropFilter: "blur(14px)"
-              }}
-            >
-              <Layers3 className="h-4 w-4" />
-              <span className="hidden md:inline">Inside App</span>
-            </button>
                 <button
+                  ref={searchButtonRef}
                   type="button"
                   onClick={handleSearchClick}
                   aria-label="Open search"
@@ -177,18 +180,18 @@ export default function Navbar() {
                   }}
                 >
                   <Search className="h-4 w-4" />
-                  <span>Search</span>
+                  {/* <span>Search</span> */}
                 </button>
                 {user?.role === "admin" && (
-                  <button 
-                   onClick={()=>{router.push("/admin")}}
-                  className="inline-flex items-center gap-2 cursor-pointer rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
+                  <button
+                    onClick={() => { router.push("/admin") }}
+                    className="inline-flex items-center gap-2 cursor-pointer rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
                     <Home className="h-4 w-4" />
                     Admin
                   </button>
                 )}
 
-              
+
 
               </>
             ) : null}

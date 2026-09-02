@@ -17,7 +17,7 @@ export default function HeroSectionNewAgain() {
           align-items: center;
           justify-content: center;
           text-align: center;
-          padding: 80px 24px 24px;
+          padding: 120px 24px 24px;
           height: 60vh;
           box-sizing: border-box;
         }
@@ -57,7 +57,7 @@ export default function HeroSectionNewAgain() {
       <section
         style={{
           position: "relative",
-          height: "60vh",
+          height: "70vh",
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",

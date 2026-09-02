@@ -10,11 +10,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { ArrowLeft, Loader2, SendHorizontal } from "lucide-react";
+import { ArrowLeft, Loader2, RefreshCw, SendHorizontal, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useThemeStore } from "@/store/themeStore";
 import { apiFetch } from "@/lib/api";
-// import { getToken } from "@/lib/tokenStore";
+import { getToken } from "@/lib/tokenStore";
 import { socket } from "@/app/Socket";
 import { toast } from "@/lib/toast";
 
@@ -196,6 +196,24 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
   const inputRef = useRef<HTMLInputElement>(null);
   const typingStopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sentTypingRef = useRef(false);
+
+  const focusInput = useCallback(() => {
+    const focusNow = () => {
+      const input = inputRef.current;
+      if (!input) return;
+      input.focus({ preventScroll: true });
+      const length = input.value.length;
+      if (length > 0) {
+        input.setSelectionRange(length, length);
+      }
+    };
+
+    if (typeof window === "undefined") return;
+    requestAnimationFrame(() => {
+      focusNow();
+      window.setTimeout(focusNow, 60);
+    });
+  }, []);
 
   const activeChatUser = useMemo(
     () => (isAdmin ? chatUsers.find((item) => item.id === activeUserId) ?? null : null),
@@ -444,15 +462,21 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
   useEffect(() => {
     if (!user) return;
     if (isAdmin && !activeUserId) return;
-    requestAnimationFrame(() => {
-      inputRef.current?.focus();
-    });
-  }, [activeUserId, isAdmin, user]);
+    focusInput();
+  }, [activeUserId, focusInput, isAdmin, user]);
 
   useEffect(() => {
     if (!user) return;
-    
-    socket.connect();
+
+    socket.auth = { token: getToken() || "" };
+
+    if (!socket.connected) {
+      socket.connect();
+    } else {
+      socket.disconnect();
+      socket.connect();
+    }
+
     setSocketConnected(socket.connected);
 
     const handleConnect = () => {
@@ -516,6 +540,10 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
         setTypingConversationIds((prev) =>
           prev.filter((item) => item !== incoming.conversationUserId)
         );
+
+        if (activeUserIdRef.current === incoming.conversationUserId) {
+          focusInput();
+        }
 
         const hasConversation = chatUsersRef.current.some(
           (item) => item.id === incoming.conversationUserId
@@ -588,6 +616,7 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
   }, [
     applyConversationClearedLocally,
     clearTypingTimer,
+    focusInput,
     isAdmin,
     loadAdminUsers,
     mergeIncomingMessage,
@@ -640,26 +669,44 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
       setErrorText("");
       stopTyping();
 
-      socket.emit(
-        "chat:send",
-        {
-          text: trimmedMessage,
-          ...(isAdmin ? { targetUserId: activeUserId } : {}),
-        },
-        (ack: ChatSendAck) => {
+      const sendPayload = {
+        text: trimmedMessage,
+        ...(isAdmin ? { targetUserId: activeUserId } : {}),
+      };
+
+      const sendRequest = isAdmin
+        ? new Promise<ChatSendAck>((resolve) => {
+            socket.emit("chat:send", sendPayload, (ack: ChatSendAck) => resolve(ack));
+          })
+        : apiFetch("/chat/messages", {
+            method: "POST",
+            body: JSON.stringify({ text: trimmedMessage }),
+            notifyOnError: false,
+          }).then((response: { message?: ChatMessage } | null) => {
+            const payload = response?.message;
+            if (!payload) {
+              return { ok: false, message: "Unable to send message" };
+            }
+            return { ok: true, message: payload.id };
+          });
+
+      sendRequest
+        .then((ack: ChatSendAck) => {
           setSending(false);
           if (!ack?.ok) {
             setErrorText(ack?.message || "Unable to send message");
             return;
           }
           setInput("");
-          requestAnimationFrame(() => {
-            inputRef.current?.focus();
-          });
-        }
-      );
+          focusInput();
+        })
+        .catch((error: unknown) => {
+          setSending(false);
+          const message = error instanceof Error ? error.message : "Unable to send message";
+          setErrorText(message);
+        });
     },
-    [activeUserId, clearingConversation, input, isAdmin, sending, socketConnected, stopTyping]
+    [activeUserId, clearingConversation, focusInput, input, isAdmin, sending, socketConnected, stopTyping]
   );
 
   const selectUserConversation = (userId: string) => {
@@ -670,9 +717,7 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
     setActiveUserId(userId);
     resetUnreadForUser(userId);
     setTypingConversationIds((prev) => prev.filter((item) => item !== userId));
-    requestAnimationFrame(() => {
-      inputRef.current?.focus();
-    });
+    focusInput();
   };
 
   if (!user) return null;
@@ -684,7 +729,6 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
     : "Type your message...";
 
   const canSend =
-    socketConnected &&
     !clearingConversation &&
     Boolean(input.trim()) &&
     (!isAdmin || Boolean(activeUserId));
@@ -717,12 +761,12 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
   const peerName = isAdmin ? activeChatUser?.name ?? "User" : "Support";
 
   const renderMessageThread = (
-    <section className="flex h-full min-h-0 flex-1 flex-col">
+    <section className="flex h-full min-h-0 flex-1 flex-col overflow-hidden border border-slate-200 bg-white/80 dark:border-zinc-800 dark:bg-zinc-950/80">
       <header
-        className={`flex h-14 shrink-0 items-center gap-2 border-b px-3 ${
+        className={`flex h-[4.5rem] shrink-0 items-center gap-3 border-b px-4 sm:px-5 ${
           dark
-            ? "border-zinc-700 bg-zinc-900 text-zinc-100"
-            : "border-[#d9e4ff] bg-[#f7f9ff] text-[#111827]"
+            ? "border-zinc-800 bg-zinc-950/90 text-zinc-100"
+            : "border-slate-200 bg-white/90 text-slate-900"
         }`}
       >
         {isAdmin ? (
@@ -739,37 +783,55 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
           </button>
         ) : null}
 
-        <div className="flex min-w-0 flex-1 items-center gap-2">
-          <ChatAvatar
-            name={peerName}
-            avatar={peerAvatar}
-            sizeClass="h-9 w-9"
-            toneClass={dark ? "bg-zinc-800" : "bg-[#dbeafe]"}
-            textClass={dark ? "text-zinc-300" : "text-[#1d4ed8]"}
-          />
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <div className="rounded-full bg-slate-100 p-0.5 shadow-sm dark:bg-zinc-800">
+            <ChatAvatar
+              name={peerName}
+              avatar={peerAvatar}
+              sizeClass="h-11 w-11"
+              toneClass={dark ? "bg-zinc-700" : "bg-slate-200"}
+              textClass={dark ? "text-zinc-200" : "text-slate-700"}
+            />
+          </div>
 
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
-              <p className="truncate text-sm font-semibold">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <p className="truncate text-sm font-semibold tracking-[0.01em] sm:text-[15px]">
                 {isAdmin ? activeChatUser?.name ?? "Select a user" : "Support Team"}
               </p>
               {showHeaderPresenceDot ? <OnlineDot dark={dark} /> : null}
             </div>
             {headerStatusText ? (
-              <p className={`mt-0.5 truncate text-[11px] ${dark ? "text-zinc-400" : "text-zinc-500"}`}>
+              <p className={`mt-1 truncate text-[11px] font-medium ${dark ? "text-zinc-400" : "text-zinc-500"}`}>
                 {headerStatusText}
               </p>
             ) : null}
           </div>
         </div>
+
+        {isAdmin && activeUserId ? (
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                void confirmAndClearConversation("delete", { skipConfirm: false });
+              }}
+              className={`inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border text-red-600 transition ${
+                dark ? "border-red-500/30 bg-red-500/10 hover:bg-red-500/20" : "border-red-200 bg-red-50 hover:bg-red-100"
+              }`}
+              aria-label="Delete chat"
+              title="Delete chat"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        ) : null}
       </header>
 
       <div
         ref={messageListRef}
-        className={`chat-scroll min-h-0 flex-1 overflow-y-auto px-3 py-3 sm:px-4 ${
-          dark
-            ? "bg-zinc-950"
-            : "bg-[radial-gradient(circle_at_20%_10%,rgba(37,99,235,0.08),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(56,189,248,0.10),transparent_42%),#ffffff]"
+        className={`chat-scroll min-h-0 flex-1 overflow-y-auto px-3 py-4 sm:px-5 ${
+          dark ? "bg-zinc-950" : "bg-slate-50"
         }`}
       >
         {loadingMessages ? (
@@ -777,7 +839,7 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
             <Loader2 className="h-5 w-5 animate-spin text-indigo-500" />
           </div>
         ) : messages.length ? (
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             {messages.map((message) => {
               const isMine = message.senderId === user.id;
               const senderName = isMine ? user.name : isAdmin ? activeChatUser?.name ?? "User" : "Support";
@@ -790,40 +852,40 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
               return (
                 <div
                   key={message.id}
-                  className={`flex items-end gap-2 ${isMine ? "justify-end" : "justify-start"}`}
+                  className={`flex items-end gap-2.5 ${isMine ? "justify-end" : "justify-start"}`}
                 >
                   {!isMine ? (
                     <ChatAvatar
                       name={senderName}
                       avatar={senderAvatar}
-                      sizeClass="h-8 w-8"
-                      toneClass={dark ? "bg-zinc-800" : "bg-[#dbeafe]"}
-                      textClass={dark ? "text-zinc-300" : "text-[#1d4ed8]"}
+                      sizeClass="h-7 w-7"
+                      toneClass={dark ? "bg-zinc-700" : "bg-slate-200"}
+                      textClass={dark ? "text-zinc-200" : "text-slate-700"}
                     />
                   ) : null}
                   <article
-                    className={`relative max-w-[82%] rounded-[1.15rem] px-3.5 py-2.5 text-sm shadow-[0_10px_30px_rgba(2,6,23,0.08)] ${
+                    className={`relative max-w-[80%] rounded-[1.2rem] px-3 py-2.5 text-sm ${
                       isMine
                         ? dark
-                          ? "rounded-br-sm bg-gradient-to-br from-[#2563eb] to-[#4f46e5] text-[#eef4ff]"
-                          : "rounded-br-sm bg-gradient-to-br from-[#3b82f6] to-[#2563eb] text-white"
+                          ? "bg-zinc-700 text-zinc-50 rounded-br-[0.5rem]"
+                          : "bg-slate-900 text-white rounded-br-[0.5rem]"
                         : dark
-                          ? "rounded-bl-sm bg-zinc-800/95 text-zinc-100 ring-1 ring-zinc-700"
-                        : "rounded-bl-sm bg-white/95 text-zinc-800 ring-1 ring-[#dbe8ff]"
+                          ? "bg-zinc-800 text-zinc-100 ring-1 ring-zinc-700 rounded-bl-[0.5rem]"
+                          : "bg-white text-slate-800 ring-1 ring-slate-200 rounded-bl-[0.5rem]"
                     }`}
                   >
-                    <p className="whitespace-pre-wrap break-words pr-12 pb-3 leading-6 tracking-[0.01em]">
+                    <p className="whitespace-pre-wrap break-words pr-11 leading-6 tracking-[0.01em]">
                       {message.text}
                     </p>
                     <p
-                      className={`absolute bottom-1 right-2 text-[10px] ${
+                      className={`absolute bottom-1.5 right-2.5 text-[9px] font-medium ${
                         isMine
                           ? dark
-                            ? "text-blue-100/85"
-                            : "text-blue-50/85"
+                            ? "text-zinc-200/85"
+                            : "text-white/75"
                           : dark
                             ? "text-zinc-400"
-                            : "text-zinc-500"
+                            : "text-slate-400"
                       }`}
                     >
                       {formatTime(message.createdAt)}
@@ -833,9 +895,9 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
                     <ChatAvatar
                       name={senderName}
                       avatar={senderAvatar}
-                      sizeClass="h-8 w-8"
-                      toneClass={dark ? "bg-zinc-800" : "bg-[#dbeafe]"}
-                      textClass={dark ? "text-zinc-300" : "text-[#1d4ed8]"}
+                      sizeClass="h-7 w-7"
+                      toneClass={dark ? "bg-zinc-700" : "bg-slate-200"}
+                      textClass={dark ? "text-zinc-200" : "text-slate-700"}
                     />
                   ) : null}
                 </div>
@@ -845,10 +907,10 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
             {showTypingIndicator ? (
               <div className="flex justify-start">
                 <div
-                  className={`inline-flex items-center gap-1.5 rounded-2xl rounded-bl-sm px-3 py-2 ${
+                  className={`inline-flex items-center gap-1.5 rounded-[1.2rem] rounded-bl-md px-3.5 py-2.5 shadow-[0_10px_28px_rgba(15,23,42,0.08)] ${
                     dark
-                      ? "bg-zinc-800 text-zinc-200 ring-1 ring-zinc-700"
-                      : "bg-white text-zinc-700 ring-1 ring-[#dbe8ff]"
+                      ? "bg-zinc-800 text-zinc-200 ring-1 ring-zinc-700/80"
+                      : "bg-white/95 text-zinc-700 ring-1 ring-[#dfe9ff]"
                   }`}
                 >
                   <span className="text-[11px] font-medium text-emerald-500">Typing...</span>
@@ -876,8 +938,8 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
 
       <form
         onSubmit={sendMessage}
-        className={`flex items-center gap-2 border-t p-2.5 ${
-          dark ? "border-zinc-700 bg-zinc-900" : "border-[#d9e4ff] bg-[#f8faff]"
+        className={`flex items-center gap-3 border-t p-3 sm:p-4 ${
+          dark ? "border-zinc-800 bg-zinc-950/95" : "border-slate-200 bg-white/90"
         }`}
       >
         <input
@@ -886,17 +948,17 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
           onChange={(event) => handleInputChange(event.target.value)}
           placeholder={placeholder}
           disabled={sending || clearingConversation || (isAdmin && !activeUserId)}
-          className={`h-10 flex-1 rounded-xl border px-3 text-sm outline-none ${
+          className={`h-12 flex-1 rounded-2xl border px-4 text-sm shadow-inner outline-none transition-all duration-200 ${
             dark
-              ? "border-zinc-700 bg-zinc-950 text-zinc-100 placeholder:text-zinc-500"
-              : "border-[#c8d8ff] bg-white text-zinc-900 placeholder:text-zinc-400"
+              ? "border-zinc-700 bg-zinc-900 text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-500"
+              : "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-slate-400"
           } disabled:cursor-not-allowed disabled:opacity-70`}
         />
 
         <button
           type="submit"
           disabled={!canSend || sending || clearingConversation}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#2563eb] text-white transition hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-sm transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
         >
           {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <SendHorizontal className="h-4 w-4" />}
         </button>
@@ -906,61 +968,77 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
 
   return (
     <div
-      className={`flex h-full min-h-0 overflow-hidden rounded-2xl border ${
-        dark ? "border-zinc-700 bg-zinc-900" : "border-[#bfcfff] bg-[#eff4ff]"
+      className={`flex h-full min-h-0 overflow-hidden border-0 bg-transparent ${
+        dark ? "bg-transparent" : "bg-transparent"
       }`}
     >
       <div className="flex h-full min-h-0 w-full flex-col">
         {errorText ? (
           <div
-            className={`border-b px-3 py-2 text-xs ${
+            className={`flex items-center justify-between gap-3 border-b px-3 py-2 text-xs ${
               dark
                 ? "border-zinc-700 bg-red-900/30 text-red-200"
                 : "border-red-200 bg-red-50 text-red-700"
             }`}
           >
-            {errorText}
+            <span>
+              {errorText.includes("Socket disconnected")
+                ? "Socket disconnected. Refresh the chat to reconnect."
+                : errorText}
+            </span>
+            {(errorText.includes("Socket disconnected") || errorText.includes("Reconnect")) && (
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-semibold ${
+                  dark ? "border-red-300/40 bg-red-500/10 text-red-100 hover:bg-red-500/20" : "border-red-200 bg-white text-red-700 hover:bg-red-100"
+                }`}
+              >
+                <RefreshCw className="h-3 w-3" />
+                Refresh
+              </button>
+            )}
           </div>
         ) : null}
 
         {!isAdmin ? (
           renderMessageThread
         ) : (
-          <div className="grid h-full min-h-0 w-full lg:grid-cols-[18.5rem_minmax(0,1fr)]">
+          <div className="grid h-full min-h-0 w-full gap-0 lg:grid-cols-[19rem_minmax(0,1fr)]">
             <aside
               className={`flex h-full min-h-0 flex-col border-r ${
-                dark ? "border-zinc-700 bg-zinc-900" : "border-[#d9e4ff] bg-[#f8faff]"
+                dark ? "border-zinc-800 bg-zinc-950" : "border-slate-200 bg-slate-50"
               } ${activeUserId ? "hidden lg:flex" : "flex"}`}
             >
               <header
-                className={`flex h-14 shrink-0 items-center justify-between border-b px-3 ${
-                  dark ? "border-zinc-700 text-zinc-100" : "border-[#d9e4ff] text-zinc-900"
+                className={`flex h-[4.5rem] shrink-0 items-center justify-between border-b px-4 ${
+                  dark ? "border-zinc-800 text-zinc-100" : "border-slate-200 text-slate-900"
                 }`}
               >
                 <div>
-                  <p className="text-sm font-semibold">User Chats</p>
+                  <p className="text-sm font-semibold tracking-[0.02em]">User Chats</p>
                   <p className={`text-[11px] ${dark ? "text-zinc-400" : "text-zinc-500"}`}>
                     {loadingUsers ? "Loading users..." : `${chatUsers.length} users`}
                   </p>
                 </div>
                 {socketConnected ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.1)]">
                     Live
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-semibold text-amber-700 shadow-[inset_0_0_0_1px_rgba(245,158,11,0.1)]">
                     Reconnecting
                   </span>
                 )}
               </header>
 
-              <div className="chat-scroll min-h-0 flex-1 overflow-y-auto p-1.5">
+              <div className="chat-scroll min-h-0 flex-1 overflow-y-auto p-2.5">
                 {loadingUsers ? (
                   <div className="flex h-full items-center justify-center">
                     <Loader2 className="h-5 w-5 animate-spin text-indigo-500" />
                   </div>
                 ) : chatUsers.length ? (
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     {chatUsers.map((chatUser) => {
                       const isActive = chatUser.id === activeUserId;
                       const isTypingInList = typingConversationIds.includes(chatUser.id);
@@ -970,14 +1048,14 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
                           key={chatUser.id}
                           type="button"
                           onClick={() => selectUserConversation(chatUser.id)}
-                          className={`w-full rounded-xl border px-2.5 py-2 text-left transition ${
+                          className={`w-full rounded-[1.2rem] border px-3 py-3 text-left transition-all duration-200 ${
                             isActive
                               ? dark
-                                ? "border-zinc-700 bg-zinc-800"
-                                : "border-[#d4e2ff] bg-[#e9f0ff]"
+                                ? "border-zinc-700 bg-zinc-800 shadow-sm"
+                                : "border-slate-200 bg-white shadow-sm"
                               : dark
-                                ? "border-transparent hover:bg-zinc-800/70"
-                                : "border-transparent hover:bg-[#edf3ff]"
+                                ? "border-transparent hover:bg-zinc-800/80"
+                                : "border-transparent hover:bg-white"
                           }`}
                         >
                           <div className="flex items-start gap-2">
@@ -985,14 +1063,14 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
                               name={chatUser.name}
                               avatar={chatUser.avatar}
                               sizeClass="h-8 w-8 mt-0.5"
-                              toneClass={dark ? "bg-zinc-700" : "bg-[#dbeafe]"}
-                              textClass={dark ? "text-zinc-300" : "text-[#1d4ed8]"}
+                              toneClass={dark ? "bg-zinc-700" : "bg-slate-200"}
+                              textClass={dark ? "text-zinc-300" : "text-slate-700"}
                             />
 
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
                                 <p
-                                  className={`truncate text-sm font-medium ${
+                                  className={`truncate text-sm font-semibold ${
                                     dark ? "text-zinc-100" : "text-zinc-900"
                                   }`}
                                 >
@@ -1000,7 +1078,7 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
                                 </p>
                                 {chatUser.online ? <OnlineDot dark={dark} small /> : null}
                                 <span
-                                  className={`ml-auto shrink-0 text-[10px] ${
+                                  className={`ml-auto shrink-0 text-[10px] font-medium ${
                                     dark ? "text-zinc-500" : "text-zinc-400"
                                   }`}
                                 >
@@ -1008,7 +1086,7 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
                                 </span>
                               </div>
 
-                              <div className="mt-0.5 flex items-center gap-2">
+                              <div className="mt-1.5 flex items-center gap-2">
                                 <p
                                   className={`truncate text-xs ${
                                     isTypingInList
@@ -1027,7 +1105,7 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
                                 </p>
 
                                 {chatUser.unreadCount > 0 ? (
-                                  <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-[#1d4ed8] px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                                  <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-slate-900 px-1.5 py-0.5 text-[10px] font-semibold text-white dark:bg-slate-100 dark:text-slate-900">
                                     {chatUser.unreadCount > 99 ? "99+" : chatUser.unreadCount}
                                   </span>
                                 ) : null}

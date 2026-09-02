@@ -231,7 +231,7 @@ export default function ProfileNavbar() {
 
           <div>
             <h1 className="text-sm font-semibold text-gray-700">
-              V 1.2.0
+              V 1.3.0
             </h1>
           </div>
 

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import MovieCard from "./components/MovieCard";
 import Cinemas from "./components/Cinemas";
 import MovieReviewsSection from "./components/MovieReviewsSection";
+import AskAiModal from "./components/AskAiModal";
 import { apiFetch } from "@/lib/api";
 import PageTransition from "@/app/components/PageTransition";
 import { useBookingStore } from "@/store/bookingStore";
@@ -24,6 +25,7 @@ export default function MovieDetailPage() {
   const [selectedCinema, setSelectedCinema] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(todayISO);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [askAiOpen, setAskAiOpen] = useState(false);
 
   const isReady = selectedDate && selectedCinema && selectedSlot;
   const mode = useThemeStore((s) => s.mode);
@@ -120,7 +122,7 @@ export default function MovieDetailPage() {
     <PageTransition>
       <div className="select-none px-3 pb-28 pt-20 sm:px-5 sm:pb-32 sm:pt-24 lg:px-0">
         <div className="mx-auto max-w-6xl space-y-10 sm:space-y-14">
-          <MovieCard movie={movie} />
+          <MovieCard movie={movie} onOpenAskAi={() => setAskAiOpen(true)} />
           <Cinemas setSelectedCinemaId={setSelectedCinemaId} setSelectedDate={setSelectedDate} setSelectedCinema={setSelectedCinema} setSelectedSlot={setSelectedSlot}
             selectedDate={selectedDate} selectedCinema={selectedCinema} selectedSlot={selectedSlot} selectedCinemaId={selectedCinemaId}/>
           <MovieReviewsSection
@@ -129,6 +131,13 @@ export default function MovieDetailPage() {
             initialAverageRating={movie.avg_rating ?? 0}
           />
         </div>
+
+        <AskAiModal
+          open={askAiOpen}
+          movieTitle={movie.name}
+          releaseDate={movie.releaseDate}
+          onClose={() => setAskAiOpen(false)}
+        />
 
         {/* call to action button  */}
         {isReady && (

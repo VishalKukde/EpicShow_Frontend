@@ -196,7 +196,9 @@ function SubscriptionPaymentContent() {
         prefill: {
           name: user?.name || "",
           email: user?.email || "",
-          contact: user?.phone || "",
+          ...(user?.phone && /^\d{10}$/.test(String(user.phone))
+            ? { contact: String(user.phone) }
+            : {}),
         },
         handler: async function (response: {
           razorpay_order_id: string;

@@ -14,15 +14,7 @@ import { useShowSeatRealtime } from "@/hooks/useShowSeatRealtime";
 import { toast } from "@/lib/toast";
 import { useAuth } from "@/context/AuthContext";
 import { getTicketLimit } from "@/lib/proPerks";
-import type { MovieSeatPreference } from "@/types/Auth";
-import Loadable from "next/dist/shared/lib/loadable.shared-runtime";
 import { useThemeStore } from "@/store/themeStore";
-
-const movieSeatRecommendation: Record<MovieSeatPreference, { label: string; rows: string }> = {
-  front: { label: "Front", rows: "A-D" },
-  middle: { label: "Middle", rows: "E-G" },
-  back: { label: "Back", rows: "H-J" },
-};
 
 export default function SeatLayout() {
   const router = useRouter();
@@ -34,9 +26,9 @@ export default function SeatLayout() {
 
   const setSelectedSeats = useBookingStore((state) => state.setSeats);
   const { user } = useAuth();
+  const isPro = user?.membership === "pro";
   const ticketLimit = getTicketLimit(user?.membership);
   const preferredMovieSeat = user?.preferences?.seat?.movieSeat ?? "middle";
-  const recommendedZone = movieSeatRecommendation[preferredMovieSeat];
 
   const booking = useBookingStore();
   const { seats, setSeats } = useSeatLayout(booking);
@@ -120,7 +112,7 @@ export default function SeatLayout() {
   <Seats
     seats={seats}
     scale={scale}
-    recommendedSeatZone={preferredMovieSeat}
+    recommendedSeatZone={isPro ? preferredMovieSeat : undefined}
     toggleSeat={toggleSeat}
     setHoverSeat={setHoverSeat}
     setMousePos={setMousePos}

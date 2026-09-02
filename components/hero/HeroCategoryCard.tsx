@@ -48,15 +48,12 @@ export default function HeroCategoryCard({
   isActive,
   onEnter,
   onLeave,
-  isSmall = false,
-  isTiny = false,
 }: HeroCategoryCardProps) {
   const router = useRouter();
 
-  // const isClickable = Boolean(card.href) && card.isLive;
-  const isClickable = true
+  const isClickable = true;
   const accentRgb = hexToRgb(card.accent);
-  const badgeText = card.label;
+  const cardLabel = card.label;
 
   const handleNavigate = () => {
     if (isClickable && card.href) {
@@ -64,16 +61,15 @@ export default function HeroCategoryCard({
     }
   };
 
-  const cardHeight = isTiny
-    ? "clamp(110px, 20vh, 150px)"
-    : "clamp(120px, 18vh, 170px)";
-
-  const paddingClass = isTiny ? "p-3" : isSmall ? "p-4" : "p-5";
+  const glowStyle = accentRgb
+    ? {
+        background: `radial-gradient(circle at top left, rgba(${accentRgb.r}, ${accentRgb.g}, ${accentRgb.b}, 0.35), rgba(15, 23, 42, 0.08) 45%, rgba(2, 6, 23, 0.65) 100%)`,
+      }
+    : undefined;
 
   return (
     <div
-      style={{ height: cardHeight }}
-      onMouseEnter={() => !card.isLive && onEnter(index)}
+      onMouseEnter={() => onEnter(index)}
       onMouseLeave={onLeave}
       onClick={handleNavigate}
       role={isClickable ? "button" : undefined}
@@ -86,40 +82,25 @@ export default function HeroCategoryCard({
         }
       }}
       className={`
-        group relative overflow-hidden rounded-2xl border
-        transition-all duration-300 ease-out
-        flex flex-col items-center justify-center text-center
-        ${paddingClass}
-
-        ${dark ? "bg-neutral-950/70 border-white/10" : "bg-white/80 border-black/10"}
-
-        ${isClickable ? "cursor-pointer" : "cursor-default opacity-70"}
-
-        ${isActive
-          ? "shadow-2xl -translate-y-1"
-          : isClickable
-            ? "shadow-sm hover:shadow-xl hover:-translate-y-0.5"
-            : "shadow-sm"
-        }
+        group relative h-full w-full overflow-hidden rounded-[24px] border
+        transition-all duration-500 ease-out
+        cursor-pointer
+        ${dark ? "border-white/10" : "border-white/30"}
+        ${isActive ? "-translate-y-1 shadow-[0_26px_60px_rgba(15,23,42,0.18)]" : "shadow-[0_10px_24px_rgba(15,23,42,0.08)] hover:-translate-y-1 hover:shadow-[0_22px_52px_rgba(15,23,42,0.16)]"}
       `}
     >
-      {/* background image */}
       <div
         aria-hidden="true"
-        className={`
-          absolute inset-0 pointer-events-none
-          transition-transform duration-500 ease-out
-          will-change-transform
-          group-hover:scale-[1.03]
-          ${isActive ? "scale-[1.03]" : ""}
-        `}
+        className={`absolute inset-0 transition-all duration-700 ease-out ${
+          isActive ? "scale-[1.04]" : "scale-100 group-hover:scale-[1.04]"
+        }`}
       >
         {card.bgImage && (
           <Image
             src={card.bgImage}
             alt=""
             fill
-            sizes="(max-width: 640px) 70vw, (max-width: 1024px) 45vw, 25vw"
+            sizes="(max-width: 640px) 78vw, (max-width: 1024px) 50vw, 25vw"
             className="object-cover"
             placeholder="blur"
             blurDataURL={TRANSPARENT_BLUR_DATA_URL}
@@ -127,49 +108,38 @@ export default function HeroCategoryCard({
         )}
       </div>
 
-      {/* top-right badge */}
-      {badgeText && (
-        <div
-          className={`
-            absolute top-3 right-3 z-20
-            text-[10px] font-semibold tracking-[0.14em]
-            px-3 py-1
-            rounded-full
-            border
-            backdrop-blur-xl
-            shadow-[0_8px_24px_rgba(0,0,0,0.18)]
-            ring-1 ring-white/40
-            ${dark ? "text-white border-white/25" : "text-neutral-900 border-white/40"}
-          `}
-          style={{
-            backgroundColor: "rgba(255,255,255,0.22)",
-            borderColor: "rgba(255,255,255,0.45)",
-            textShadow: dark
-              ? "0 10px 22px rgba(0,0,0,0.65)"
-              : "0 8px 16px rgba(0,0,0,0.2)",
-          }}
-        >
-          <div className="flex items-center gap-1.5">
-            <span
-              className={`relative flex h-1.5 w-1.5 ${card.isLive ? "text-green-500" : "text-red-500"
-                }`}
-            >
-              {/* Ping animation */}
-              {/* <span
-                className={`absolute inline-flex h-full w-full rounded-full animate-ping opacity-75 ${card.isLive ? "bg-green-500" : "bg-red-500"
-                  }`}
-              /> */}
-              {/* Solid dot */}
-              <span
-                className={`relative inline-flex h-1.5 w-1.5 rounded-full ${card.isLive ? "bg-green-500" : "bg-red-500"
-                  }`}
-              />
-            </span>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+      <div className="absolute inset-0 opacity-80" style={glowStyle} />
 
-            <span>{badgeText}</span>
+      <div className="absolute left-3 top-3 z-20 inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/20 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.2em] text-white/90 backdrop-blur-md sm:text-[10px]">
+        <span className="relative flex h-1.5 w-1.5">
+          <span
+            className={`absolute inline-flex h-full w-full rounded-full ${card.isLive ? "animate-ping bg-emerald-400" : "bg-rose-400"}`}
+          />
+          <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${card.isLive ? "bg-emerald-400" : "bg-rose-400"}`} />
+        </span>
+        {card.isLive ? "Live" : "Soon"}
+      </div>
+
+      <div className="absolute inset-x-0 bottom-0 z-20 p-3 sm:p-4">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-white/75 sm:text-[11px]">
+              Discover
+            </p>
+            <h3 className="mt-1 text-xl font-black tracking-[-0.06em] text-white sm:text-2xl">
+              {cardLabel}
+            </h3>
+          </div>
+
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/25 bg-white/10 text-sm text-white backdrop-blur-md transition-transform duration-300 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            style={{ boxShadow: "0 12px 28px rgba(15, 23, 42, 0.24)" }}
+          >
+            <span aria-hidden="true">→</span>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

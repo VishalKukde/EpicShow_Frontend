@@ -3,11 +3,12 @@ import type { ThemeMode } from "@/store/themeStore";
 
 type AppearanceCardProps = {
   dark: boolean;
+  isPro: boolean;
   setTheme: (mode: ThemeMode) => void;
   toggleTheme: () => void;
 };
 
-export function AppearanceCard({ dark, setTheme, toggleTheme }: AppearanceCardProps) {
+export function AppearanceCard({ dark, isPro, setTheme, toggleTheme }: AppearanceCardProps) {
   return (
     <article
       className={`rounded-3xl border p-5 shadow-sm ${
@@ -26,7 +27,7 @@ export function AppearanceCard({ dark, setTheme, toggleTheme }: AppearanceCardPr
             dark ? "bg-zinc-800 text-zinc-200" : "bg-gray-100 text-gray-700"
           }`}
         >
-          Active: {dark ? "Dark" : "Light"}
+          {isPro ? `Active: ${dark ? "Dark" : "Light"}` : "Free: Light only"}
         </span>
       </div>
 
@@ -34,11 +35,12 @@ export function AppearanceCard({ dark, setTheme, toggleTheme }: AppearanceCardPr
         <button
           type="button"
           onClick={() => setTheme("light")}
+          disabled={!isPro && dark}
           className={`inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition cursor-pointer ${
             !dark
               ? "border-gray-900 bg-gray-900 text-white"
               : "border-zinc-700 bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
-          }`}
+          } ${!isPro && dark ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           <Sun className="h-4 w-4" />
           Light
@@ -46,9 +48,10 @@ export function AppearanceCard({ dark, setTheme, toggleTheme }: AppearanceCardPr
         <button
           type="button"
           onClick={() => setTheme("dark")}
+          disabled={!isPro}
           className={`inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition cursor-pointer ${
             dark ? "border-indigo-400 bg-zinc-950 text-zinc-50" : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
-          }`}
+          } ${!isPro ? "cursor-not-allowed opacity-50" : ""}`}
         >
           <Moon className="h-4 w-4" />
           Dark
@@ -69,11 +72,12 @@ export function AppearanceCard({ dark, setTheme, toggleTheme }: AppearanceCardPr
         <button
           type="button"
           onClick={toggleTheme}
+          disabled={!isPro}
           role="switch"
           aria-checked={dark}
           className={`relative inline-flex h-6 w-11 items-center rounded-full transition focus-visible:outline-none focus-visible:ring-2 cursor-pointer ${
             dark ? "bg-indigo-500 focus-visible:ring-indigo-300" : "bg-zinc-400 focus-visible:ring-gray-400"
-          }`}
+          } ${!isPro ? "cursor-not-allowed opacity-50" : ""}`}
         >
           <span
             className={`inline-block h-5 w-5 rounded-full shadow-sm transition-transform ${

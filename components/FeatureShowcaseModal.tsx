@@ -265,8 +265,8 @@ export default function FeatureShowcaseModal({
             </button>
 
             <div className="relative overflow-y-auto overscroll-contain px-4 pb-4 pt-4 sm:px-6 sm:pb-6 sm:pt-6 lg:px-8">
-              <section className="grid gap-4 lg:grid-cols-2 lg:items-stretch">
-                <div
+              <section className="grid gap-4 lg:grid-cols-0 lg:items-stretch">
+                {/* <div
                   className={`flex h-full flex-col rounded-[1.75rem] border p-5 sm:p-6 ${
                     dark
                       ? "border-white/10 bg-white/5"
@@ -295,24 +295,7 @@ export default function FeatureShowcaseModal({
                     shows the core tech stack used to build each one. It opens automatically the
                     first time, then stays available from the navbar whenever you want it again.
                   </p>
-
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {["Features first", "Tech stack attached", "Responsive on all devices", "Theme-aware"].map(
-                      (item) => (
-                        <span
-                          key={item}
-                          className={`rounded-full px-3 py-1 text-xs font-medium ${
-                            dark
-                              ? "bg-white/8 text-zinc-200"
-                              : "bg-slate-900/5 text-slate-700"
-                          }`}
-                        >
-                          {item}
-                        </span>
-                      )
-                    )}
-                  </div>
-                </div>
+                </div> */}
 
                 <div
                   className={`flex h-full flex-col rounded-[1.75rem] border p-5 sm:p-6 ${
@@ -362,20 +345,16 @@ export default function FeatureShowcaseModal({
               <section className="mt-6">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-500">
+                    {/* <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-500">
                       Features
-                    </p>
+                    </p> */}
                     <h3 className="mt-2 text-2xl font-semibold tracking-tight">
-                      What the application can do
+                      Features
                     </h3>
                   </div>
-                  <p className={`max-w-2xl text-sm ${dark ? "text-zinc-400" : "text-slate-500"}`}>
-                    Every feature below includes the stack that powers it, so the product overview
-                    stays concrete instead of generic.
-                  </p>
                 </div>
 
-                <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                   {featureCards.map((feature) => {
                     const Icon = feature.icon;
 
@@ -407,7 +386,7 @@ export default function FeatureShowcaseModal({
                             {feature.description}
                           </p>
 
-                          <div className="mt-4">
+                          {/* <div className="mt-4">
                             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-500">
                               Built with
                             </p>
@@ -425,7 +404,7 @@ export default function FeatureShowcaseModal({
                                 </span>
                               ))}
                             </div>
-                          </div>
+                          </div> */}
                         </div>
                       </article>
                     );
@@ -436,17 +415,14 @@ export default function FeatureShowcaseModal({
               <section className="mt-8">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-fuchsia-500">
+                    {/* <p className="text-xs font-semibold uppercase tracking-[0.24em] text-fuchsia-500">
                       Tech Stack
-                    </p>
+                    </p> */}
                     <h3 className="mt-2 text-2xl font-semibold tracking-tight">
-                      Full-stack snapshot
+                      Tech Stack
                     </h3>
                   </div>
-                  <p className={`max-w-2xl text-sm ${dark ? "text-zinc-400" : "text-slate-500"}`}>
-                    The app combines a modern Next.js frontend with realtime, payment, and
-                    data-driven backend systems.
-                  </p>
+                 
                 </div>
 
                 <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">

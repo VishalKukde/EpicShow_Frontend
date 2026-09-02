@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AlertTriangle, Bot, Loader2, RotateCcw, Trash2 } from "lucide-react";
+import { AlertTriangle, Bot, Loader2, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useThemeStore } from "@/store/themeStore";
@@ -10,7 +10,7 @@ import RuleBasedChatbot, { type RuleBasedChatbotHandle } from "./components/Rule
 import AssistantChat, { type AssistantChatHandle } from "./components/AssistantChat";
 
 type SupportTab = "chatbot" | "assistant";
-type ChatAction = "reset" | "delete";
+type ChatAction = "delete";
 
 const tabs: Array<{ id: SupportTab; label: string }> = [
   { id: "chatbot", label: "Chatbot" },
@@ -36,15 +36,17 @@ function ChatPageContent() {
   const chatbotRef = useRef<RuleBasedChatbotHandle>(null);
   const assistantRef = useRef<AssistantChatHandle>(null);
   const [mobileViewportHeight, setMobileViewportHeight] = useState<number | null>(null);
+  const [chatRefreshKey, setChatRefreshKey] = useState(0);
   const [confirmationState, setConfirmationState] = useState<{
     action: ChatAction;
     tab: SupportTab;
   } | null>(null);
   const [confirmingAction, setConfirmingAction] = useState(false);
 
-  const onResetChat = () => setConfirmationState({ action: "reset", tab: activeTab });
-
-  const onClearChat = () => setConfirmationState({ action: "delete", tab: activeTab });
+  const handleRefreshChat = () => {
+    setChatRefreshKey((value) => value + 1);
+    setConfirmationState(null);
+  };
 
   const handleConfirmAction = async () => {
     if (!confirmationState || confirmingAction) return;
@@ -53,19 +55,11 @@ function ChatPageContent() {
 
     try {
       if (confirmationState.tab === "assistant") {
-        if (confirmationState.action === "reset") {
-          await assistantRef.current?.resetChat({ skipConfirm: true });
-        } else {
-          await assistantRef.current?.clearChat({ skipConfirm: true });
-        }
+        await assistantRef.current?.clearChat({ skipConfirm: true });
         return;
       }
 
-      if (confirmationState.action === "reset") {
-        chatbotRef.current?.resetChat();
-      } else {
-        chatbotRef.current?.clearChat();
-      }
+      chatbotRef.current?.clearChat();
     } finally {
       setConfirmingAction(false);
       setConfirmationState(null);
@@ -106,6 +100,13 @@ function ChatPageContent() {
   }, []);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem("epicshow_support_chat_new_message");
+      window.dispatchEvent(new CustomEvent("support-chat:read"));
+    }
+  }, [pathname]);
+
+  useEffect(() => {
     if (!confirmationState) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
@@ -118,55 +119,51 @@ function ChatPageContent() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [confirmationState, confirmingAction]);
 
-  const confirmationTitle =
-    confirmationState?.action === "reset" ? "Reset this chat?" : "Delete this chat history?";
+  const confirmationTitle = "Delete this chat history?";
   const confirmationDescription =
     confirmationState?.tab === "assistant"
-      ? confirmationState.action === "reset"
-        ? "You are about to reset this Live Assistant conversation. All messages will be permanently removed from the database and cannot be recovered."
-        : "You are about to delete this Live Assistant conversation. All messages will be permanently removed from the database and cannot be recovered."
-      : confirmationState?.action === "reset"
-        ? "This will reset the current chatbot session and remove all messages shown in this window."
-        : "This will clear the current chatbot session and remove all messages shown in this window.";
-  const confirmationButtonLabel =
-    confirmationState?.action === "reset" ? "Yes, reset chat" : "Yes, delete chat";
+      ? "You are about to delete this Live Assistant conversation. All messages will be permanently removed from the database and cannot be recovered."
+      : "This will clear the current chatbot session and remove all messages shown in this window.";
+  const confirmationButtonLabel = "Yes, delete chat";
   const confirmationContextLabel =
     confirmationState?.tab === "assistant" ? "Live Assistant Support" : "Epic Chatbot Session";
 
   return (
     <div
-      className="h-[100svh] min-h-0 overflow-hidden overscroll-y-none lg:h-[calc(100dvh-7rem)] select-none"
+      className="h-[100svh] min-h-0 overflow-hidden overscroll-y-none lg:h-[calc(100dvh-4.2rem)] select-none"
       style={mobileViewportHeight ? { height: `${mobileViewportHeight}px` } : undefined}
     >
       <section
-        className={`mx-auto flex h-full w-full flex-col overflow-hidden rounded-[1.4rem] border p-[5px] sm:p-3 ${
-          dark ? "border-zinc-700 bg-zinc-900" : "border-[#bfcfff] bg-[#eff4ff]"
+        className={`mx-auto flex h-full w-full flex-col overflow-hidden border-0 bg-transparent ${
+          dark ? "bg-transparent" : "bg-transparent"
         }`}
       >
         <header
-          className={`sticky top-0 z-20 shrink-0 rounded-xl px-[5px] py-[5px] sm:px-4 sm:py-2.5 ${
-            dark ? "bg-zinc-800" : "bg-[#2563eb]"
+          className={`sticky top-0 z-20 shrink-0 border-b px-3 py-3 sm:px-4 ${
+            dark ? "border-zinc-800 bg-zinc-950/90" : "border-slate-200 bg-white/90"
           }`}
         >
-          <div className="flex flex-wrap items-start gap-2">
+          <div className="flex flex-wrap items-center gap-2.5">
             <div className="min-w-0 flex items-center gap-2.5">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white">
-                <Bot className="h-5 w-5" />
+              <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${
+                dark ? "bg-slate-800 text-slate-100" : "bg-slate-100 text-slate-700"
+              }`}>
+                <Bot className="h-4 w-4" />
               </span>
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-white">
+                <p className={`truncate text-sm font-semibold ${dark ? "text-white" : "text-slate-900"}`}>
                   {activeTab === "chatbot" ? "Epic Chatbot" : "Live Assistant Support"}
                 </p>
-                <p className="truncate text-[11px] text-blue-100">
+                <p className={`truncate text-[11px] ${dark ? "text-zinc-300" : "text-slate-500"}`}>
                   {activeTab === "chatbot" ? "Rule-Based Support Chatbot" : "Real-time support with admin team"}
                 </p>
               </div>
             </div>
 
             <div className="ml-auto flex max-w-[75%] flex-wrap items-center justify-end gap-1.5">
-              <div className="relative grid grid-cols-2 rounded-full bg-white/15 p-0.5">
+              <div className={`relative grid grid-cols-2 rounded-full p-0.5 ${dark ? "bg-zinc-800 ring-1 ring-zinc-700" : "bg-slate-200 ring-1 ring-slate-200"}`}>
                 <motion.span
-                  className="absolute inset-y-0.5 w-[calc(50%-2px)] rounded-full bg-white shadow-sm"
+                  className={`absolute inset-y-0.5 w-[calc(50%-2px)] rounded-full shadow-sm ${dark ? "bg-white text-slate-900" : "bg-white text-slate-900"}`}
                   initial={false}
                   animate={{ x: activeTab === "chatbot" ? 2 : "calc(100% + 2px)" }}
                   transition={{ type: "spring", stiffness: 360, damping: 30 }}
@@ -179,8 +176,8 @@ function ChatPageContent() {
                       key={tab.id}
                       type="button"
                       onClick={() => handleTabChange(tab.id)}
-                      className={`relative z-10 cursor-pointer rounded-full px-2.5 py-1 text-[10px] font-medium transition-colors sm:text-[11px] ${
-                        active ? dark ? "text-white/90 hover:text-white" : "text-[#111b21]" : "text-white/90 hover:text-white"
+                      className={`relative z-10 cursor-pointer rounded-full px-2.5 py-1 text-[10px] font-medium transition-all duration-200 sm:text-[11px] ${
+                        active ? dark ? "text-slate-900" : "text-slate-900" : dark ? "text-zinc-300 hover:text-white" : "text-slate-600 hover:text-slate-900"
                       }`}
                     >
                       {tab.label}
@@ -191,35 +188,24 @@ function ChatPageContent() {
 
               <button
                 type="button"
-                onClick={onResetChat}
+                onClick={handleRefreshChat}
                 className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-medium transition sm:text-[11px] ${
-                  "border-white/35 bg-white/10 text-white hover:bg-white/20"
+                  dark ? "border-zinc-700 bg-zinc-900 text-zinc-200 hover:bg-zinc-800" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                 }`}
-                title="Reset chat"
+                title="Refresh chat"
               >
-                <RotateCcw className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Reset</span>
-              </button>
-              <button
-                type="button"
-                onClick={onClearChat}
-                className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-medium transition sm:text-[11px] ${
-                  "border-red-200/60 bg-red-500/20 text-red-100 hover:bg-red-500/35"
-                }`}
-                title="Clear chat"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Clear</span>
+                <RefreshCw className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Refresh</span>
               </button>
             </div>
           </div>
         </header>
 
-        <div className="mt-2 min-h-0 flex-1 overflow-hidden">
+        <div className="min-h-0 flex-1 overflow-hidden p-0 sm:p-0">
           {activeTab === "chatbot" ? (
-            <RuleBasedChatbot ref={chatbotRef} />
+            <RuleBasedChatbot key={chatRefreshKey} ref={chatbotRef} />
           ) : (
-            <AssistantChat ref={assistantRef} />
+            <AssistantChat key={chatRefreshKey} ref={assistantRef} />
           )}
         </div>
       </section>
