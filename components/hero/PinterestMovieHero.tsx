@@ -223,27 +223,28 @@ export default function PinterestMovieHero({
                     const isActive = index === activeIndex;
 
                     return (
-                      <button
-                        key={movie.id}
-                        type="button"
-                        ref={(el) => (thumbRefs.current[index] = el)}
-                        onClick={() => setActiveIndex(index)}
-                        className={`group relative shrink-0 overflow-hidden rounded-[15px] border text-left outline-none transition-all duration-500 ease-out ${
-                          isActive
-                            ? "w-32 border-white/60 shadow-[0_16px_28px_rgba(15,23,42,0.3)]"
-                            : "w-20.5 border-white/15"
-                        } ${!isActive ? "hover:border-white/30" : ""}`}
-                      >
-                        <div
-                          className="relative h-39 w-full bg-cover bg-center transition-all duration-500 ease-out sm:h-41"
-                          style={{
-                            backgroundImage: `linear-gradient(180deg, rgba(2,6,23,0.08), rgba(2,6,23,0.5)), url(${movie.image})`,
-                            transform: "scale(1)",
-                            opacity: isActive ? 1 : 0.88,
-                            filter: isActive ? "saturate(1.1)" : "saturate(0.8)",
-                          }}
-                        />
-                      </button>
+                      <></>
+                      // <button
+                      //   key={movie.id}
+                      //   type="button"
+                      //   ref={(el) => (thumbRefs.current[index] = el)}
+                      //   onClick={() => setActiveIndex(index)}
+                      //   className={`group relative shrink-0 overflow-hidden rounded-[15px] border text-left outline-none transition-all duration-500 ease-out ${
+                      //     isActive
+                      //       ? "w-32 border-white/60 shadow-[0_16px_28px_rgba(15,23,42,0.3)]"
+                      //       : "w-20.5 border-white/15"
+                      //   } ${!isActive ? "hover:border-white/30" : ""}`}
+                      // >
+                      //   <div
+                      //     className="relative h-39 w-full bg-cover bg-center transition-all duration-500 ease-out sm:h-41"
+                      //     style={{
+                      //       backgroundImage: `linear-gradient(180deg, rgba(2,6,23,0.08), rgba(2,6,23,0.5)), url(${movie.image})`,
+                      //       transform: "scale(1)",
+                      //       opacity: isActive ? 1 : 0.88,
+                      //       filter: isActive ? "saturate(1.1)" : "saturate(0.8)",
+                      //     }}
+                      //   />
+                      // </button>
                     );
                   })}
                 </div>
