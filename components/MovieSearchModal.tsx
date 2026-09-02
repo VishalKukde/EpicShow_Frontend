@@ -242,8 +242,8 @@ export default function MovieSearchModal({ open, onClose, origin }: MovieSearchM
             className="pointer-events-auto relative z-10 flex flex-col overflow-hidden border border-slate-200 bg-white shadow-[0_32px_90px_rgba(15,23,42,0.35)] sm:rounded-3xl sm:border-slate-200/70"
             style={{
               position: "fixed",
-              left: origin?.x ?? window.innerWidth / 2 - 60,
-              top: origin?.y ?? window.innerHeight / 2 - 24,
+              left: origin?.x ?? 0,
+              top: origin?.y ?? 0,
               width: origin?.width ?? 120,
               height: origin?.height ?? 42,
               borderRadius: 18,
