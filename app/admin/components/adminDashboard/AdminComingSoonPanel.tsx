@@ -1,15 +1,44 @@
+"use client";
+
+import { Construction, Clock } from "lucide-react";
+
 type AdminComingSoonPanelProps = {
   label: string;
 };
 
 export default function AdminComingSoonPanel({ label }: AdminComingSoonPanelProps) {
   return (
-    <section style={{ background: "var(--admin-surface)", border: "1px solid var(--admin-border)", borderRadius: 20, padding: 22, boxShadow: "0 18px 50px rgba(15,13,26,.06)" }}>
-      <p style={{ margin: 0, color: "#4F46E5", fontSize: 11, fontWeight: 900, letterSpacing: ".08em", textTransform: "uppercase" }}>Module ready</p>
-      <h2 style={{ margin: "8px 0 8px", color: "var(--admin-text)", fontSize: 22, fontWeight: 950, letterSpacing: "-.04em" }}>{label} admin tools</h2>
-      <p style={{ margin: 0, color: "var(--admin-text-secondary)", fontSize: 13, maxWidth: 560 }}>
-        This tab is available in the admin navigation. The table can be connected once the {label.toLowerCase()} booking API is added.
-      </p>
-    </section>
+    <div
+      style={{
+        background: "var(--admin-surface)",
+        border: "1px solid var(--admin-border)",
+        borderRadius: 20,
+      }}
+      className="w-full p-10 shadow-sm text-center select-none space-y-4"
+    >
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-600/10 border border-indigo-500/20 text-indigo-500">
+        <Construction size={28} />
+      </div>
+
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-center gap-2">
+          <h2 style={{ color: "var(--admin-text)" }} className="text-xl font-black m-0">
+            {label}
+          </h2>
+          <span className="rounded-full bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 text-[10px] font-black text-amber-500 uppercase tracking-wider">
+            In Development
+          </span>
+        </div>
+
+        <p style={{ color: "var(--admin-text-secondary)" }} className="text-xs font-semibold m-0 max-w-md mx-auto">
+          This feature is currently under active development and will be available in the next release.
+        </p>
+      </div>
+
+      <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 dark:bg-slate-800/80 px-4 py-1.5 text-xs font-bold text-slate-500 dark:text-slate-400">
+        <Clock size={14} />
+        <span>Coming Soon in Platform Update</span>
+      </div>
+    </div>
   );
 }

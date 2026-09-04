@@ -34,16 +34,19 @@ export default function AdminFilterModal({ title, subtitle, sections, search, on
 
   return (
     <div className="fixed inset-0 z-[70] grid place-items-center bg-slate-900/50 p-4 backdrop-blur-md" onClick={onClose}>
-      <div className="flex max-h-[min(82vh,680px)] w-full max-w-[560px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_28px_80px_rgba(15,23,42,.24)]" onClick={(event) => event.stopPropagation()}>
-        <div className="flex items-start justify-between gap-4 border-b border-slate-100 bg-slate-100 px-5 py-4">
+      <div
+        className="flex max-h-[min(82vh,680px)] w-full max-w-[560px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_28px_80px_rgba(15,23,42,.24)]"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="admin-modal-header flex items-start justify-between gap-4 px-5 py-4 text-white">
           <div>
-            <p className="m-0 text-[17px] font-black leading-tight text-slate-900">{title}</p>
-            <p className="mt-1 max-w-[420px] text-xs font-semibold leading-relaxed text-slate-500">{subtitle}</p>
+            <p className="m-0 text-[17px] font-black leading-tight text-white">{title}</p>
+            <p className="mt-1 max-w-[420px] text-xs font-semibold leading-relaxed text-slate-300">{subtitle}</p>
           </div>
           <button
             aria-label="Close filters"
             onClick={onClose}
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-slate-100 text-slate-600 transition hover:bg-slate-200"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
           >
             <X size={15} strokeWidth={2.4} />
           </button>
@@ -67,7 +70,12 @@ export default function AdminFilterModal({ title, subtitle, sections, search, on
               <div className="flex items-center justify-between gap-3">
                 <p className={sectionTitleClassName}>{section.title}</p>
                 {section.value && (
-                  <button onClick={() => section.onSelect("")} className="rounded-full bg-slate-50 px-2.5 py-1 text-[10px] font-extrabold text-slate-500 transition hover:bg-slate-100">Clear</button>
+                  <button
+                    onClick={() => section.onSelect("")}
+                    className="rounded-full bg-slate-50 px-2.5 py-1 text-[10px] font-extrabold text-slate-500 transition hover:bg-slate-100"
+                  >
+                    Clear
+                  </button>
                 )}
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -90,8 +98,18 @@ export default function AdminFilterModal({ title, subtitle, sections, search, on
             {activeCount ? `${activeCount} active filter${activeCount > 1 ? "s" : ""}` : "Showing all records"}
           </span>
           <div className="flex gap-2">
-            <button onClick={onClear} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-[11px] font-black text-slate-700 transition hover:bg-slate-50">Clear all</button>
-            <button onClick={onClose} className="rounded-xl bg-slate-950 px-3.5 py-2 text-[11px] font-black text-white shadow-sm transition hover:bg-slate-800">Done</button>
+            <button
+              onClick={onClear}
+              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-[11px] font-black text-slate-700 transition hover:bg-slate-50"
+            >
+              Clear all
+            </button>
+            <button
+              onClick={onClose}
+              className="rounded-xl bg-slate-950 px-3.5 py-2 text-[11px] font-black text-white shadow-sm transition hover:bg-slate-800"
+            >
+              Done
+            </button>
           </div>
         </div>
       </div>
