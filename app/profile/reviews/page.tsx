@@ -8,7 +8,6 @@ import RatingStars from "@/components/reviews/RatingStars";
 import { apiFetch } from "@/lib/api";
 import { useThemeStore } from "@/store/themeStore";
 import type { UserReview, UserReviewListResponse } from "@/types/Review";
-import ReviewHero from "./components/ReviewHero";
 
 const PAGE_SIZE = 10;
 
@@ -72,8 +71,28 @@ export default function ReviewPage() {
   };
 
   return (
-    <div className="select-none space-y-6 px-3 py-3 pb-6 sm:px-4 lg:px-0">
-      <ReviewHero totalReviews={totalReviews} />
+    <div className="select-none space-y-5 px-3 py-2 pb-6 sm:px-4 lg:px-0">
+      {/* Admin-Style Top Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-b pb-4 border-slate-200 dark:border-zinc-800">
+        <div>
+          <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${dark ? "text-zinc-50" : "text-slate-900"}`}>
+            Your Reviews
+          </h1>
+          <p className={`text-xs font-medium mt-0.5 ${dark ? "text-zinc-400" : "text-slate-500"}`}>
+            Ratings and reviews you submitted for your watched movies and shows.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span
+            className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
+              dark ? "bg-zinc-800 text-zinc-300" : "bg-slate-100 text-slate-700"
+            }`}
+          >
+            {totalReviews} {totalReviews === 1 ? "review" : "reviews"}
+          </span>
+        </div>
+      </div>
 
       <section
         className={`rounded-2xl border p-4 shadow-sm sm:p-5 ${

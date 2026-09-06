@@ -4,6 +4,21 @@
 import { getToken, setToken } from "@/lib/tokenStore";
 import { toast } from "@/lib/toast";
 
+export function getApiBaseUrl(): string {
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
+    if (isLocalhost) {
+      const configured = process.env.NEXT_PUBLIC_API_URL;
+      if (!configured || configured.includes("onrender.com")) {
+        return "http://localhost:5000";
+      }
+      return configured;
+    }
+  }
+  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+}
+
 let isRefreshing = false;
 
 type ApiRequestOptions = RequestInit & {
@@ -59,7 +74,7 @@ export async function apiFetch(path: string, options: ApiRequestOptions = {}) {
   };
 
   const makeRequest = async (accessToken: string | null) => {
-    return fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
+    return fetch(`${getApiBaseUrl()}${path}`, {
       ...requestOptions,
       credentials: "include",
       headers: {
@@ -92,7 +107,7 @@ export async function apiFetch(path: string, options: ApiRequestOptions = {}) {
 
         try {
           const refreshRes = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
+            `${getApiBaseUrl()}/auth/refresh`,
             {
               method: "POST",
               credentials: "include",
@@ -158,7 +173,7 @@ export async function apiDownload(path: string, options: ApiRequestOptions = {})
   };
 
   const makeRequest = async (accessToken: string | null) => {
-    return fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
+    return fetch(`${getApiBaseUrl()}${path}`, {
       ...requestOptions,
       credentials: "include",
       headers: {
@@ -178,7 +193,7 @@ export async function apiDownload(path: string, options: ApiRequestOptions = {})
 
         try {
           const refreshRes = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
+            `${getApiBaseUrl()}/auth/refresh`,
             {
               method: "POST",
               credentials: "include",

@@ -83,25 +83,18 @@ export default function ReportIssuePage() {
   };
 
   return (
-    <div className="select-none space-y-6 px-3 py-3 pb-6 sm:px-4 lg:px-0">
-      <section
-        className={`rounded-3xl border p-6 text-white shadow-lg sm:p-8 ${
-          dark
-            ? "border-zinc-700 bg-zinc-900"
-            : "border-gray-200 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900"
-        }`}
-      >
-        <p className="text-xs font-medium uppercase tracking-[0.2em] text-indigo-200">
-          Report Issue
-        </p>
-        <h1 className="mt-2 text-2xl font-semibold sm:text-3xl">
-          Tell us what went wrong
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm text-indigo-100/90">
-          Share issue details with the team so we can fix bugs faster and improve
-          your booking experience.
-        </p>
-      </section>
+    <div className="select-none space-y-5 px-3 py-2 pb-6 sm:px-4 lg:px-0">
+      {/* Admin-Style Top Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-b pb-4 border-slate-200 dark:border-zinc-800">
+        <div>
+          <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${dark ? "text-zinc-50" : "text-slate-900"}`}>
+            Report an Issue
+          </h1>
+          <p className={`text-xs font-medium mt-0.5 ${dark ? "text-zinc-400" : "text-slate-500"}`}>
+            Submit technical bugs, booking errors, or account problems to the support team.
+          </p>
+        </div>
+      </div>
 
       <section
         className={`rounded-2xl border p-5 shadow-sm sm:p-6 ${

@@ -36,36 +36,27 @@ export default function ActivityPage() {
   const dark = mode === "dark";
 
   return (
-    <div className="space-y-6 px-3 py-3 pb-6 select-none sm:px-4 lg:px-0">
+    <div className="space-y-5 px-3 py-2 pb-6 select-none sm:px-4 lg:px-0">
+      {/* Admin-Style Top Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-b pb-4 border-slate-200 dark:border-zinc-800">
+        <div>
+          <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${dark ? "text-zinc-50" : "text-slate-900"}`}>
+            Your Activity
+          </h1>
+          <p className={`text-xs font-medium mt-0.5 ${dark ? "text-zinc-400" : "text-slate-500"}`}>
+            Timeline of your account actions, bookings, payments, and security logs.
+          </p>
+        </div>
+      </div>
+
       <section
-        className={`rounded-3xl border p-6 text-white shadow-lg sm:p-8 ${
-          dark
-            ? "border-zinc-700 bg-zinc-900"
-            : "border-gray-200 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900"
+        className={`rounded-2xl border p-6 shadow-sm ${
+          dark ? "border-zinc-800 bg-zinc-900" : "border-slate-200 bg-white"
         }`}
       >
-        <p className="text-xs font-medium uppercase tracking-[0.2em] text-indigo-200">
-          Your Activity
+        <p className={`py-12 text-center text-sm font-medium ${dark ? "text-zinc-400" : "text-slate-500"}`}>
+          This feature is coming soon. Check back shortly or explore other sections in the meantime.
         </p>
-        <h1 className="mt-2 text-2xl font-semibold sm:text-3xl">
-          Timeline of your account actions
-        </h1>
-        <p className="mt-2 max-w-xl text-sm text-indigo-100/90">
-          Review bookings, payments, refunds, and sign-in events in one place.
-        </p>
-      </section>
-
-      {/* <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Metric title="Bookings This Month" value="6" icon={Ticket} />
-        <Metric title="Successful Payments" value="5" icon={CheckCircle2} />
-        <Metric title="Wallet Credits" value="₹1,120" icon={Wallet} />
-      </section> */}
-
-      <section className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
-
-         <p className={`py-10 text-center text-sm ${dark ? "text-zinc-400" : "text-gray-500"}`}>
-             This feature is coming soon. Check back shortly or explore other sections in the meantime.
-          </p>
         {/* <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>

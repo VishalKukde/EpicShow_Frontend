@@ -5,7 +5,6 @@ import BillingCycleSelector from "./components/BillingCycleSelector";
 import CurrentSubscriptionDetails from "./components/CurrentSubscriptionDetails";
 import FreePlanCard from "./components/FreePlanCard";
 import ProPlanCard from "./components/ProPlanCard";
-import SubscriptionHero from "./components/SubscriptionHero";
 import { freeFeatures, proFeatures, proPrices } from "./data";
 import type { BillingCycle, SubscriptionStatusResponse } from "./types";
 import { useAuth } from "@/context/AuthContext";
@@ -87,8 +86,35 @@ export default function SubscriptionPage() {
   };
 
   return (
-    <div className="space-y-6 px-3 py-3 pb-6 select-none sm:px-4 lg:px-0">
-      <SubscriptionHero status={status} loading={loading} />
+    <div className="space-y-5 px-3 py-2 pb-6 select-none sm:px-4 lg:px-0">
+      {/* Admin-Style Top Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-b pb-4 border-slate-200 dark:border-zinc-800">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${mode === "dark" ? "text-zinc-50" : "text-slate-900"}`}>
+              Subscription Plans
+            </h1>
+            {status?.isPro && (
+              <span className="rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider">
+                PRO Member
+              </span>
+            )}
+          </div>
+          <p className={`text-xs font-medium mt-0.5 ${mode === "dark" ? "text-zinc-400" : "text-slate-500"}`}>
+            {status?.isPro
+              ? `Your Pro benefits are active until ${
+                  status.subscription?.endDate
+                    ? new Intl.DateTimeFormat("en-IN", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      }).format(new Date(status.subscription.endDate))
+                    : "renewal"
+                }.`
+              : "Compare Free vs Pro tiers and upgrade to unlock priority booking and deals."}
+          </p>
+        </div>
+      </div>
 
       {status?.isPro ? (
         <CurrentSubscriptionDetails

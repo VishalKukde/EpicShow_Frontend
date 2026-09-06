@@ -169,11 +169,7 @@ export default function Sidebar() {
               <SidebarItem href="/profile/favorite" icon={Heart}>
                 Favorites
               </SidebarItem>
-
-              <SidebarItem href="/offers" icon={BadgePercent}>
-                Offers
-              </SidebarItem>
-
+              
               <SidebarItem href="/profile/my-coupons" icon={TicketPercent}>
                 My Coupons
               </SidebarItem>
@@ -238,32 +234,6 @@ export default function Sidebar() {
                   label="Gaming"
                   active={isActive("/profile/bookings/gaming")}
                 />
-
-                {/* <SubLink
-                  href="/profile/bookings/events"
-                  icon={Trophy}
-                  label="Events"
-                  active={isActive("/profile/bookings/events")}
-                />
-                <SubLink
-                  href="/profile/bookings/concerts"
-                  icon={Music2}
-                  label="Concerts"
-                  active={isActive("/profile/bookings/concerts")}
-                />
-               
-                <SubLink
-                  href="/profile/bookings/flights"
-                  icon={Plane}
-                  label="Flights"
-                  active={isActive("/profile/bookings/flights")}
-                />
-                <SubLink
-                  href="/profile/bookings/hotels"
-                  icon={Hotel}
-                  label="Hotels"
-                  active={isActive("/profile/bookings/hotels")}
-                /> */}
               </div>
             </div>
 

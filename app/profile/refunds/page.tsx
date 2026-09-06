@@ -16,7 +16,6 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { apiFetch } from "@/lib/api";
 import { useThemeStore } from "@/store/themeStore";
-import RefundHero from "./components/RefundHero";
 
 type RefundItem = {
   id: string;
@@ -145,8 +144,18 @@ export default function RefundPage() {
   const byType = useMemo(() => stats?.byType || [], [stats?.byType]);
 
   return (
-    <div className="space-y-6 px-3 py-3 pb-6 select-none sm:px-4 lg:px-0">
-      <RefundHero />
+    <div className="space-y-5 px-3 py-2 pb-6 select-none sm:px-4 lg:px-0">
+      {/* Admin-Style Top Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-b pb-4 border-slate-200 dark:border-zinc-800">
+        <div>
+          <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${dark ? "text-zinc-50" : "text-slate-900"}`}>
+            Refund History
+          </h1>
+          <p className={`text-xs font-medium mt-0.5 ${dark ? "text-zinc-400" : "text-slate-500"}`}>
+            Track refund records processed across movies, sports, events, and gaming.
+          </p>
+        </div>
+      </div>
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard

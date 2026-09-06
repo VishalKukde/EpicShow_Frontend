@@ -6,10 +6,14 @@ import { useRouter } from "next/navigation";
 import {
   ArrowUpRight,
   CalendarDays,
+  ChevronRight,
   CircleCheckBig,
   CreditCard,
+  Film,
   Sparkles,
   Ticket,
+  TicketPercent,
+  UserRoundCheck,
   Wallet,
 } from "lucide-react";
 import { formatDateUI } from "@/lib/helper";
@@ -51,24 +55,47 @@ export default function ProfileOverview() {
   }, [data, now]);
 
   return (
-    <div className="space-y-6 px-3 py-3 pb-6 sm:px-4 lg:px-0 select-none">
-      <section
-        className={`rounded-3xl border p-6 text-white shadow-lg sm:p-8 ${
-          dark
-            ? "border-zinc-700 bg-zinc-900"
-            : "border-gray-200 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900"
-        }`}
-      >
-        <p className="text-xs font-medium uppercase tracking-[0.2em] text-indigo-200">
-          Profile Overview
-        </p>
-        <h1 className="mt-2 text-2xl font-semibold sm:text-3xl">
-          Welcome back, {user?.name || "Movie Fan"}
-        </h1>
-        <p className="mt-2 max-w-xl text-sm text-indigo-100/90">
-          Track bookings, wallet, and profile activity from one dashboard.
-        </p>
-      </section>
+    <div className="space-y-5 px-3 py-2 pb-6 sm:px-4 lg:px-0 select-none">
+      {/* Admin-Style Top Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-b pb-4 border-slate-200 dark:border-zinc-800">
+        <div>
+          <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${dark ? "text-zinc-50" : "text-slate-900"}`}>
+            Welcome back, {user?.name || "Movie Fan"}
+          </h1>
+          <p className={`text-xs font-medium mt-0.5 ${dark ? "text-zinc-400" : "text-slate-500"}`}>
+            Overview of your movie bookings, wallet balance, and recent tickets.
+          </p>
+        </div>
+
+        {/* Top Toolbar Quick Action Buttons */}
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => router.push("/movies")}
+            className={`inline-flex cursor-pointer items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition shadow-sm ${
+              dark
+                ? "border border-zinc-700/70 bg-[#18181b] text-zinc-200 hover:bg-zinc-800 hover:text-white"
+                : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            <Film className="h-3.5 w-3.5" />
+            <span>Book Tickets</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => router.push("/profile/wallet")}
+            className={`inline-flex cursor-pointer items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition shadow-sm ${
+              dark
+                ? "border border-zinc-700/70 bg-[#18181b] text-zinc-100 hover:bg-zinc-800"
+                : "bg-slate-900 text-white hover:bg-slate-800"
+            }`}
+          >
+            <Wallet className="h-3.5 w-3.5" />
+            <span>Top-up Wallet</span>
+          </button>
+        </div>
+      </div>
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
@@ -109,7 +136,7 @@ export default function ProfileOverview() {
         <div
           className={`rounded-2xl border p-5 shadow-sm xl:col-span-2 ${
             dark
-              ? "border-zinc-700/45 bg-[linear-gradient(150deg,rgba(39,39,42,0.82),rgba(24,24,27,0.95))] shadow-[0_14px_34px_rgba(0,0,0,0.35)]"
+              ? "border-zinc-800 bg-[#18181b]"
               : "border-gray-200 bg-white"
           }`}
         >
@@ -119,21 +146,21 @@ export default function ProfileOverview() {
               <p className={`text-sm ${dark ? "text-zinc-400" : "text-gray-500"}`}>Your next confirmed bookings</p>
             </div>
             <button
-             className={`inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-sm font-medium ${
-                dark ? "text-indigo-200 hover:bg-zinc-800/70" : "text-indigo-700 hover:bg-indigo-50"
+              className={`inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-sm font-medium transition ${
+                dark ? "text-indigo-300 hover:bg-zinc-800/70" : "text-indigo-700 hover:bg-indigo-50"
               }`}
-             onClick={()=>router.push("/profile/bookings/movies") }>
+              onClick={() => router.push("/profile/bookings/movies")}
+            >
               View all
               <ArrowUpRight className="h-4 w-4" />
             </button>
-
           </div>
           <div className="mt-4 space-y-3">
             {upcomingBookings.length === 0 && (
               <div
                 className={`rounded-xl border p-4 text-sm ${
                   dark
-                    ? "border-zinc-700/45 bg-zinc-900/60 text-zinc-300"
+                    ? "border-zinc-800 bg-zinc-900/60 text-zinc-300"
                     : "border-gray-200 bg-gray-50/70 text-gray-600"
                 }`}
               >
@@ -146,7 +173,7 @@ export default function ProfileOverview() {
                 key={`${d.booking._id}-${d.booking.slot}`}
                 className={`rounded-xl border p-4 ${
                   dark
-                    ? "border-zinc-700/45 bg-zinc-900/60"
+                    ? "border-zinc-800 bg-zinc-900/60"
                     : "border-gray-200 bg-gray-50/70"
                 }`}
               >
@@ -186,7 +213,7 @@ export default function ProfileOverview() {
           <div
             className={`rounded-2xl border p-5 shadow-sm ${
               dark
-                ? "border-zinc-700/45 bg-[linear-gradient(150deg,rgba(39,39,42,0.82),rgba(24,24,27,0.95))] shadow-[0_14px_34px_rgba(0,0,0,0.35)]"
+                ? "border-zinc-800 bg-[#18181b]"
                 : "border-gray-200 bg-white"
             }`}
           >
@@ -206,41 +233,24 @@ export default function ProfileOverview() {
           <div
             className={`rounded-2xl border p-5 shadow-sm ${
               dark
-                ? "border-indigo-400/30 bg-[linear-gradient(130deg,rgba(79,70,229,0.2),rgba(30,41,59,0.7))]"
+                ? "border-zinc-800 bg-[#18181b]"
                 : "border-indigo-100 bg-indigo-50"
             }`}
           >
-            <h3 className={`font-semibold ${dark ? "text-indigo-100" : "text-indigo-900"}`}>Premium Access</h3>
-            <p className={`mt-1 text-sm ${dark ? "text-indigo-200/90" : "text-indigo-700"}`}>
+            <h3 className={`font-semibold ${dark ? "text-indigo-200" : "text-indigo-900"}`}>Premium Access</h3>
+            <p className={`mt-1 text-sm ${dark ? "text-zinc-400" : "text-indigo-700"}`}>
               Upgrade for early access bookings, priority support, and exclusive
               offers.
             </p>
             <button
               onClick={() => router.push("/profile/subscription")}
-              className={`mt-4 cursor-pointer rounded-xl px-4 py-2 text-sm font-medium text-white transition ${
-                dark ? "bg-indigo-500 hover:bg-indigo-400" : "bg-indigo-600 hover:bg-indigo-700"
+              className={`mt-4 cursor-pointer rounded-xl px-4 py-2 text-sm font-medium transition ${
+                dark
+                  ? "border border-zinc-700/70 bg-[#18181b] text-zinc-100 hover:bg-zinc-800"
+                  : "bg-indigo-600 text-white hover:bg-indigo-700"
               }`}
             >
               Upgrade Now
-            </button>
-          </div>
-
-          <div
-            className={`rounded-2xl border p-5 shadow-sm ${
-              dark
-                ? "border-zinc-700/45 bg-[linear-gradient(150deg,rgba(39,39,42,0.82),rgba(24,24,27,0.95))] shadow-[0_14px_34px_rgba(0,0,0,0.35)]"
-                : "border-gray-200 bg-white"
-            }`}
-          >
-            <h3 className={`font-semibold ${dark ? "text-zinc-100" : "text-gray-900"}`}>Quick Action</h3>
-            <button
-            onClick={() => router.push("/profile/payments")}
-              className={`mt-3 inline-flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-white transition ${
-                dark ? "bg-zinc-700 hover:bg-zinc-600" : "bg-gray-900 hover:bg-gray-800"
-              }`}
-            >
-              <CreditCard className="h-4 w-4" />
-              Go to Payments
             </button>
           </div>
         </div>
@@ -268,16 +278,16 @@ function StatCard({
     <article
       className={`rounded-2xl border p-5 shadow-sm ${
         dark
-          ? "border-zinc-700/45 bg-[linear-gradient(150deg,rgba(39,39,42,0.82),rgba(24,24,27,0.95))] shadow-[0_12px_28px_rgba(0,0,0,0.32)]"
+          ? "border-zinc-800 bg-[#18181b]"
           : "border-gray-200 bg-white"
       }`}
     >
       <div className="flex items-start justify-between">
         <p className={`text-sm ${dark ? "text-zinc-400" : "text-gray-500"}`}>{title}</p>
-        <Icon className="h-5 w-5 text-indigo-600" />
+        <Icon className={`h-5 w-5 ${dark ? "text-indigo-400" : "text-indigo-600"}`} />
       </div>
       {loading ? (
-        <div className={`mt-3 h-7 w-24 animate-pulse rounded-md ${dark ? "bg-zinc-700" : "bg-gray-200"}`} />
+        <div className={`mt-3 h-7 w-24 animate-pulse rounded-md ${dark ? "bg-zinc-800" : "bg-gray-200"}`} />
       ) : (
         <p className={`mt-3 text-2xl font-semibold ${dark ? "text-zinc-100" : "text-gray-900"}`}>
           {value}
@@ -293,7 +303,7 @@ function Row({ label, value, dark }: { label: string; value: string; dark: boole
   return (
     <div
       className={`flex items-center justify-between rounded-lg px-3 py-2 ${
-        dark ? "bg-zinc-800/75" : "bg-gray-50"
+        dark ? "bg-zinc-900/60 border border-zinc-800/60" : "bg-gray-50"
       }`}
     >
       <span className={dark ? "text-zinc-400" : "text-gray-500"}>{label}</span>

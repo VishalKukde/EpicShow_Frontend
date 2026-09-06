@@ -38,57 +38,51 @@ export default function ProfileFavoritePage() {
   };
 
   return (
-    <div className="space-y-6 px-3 py-3 pb-6 select-none sm:px-4 lg:px-0">
-      <section
-        className={`rounded-3xl border p-6 shadow-lg sm:p-8 ${
-          dark
-            ? "border-zinc-700 bg-zinc-900"
-            : "border-gray-200 bg-gradient-to-br from-rose-50 via-white to-orange-50"
-        }`}
-      >
-        <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${dark ? "text-zinc-400" : "text-rose-600"}`}>
-          Favorites
-        </p>
-        <div className="mt-3 flex items-center gap-3">
-          <div
-            className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl ${
-              dark ? "bg-rose-500/15 text-rose-300" : "bg-rose-100 text-rose-700"
-            }`}
-          >
-            <Heart className="h-5 w-5" />
-          </div>
-          <h1 className={`text-2xl font-semibold ${dark ? "text-zinc-100" : "text-gray-900"}`}>
+    <div className="space-y-5 px-3 py-2 pb-6 select-none sm:px-4 lg:px-0">
+      {/* Admin-Style Top Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-b pb-4 border-slate-200 dark:border-zinc-800">
+        <div>
+          <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${dark ? "text-zinc-100" : "text-slate-900"}`}>
             Your Favorites
           </h1>
-        </div>
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className={`text-sm ${dark ? "text-zinc-300" : "text-gray-600"}`}>
-            Wishlist items are loaded from the Redis-backed cache and shown here inside your profile.
+          <p className={`text-xs font-medium mt-0.5 ${dark ? "text-zinc-400" : "text-slate-500"}`}>
+            Saved movies and shows from your personal wishlist.
           </p>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <span
-              className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
-                dark ? "bg-zinc-800 text-zinc-200" : "bg-white text-gray-700 shadow-sm"
-              }`}
-            >
-              {loading ? "Loading..." : `${wishlist.length} saved ${wishlist.length === 1 ? "movie" : "movies"}`}
-            </span>
-            <button
-              type="button"
-              onClick={() => void fetchWishlist()}
-              className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition ${
-                dark
-                  ? "border border-zinc-700 bg-zinc-950 text-zinc-100 hover:bg-zinc-800"
-                  : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              <RefreshCcw className="h-4 w-4" />
-              Refresh
-            </button>
-          </div>
         </div>
-      </section>
+
+        <div className="flex items-center gap-2.5">
+          <span
+            className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
+              dark ? "border border-zinc-700/60 bg-[#18181b] text-zinc-300" : "bg-slate-100 text-slate-700"
+            }`}
+          >
+            {loading ? "Loading..." : `${wishlist.length} saved ${wishlist.length === 1 ? "movie" : "movies"}`}
+          </span>
+          <button
+            type="button"
+            onClick={() => void fetchWishlist()}
+            disabled={loading}
+            className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+              dark
+                ? "border-zinc-700/70 bg-[#18181b] text-zinc-200 hover:bg-zinc-800 hover:text-white"
+                : "border-slate-200 bg-white text-slate-800 hover:bg-slate-50 shadow-sm"
+            }`}
+          >
+            <RefreshCcw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+            Refresh
+          </button>
+          <Link
+            href="/movies"
+            className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer shadow-sm ${
+              dark
+                ? "border border-zinc-700/70 bg-[#18181b] text-zinc-100 hover:bg-zinc-800"
+                : "bg-slate-900 text-white hover:bg-slate-800"
+            }`}
+          >
+            Explore Movies
+          </Link>
+        </div>
+      </div>
 
       {error ? (
         <section
@@ -104,7 +98,7 @@ export default function ProfileFavoritePage() {
 
       <section
         className={`rounded-3xl border p-5 shadow-sm sm:p-6 ${
-          dark ? "border-zinc-700 bg-zinc-900/85" : "border-gray-200 bg-white"
+          dark ? "border-zinc-800 bg-[#18181b]" : "border-gray-200 bg-white"
         }`}
       >
         {loading ? (
@@ -223,7 +217,7 @@ export default function ProfileFavoritePage() {
           href="/movies"
           className={`mt-6 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition ${
             dark
-              ? "bg-zinc-100 text-zinc-900 hover:bg-white"
+              ? "border border-zinc-700/70 bg-[#18181b] text-zinc-100 hover:bg-zinc-800"
               : "bg-gray-900 text-white hover:bg-black"
           }`}
         >

@@ -18,7 +18,10 @@ export default function SidebarItem({ href, icon: Icon, children }: SidebarItemP
     <Link
       href={href}
       className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition
-        ${active ? "bg-indigo-50 text-indigo-600 font-medium" : "text-gray-600 hover:bg-gray-100"}
+        ${active
+          ? "bg-indigo-50 text-indigo-600 font-medium dark:bg-[#18181b] dark:text-zinc-100 dark:border dark:border-zinc-700/60"
+          : "text-gray-600 hover:bg-gray-100 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-200"
+        }
       `}
     >
       <Icon className="w-4 h-4" />

@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Plus, RefreshCw } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { apiFetch } from "@/lib/api";
+import { toast } from "@/lib/toast";
 // import { getToken } from "@/lib/tokenStore";
 import { useThemeStore } from "@/store/themeStore";
 import {
@@ -14,7 +16,6 @@ import {
 import RewardsBoosterCard from "./components/RewardsBoosterCard";
 import WalletActivity from "./components/WalletActivity";
 import WalletBalanceCard from "./components/WalletBalanceCard";
-import WalletHero from "./components/WalletHero";
 import WalletTopupModal from "./components/WalletTopupModal";
 import WalletUsageHint from "./components/WalletUsageHint";
 import { getToken } from "@/lib/tokenStore";
@@ -193,30 +194,43 @@ export default function WalletPage() {
         setTransactionsLoadingMore(true);
       } else {
         setTransactionsLoading(true);
-        setTransactions([]);
+        if (nextPage === 1) {
+          setTransactions([]);
+        }
       }
 
       try {
-        const token = getToken();
         const query = new URLSearchParams({
           page: String(nextPage),
           limit: String(WALLET_ACTIVITY_PAGE_SIZE),
+          _t: String(Date.now()),
         });
 
-        const response = await fetch(`/api/wallet/transactions?${query.toString()}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        });
-
-        
-        const result = (await response.json()) as WalletTransactionsApiResponse;
-        if (!response.ok) {
-          throw new Error(result?.message || "Failed to fetch wallet transactions");
+        // Direct backend call with token handling to avoid stale Next.js cache
+        let result: WalletTransactionsApiResponse | null = null;
+        try {
+          result = (await apiFetch(
+            `/wallet/transactions?${query.toString()}`
+          )) as WalletTransactionsApiResponse;
+        } catch {
+          // Fallback to internal route if apiFetch had issues
+          const token = getToken();
+          const response = await fetch(`/api/wallet/transactions?${query.toString()}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+          });
+          if (response.ok) {
+            result = (await response.json()) as WalletTransactionsApiResponse;
+          }
         }
-        
+
+        if (!result) {
+          throw new Error("Failed to fetch wallet transactions");
+        }
+
         const mapped = (result.transactions ?? []).map((txn) => ({
           id: txn.id,
           type: txn.type,
@@ -224,7 +238,7 @@ export default function WalletPage() {
           date: formatWalletDate(txn.createdAt),
           amount: Number(txn.amount.toFixed(2)),
         }));
-        
+
         setTransactions((prev) => (append ? [...prev, ...mapped] : mapped));
         setTransactionsPage(nextPage);
 
@@ -233,7 +247,8 @@ export default function WalletPage() {
         } else {
           setTransactionsHasMore(mapped.length === WALLET_ACTIVITY_PAGE_SIZE);
         }
-      } catch {
+      } catch (fetchError) {
+        console.error("Wallet transaction fetch error:", fetchError);
         if (!append) {
           setTransactions([]);
         }
@@ -248,6 +263,16 @@ export default function WalletPage() {
     },
     [],
   );
+
+  const handleRefreshTransactions = async () => {
+    try {
+      fetch("/api/wallet/transactions/revalidate", { method: "POST" }).catch(() => {});
+      await fetchTransactions(1, false);
+      toast.success("Wallet transactions refreshed");
+    } catch {
+      toast.error("Unable to reload transactions");
+    }
+  };
 
   useEffect(() => {
     void fetchTransactions(1, false);
@@ -409,11 +434,21 @@ export default function WalletPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[1280px] select-none space-y-4 px-3 py-3 pb-6 sm:space-y-5 sm:px-4 lg:space-y-6 lg:px-0">
-      <WalletHero />
+    <div className="mx-auto w-full max-w-[1280px] select-none space-y-5 px-3 py-2 pb-6 sm:space-y-5 sm:px-4 lg:px-0">
+      {/* Admin-Style Top Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-b pb-4 border-slate-200 dark:border-zinc-800">
+        <div>
+          <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${mode === "dark" ? "text-zinc-50" : "text-slate-900"}`}>
+            Wallet
+          </h1>
+          <p className={`text-xs font-medium mt-0.5 ${mode === "dark" ? "text-zinc-400" : "text-slate-500"}`}>
+            Manage your wallet balance, instant top-ups, and transaction activity.
+          </p>
+        </div>
+      </div>
 
       <section>
-        <WalletBalanceCard walletBalance={walletBalance} onOpenModal={openModal} />
+        <WalletBalanceCard walletBalance={walletBalance} onOpenModal={openModal} mode={mode} />
       </section>
 
       <section>
@@ -431,6 +466,7 @@ export default function WalletPage() {
           loadingMore={transactionsLoadingMore}
           hasMore={transactionsHasMore}
           onLoadMore={handleLoadMoreTransactions}
+          onRefresh={handleRefreshTransactions}
         />
       </section>
 
@@ -470,7 +506,7 @@ export default function WalletPage() {
             onClick={(e) => e.stopPropagation()}
             className={`w-full max-w-md rounded-3xl border p-6 shadow-2xl ${
               mode === "dark"
-                ? "border-slate-700 bg-slate-900"
+                ? "border-zinc-800 bg-[#18181b]"
                 : "border-slate-200 bg-white"
             }`}
           >
@@ -483,7 +519,7 @@ export default function WalletPage() {
             </h3>
             <p
               className={`mt-2 text-sm ${
-                mode === "dark" ? "text-slate-300 " : "text-slate-600"
+                mode === "dark" ? "text-zinc-400" : "text-slate-600"
               }`}
             >
               Top up ₹1,000.00 or more in one transaction and get extra 5% reward
@@ -503,9 +539,9 @@ export default function WalletPage() {
             <div className="mt-5 flex gap-2">
               <button
                 onClick={() => setRewardsModalOpen(false)}
-                className={`w-full cursor-pointer rounded-xl border px-4 py-2.5 text-sm font-medium ${
+                className={`w-full cursor-pointer rounded-xl border px-4 py-2.5 text-sm font-medium transition ${
                   mode === "dark"
-                    ? "border border-slate-400 bg-slate-800 text-slate-200 hover:bg-slate-700"
+                    ? "border-zinc-700/70 bg-[#18181b] text-zinc-200 hover:bg-zinc-800"
                     : "border-slate-200 bg-slate-100 text-slate-800 hover:bg-slate-200"
                 }`}
               >

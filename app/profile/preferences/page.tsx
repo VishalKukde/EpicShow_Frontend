@@ -21,7 +21,6 @@ import type {
   SeatPreferenceCategory,
   SeatPreferences,
 } from "./components/PreferenceTypes";
-import { PreferencesIntroCard } from "./components/PreferencesIntroCard";
 
 export default function PreferencesPage() {
   const mode = useThemeStore((s) => s.mode);
@@ -172,8 +171,18 @@ export default function PreferencesPage() {
   };
 
   return (
-    <div className="select-none space-y-4 px-3 py-3 pb-6 sm:space-y-5 sm:px-4 lg:space-y-6 lg:px-0 ">
-      <PreferencesIntroCard dark={dark} />
+    <div className="select-none space-y-5 px-3 py-2 pb-6 sm:px-4 lg:px-0">
+      {/* Admin-Style Top Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-b pb-4 border-slate-200 dark:border-zinc-800">
+        <div>
+          <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${dark ? "text-zinc-50" : "text-slate-900"}`}>
+            Preferences
+          </h1>
+          <p className={`text-xs font-medium mt-0.5 ${dark ? "text-zinc-400" : "text-slate-500"}`}>
+            Personalize your app appearance, default seats, notifications, and language.
+          </p>
+        </div>
+      </div>
 
       <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <AppearanceCard dark={dark} isPro={isPro} setTheme={handleSetTheme} toggleTheme={handleToggleTheme} />

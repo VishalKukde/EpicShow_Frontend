@@ -17,7 +17,7 @@ type WalletTopupModalProps = {
   onSubmit: () => void;
 };
 
-export default function  WalletTopupModal({
+export default function WalletTopupModal({
   mode,
   isOpen,
   maxTopup,
@@ -36,19 +36,20 @@ export default function  WalletTopupModal({
   if (!isOpen) return null;
 
   const amountValue = Number(amountInput);
+  const isDark = mode === "dark";
 
   return (
     <div
       onClick={onClose}
       className={`fixed inset-0 z-50 flex items-center justify-center px-4 py-6 backdrop-blur-md transition-all duration-300 ${
-        mode === "dark" ? "bg-black/70" : "bg-slate-900/30"
+        isDark ? "bg-black/70" : "bg-slate-900/30"
       }`}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         className={`relative w-full max-w-md rounded-3xl border transition-all duration-300 sm:max-w-lg md:max-w-xl ${
-          mode === "dark"
-            ? "border-zinc-700 bg-zinc-900/95 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
+          isDark
+            ? "border-zinc-800 bg-[#18181b] shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
             : "border-slate-200 bg-white/95 shadow-[0_25px_80px_rgba(15,23,42,0.15)]"
         }`}
       >
@@ -57,7 +58,7 @@ export default function  WalletTopupModal({
             <div className="space-y-2">
               <div
                 className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
-                  mode === "dark"
+                  isDark
                     ? "border border-indigo-400/30 bg-indigo-500/15 text-indigo-200"
                     : "border border-indigo-300 bg-indigo-50 text-indigo-700"
                 }`}
@@ -68,7 +69,7 @@ export default function  WalletTopupModal({
 
               <h3
                 className={`text-2xl font-bold tracking-tight ${
-                  mode === "dark" ? "text-white" : "text-slate-900"
+                  isDark ? "text-white" : "text-slate-900"
                 }`}
               >
                 Add Wallet Balance
@@ -76,7 +77,7 @@ export default function  WalletTopupModal({
 
               <p
                 className={`text-sm ${
-                  mode === "dark" ? "text-slate-400" : "text-slate-600"
+                  isDark ? "text-zinc-400" : "text-slate-600"
                 }`}
               >
                 Choose a quick amount or enter manually.
@@ -86,8 +87,8 @@ export default function  WalletTopupModal({
             <button
               onClick={onClose}
               className={`cursor-pointer rounded-xl p-2 transition ${
-                mode === "dark"
-                  ? "border border-zinc-700 bg-zinc-800 text-zinc-400 hover:text-white"
+                isDark
+                  ? "border border-zinc-700/70 bg-[#18181b] text-zinc-400 hover:text-white hover:bg-zinc-800"
                   : "bg-slate-200 text-slate-500 shadow-2xl hover:text-slate-900"
               }`}
             >
@@ -103,8 +104,8 @@ export default function  WalletTopupModal({
                 className={`cursor-pointer rounded-2xl border py-2 text-sm font-semibold transition-all duration-200 ${
                   selectedAmount === value
                     ? "scale-[1.02] border-indigo-400 bg-indigo-600 text-white shadow-lg"
-                    : mode === "dark"
-                      ? "border-zinc-700 bg-zinc-800 text-zinc-200 hover:border-zinc-600 hover:bg-zinc-700"
+                    : isDark
+                      ? "border-zinc-700/70 bg-[#18181b] text-zinc-200 hover:border-zinc-600 hover:bg-zinc-800"
                       : "border-slate-200 bg-white text-slate-800 hover:bg-slate-50"
                 }`}
               >
@@ -116,7 +117,7 @@ export default function  WalletTopupModal({
           <div className="mt-8">
             <label
               className={`mb-2 block text-sm font-medium ${
-                mode === "dark" ? "text-slate-300" : "text-slate-700"
+                isDark ? "text-zinc-300" : "text-slate-700"
               }`}
             >
               Enter custom amount
@@ -124,8 +125,8 @@ export default function  WalletTopupModal({
 
             <div
               className={`group flex items-center rounded-2xl border px-4 py-4 transition-all duration-200 ${
-                mode === "dark"
-                  ? "border-zinc-700 bg-zinc-800 focus-within:ring-2 focus-within:ring-indigo-500/40"
+                isDark
+                  ? "border-zinc-700/70 bg-[#18181b] focus-within:ring-2 focus-within:ring-indigo-500/40"
                   : "border-slate-300 bg-white focus-within:ring-2 focus-within:ring-indigo-500/30"
               }`}
             >
@@ -138,8 +139,8 @@ export default function  WalletTopupModal({
                 inputMode="decimal"
                 placeholder="0.00"
                 className={`ml-3 w-full text-lg outline-none ${
-                  mode === "dark"
-                    ? "text-white bg-zinc-800 placeholder:text-slate-500"
+                  isDark
+                    ? "text-white bg-transparent placeholder:text-zinc-500"
                     : "text-slate-900 placeholder:text-slate-400"
                 }`}
               />
@@ -147,7 +148,7 @@ export default function  WalletTopupModal({
 
             <p
               className={`mt-2 text-xs ${
-                mode === "dark" ? "text-zinc-400" : "text-slate-700"
+                isDark ? "text-zinc-400" : "text-slate-700"
               }`}
             >
               Maximum wallet balance allowed is ₹{maxTopup.toFixed(2)}
@@ -164,8 +165,8 @@ export default function  WalletTopupModal({
             <button
               disabled
               className={`w-full cursor-pointer rounded-2xl px-5 py-4 text-sm font-semibold transition ${
-                mode === "dark"
-                  ? "border border-zinc-700 bg-zinc-800 text-zinc-500"
+                isDark
+                  ? "border border-zinc-800 bg-[#18181b] text-zinc-500"
                   : "border border-slate-200 bg-slate-100 text-slate-400"
               }`}
             >
@@ -176,7 +177,7 @@ export default function  WalletTopupModal({
               onClick={onSubmit}
               disabled={submitting || amountInvalid}
               className={`w-full cursor-pointer rounded-2xl border px-5 py-4 text-sm font-semibold text-white shadow-xl transition disabled:opacity-60 ${
-                mode === "dark"
+                isDark
                   ? "border-indigo-400/40 bg-indigo-600 hover:bg-indigo-500"
                   : "border-indigo-700/40 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:opacity-90"
               }`}

@@ -24,5 +24,15 @@ export function setToken(token: string | null) {
 }
 
 export function getToken() {
-  return accessToken;
+  if (accessToken) return accessToken;
+  if (typeof document !== "undefined") {
+    const match = document.cookie.match(
+      new RegExp(`(?:^|; )${encodeURIComponent(CLIENT_ACCESS_TOKEN_COOKIE)}=([^;]*)`)
+    );
+    if (match && match[1]) {
+      accessToken = decodeURIComponent(match[1]);
+      return accessToken;
+    }
+  }
+  return null;
 }

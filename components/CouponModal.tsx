@@ -127,24 +127,15 @@ const CouponModal = ({
               >
                 Apply a coupon
               </h3>
-              <p
+              {/* <p
                 className={`mt-1 text-sm ${
                   dark ? "text-zinc-400" : "text-slate-600"
                 }`}
               >
                 Only coupons you have already collected can be used here.
-              </p>
+              </p> */}
             </div>
-            <div
-              className={`rounded-2xl border px-3 py-2 text-right ${
-                dark ? "border-zinc-700 bg-zinc-900 text-zinc-200" : "border-slate-200 bg-white text-slate-700"
-              }`}
-            >
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em]">
-                Cart Total
-              </p>
-              <p className="mt-1 text-lg font-bold">₹{amount.toFixed(2)}</p>
-            </div>
+    
           </div>
         </div>
 
@@ -223,24 +214,8 @@ const CouponModal = ({
                   dark ? "text-zinc-100" : "text-slate-900"
                 }`}
               >
-                No eligible coupons yet
+                No coupons available
               </p>
-              <p
-                className={`mt-2 text-sm ${
-                  dark ? "text-zinc-400" : "text-slate-600"
-                }`}
-              >
-                Collect coupons from the offers page and they will appear here when your booking meets the rules.
-              </p>
-              <div
-                // onClick={goToOffers}
-                className={`mt-5 inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-medium border  ${
-                  dark ? "bg-zinc-100 text-zinc-900 hover:bg-white border-zinc-500" : "bg-slate-900 text-white hover:bg-black border-gray-700"
-                }`}
-              >
-                You can collect coupon from Offers section under profile section
-                {/* <ArrowRight className="h-4 w-4" /> */}
-              </div>
             </div>
           ) : (
             <div className="space-y-3">

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { Bell, CheckCircle2, Clock3, Wallet } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { useThemeStore } from "@/store/themeStore";
-import NotificationHero from "./component/NotificationHero";
 
 type AppNotification = {
   id: string;
@@ -64,8 +63,28 @@ export default function NotificationsPage() {
   }, []);
 
   return (
-    <div className="space-y-6 px-3 py-3 pb-6 select-none sm:px-4 lg:px-0">
-      <NotificationHero />
+    <div className="space-y-5 px-3 py-2 pb-6 select-none sm:px-4 lg:px-0">
+      {/* Admin-Style Top Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-b pb-4 border-slate-200 dark:border-zinc-800">
+        <div>
+          <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${dark ? "text-zinc-50" : "text-slate-900"}`}>
+            Notifications
+          </h1>
+          <p className={`text-xs font-medium mt-0.5 ${dark ? "text-zinc-400" : "text-slate-500"}`}>
+            Stay updated with refund credits, booking confirmations, and account security alerts.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span
+            className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
+              dark ? "bg-zinc-800 text-zinc-300" : "bg-slate-100 text-slate-700"
+            }`}
+          >
+            {notifications.length} {notifications.length === 1 ? "update" : "updates"}
+          </span>
+        </div>
+      </div>
 
       <section
         className={`rounded-2xl border p-5 shadow-sm ${

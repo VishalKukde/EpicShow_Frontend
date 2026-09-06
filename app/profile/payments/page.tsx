@@ -7,7 +7,7 @@ import ExportStatementModal, {
 } from "./components/ExportStatementModal";
 import NextAutoDebitCard from "./components/NextAutoDebitCard";
 import PaymentMethodsCard from "./components/PaymentMethodsCard";
-import PaymentsHero from "./components/PaymentsHero";
+import { Download } from "lucide-react";
 import PaymentsStats from "./components/PaymentsStats";
 import RecentTransactionsCard from "./components/RecentTransactionsCard";
 import SecurePaymentCard from "./components/SecurePaymentCard";
@@ -187,8 +187,27 @@ export default function PaymentsPage() {
   const recentTransactions = useMemo(() => transactions.slice(0, 4), [transactions]);
 
   return (
-    <div className="space-y-6 px-3 py-3 pb-6 select-none sm:px-4 lg:px-0">
-      <PaymentsHero onExportClick={() => setShowExportModal(true)} />
+    <div className="space-y-5 px-3 py-2 pb-6 select-none sm:px-4 lg:px-0">
+      {/* Admin-Style Top Toolbar with Export Statement Button */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-b pb-4 border-slate-200 dark:border-zinc-800">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-zinc-50">
+            Payment Center
+          </h1>
+          <p className="text-xs font-medium mt-0.5 text-slate-500 dark:text-zinc-400">
+            Track transactions, download statements, and manage payment methods.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setShowExportModal(true)}
+          className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-800 shadow-sm transition hover:bg-slate-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
+        >
+          <Download className="h-3.5 w-3.5" />
+          <span>Export Statement</span>
+        </button>
+      </div>
       <PaymentsStats stats={stats} />
 
       {!showAllTransactions ? (
