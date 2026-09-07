@@ -59,7 +59,7 @@ export default function SavedPassengersPage() {
       {/* Admin-Style Top Toolbar */}
       <div className={`flex flex-wrap items-center justify-between gap-3 pt-1 border-b pb-4 ${isDark ? "border-zinc-800" : "border-slate-200"}`}>
         <div>
-          <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${isDark ? "text-zinc-50" : "text-slate-900"}`}>
+          <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${isDark ? "text-zinc-50" : "text-slate-900"} dark:text-white`}>
             Saved Passengers
           </h1>
           <p className={`text-xs font-medium mt-0.5 ${isDark ? "text-zinc-400" : "text-slate-500"}`}>
@@ -69,11 +69,10 @@ export default function SavedPassengersPage() {
 
         <div className="flex items-center gap-2.5">
           <span
-            className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
-              isDark
-                ? "border border-zinc-700/60 bg-[#18181b] text-zinc-300"
-                : "bg-slate-100 text-slate-700"
-            }`}
+            className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${isDark
+              ? "border border-zinc-700/60 bg-[#18181b] text-zinc-300"
+              : "bg-slate-100 text-slate-700"
+              }`}
           >
             {stats.total} {stats.total === 1 ? "passenger" : "passengers"} saved
           </span>
@@ -81,11 +80,10 @@ export default function SavedPassengersPage() {
           <button
             type="button"
             onClick={() => router.push("/trains")}
-            className={`inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition shadow-sm ${
-              isDark
-                ? "border border-zinc-700/70 bg-[#18181b] text-zinc-100 hover:bg-zinc-800"
-                : "bg-slate-900 text-white hover:bg-slate-800"
-            }`}
+            className={`inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition shadow-sm ${isDark
+              ? "border border-zinc-700/70 bg-[#18181b] text-zinc-100 hover:bg-zinc-800"
+              : "bg-slate-900 text-white hover:bg-slate-800"
+              }`}
           >
             <TrainFront className="h-3.5 w-3.5" />
             <span>Book Train</span>
@@ -93,24 +91,12 @@ export default function SavedPassengersPage() {
         </div>
       </div>
 
-      {/* Stats Row */}
-      <div
-        className={`grid overflow-hidden rounded-2xl border sm:grid-cols-3 ${
-          isDark ? "border-zinc-800 bg-[#18181b] " : "border-slate-200 bg-white"
-        }`}
-      >
-        <Stat icon={UsersRound} label="Passengers" value={stats.total} tone="cyan" isDark={isDark} />
-        <Stat icon={UserRoundCheck} label="Adults" value={stats.adults} tone="emerald" isDark={isDark} />
-        <Stat icon={CalendarClock} label="Minors" value={stats.minors} tone="amber" isDark={isDark} />
-      </div>
-
       {error && (
         <div
-          className={`flex items-start gap-3 rounded-2xl border p-4 text-sm ${
-            isDark
-              ? "border-rose-900/60 bg-rose-950/40 text-rose-300"
-              : "border-rose-200 bg-rose-50 text-rose-700"
-          }`}
+          className={`flex items-start gap-3 rounded-2xl border p-4 text-sm ${isDark
+            ? "border-rose-900/60 bg-rose-950/40 text-rose-300"
+            : "border-rose-200 bg-rose-50 text-rose-700"
+            }`}
         >
           <AlertCircle size={18} className="mt-0.5 shrink-0" />
           {error}
@@ -118,14 +104,13 @@ export default function SavedPassengersPage() {
       )}
 
       <section
-        className={`rounded-3xl border p-5 shadow-sm sm:p-6 ${
-          isDark ? "border-zinc-800 bg-[#18181b]" : "border-slate-200 bg-white"
-        }`}
+        className={`rounded-3xl border p-5 shadow-sm sm:p-6 ${isDark ? "border-zinc-800 bg-[#18181b]" : "border-slate-200 bg-white"
+          } dark:bg-[#18181b] dark:border-zinc-800`}
       >
         <div className="mb-5 flex items-center justify-between gap-4">
           <div>
-            <h2 className={`text-lg font-black ${isDark ? "text-slate-400" : "text-slate-950"}`}>Passenger List</h2>
-            <p className={`mt-1 text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+            <h2 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-950"} dark:text-white`}>Passenger List</h2>
+            <p className={`mt-1 text-sm ${isDark ? "text-slate-400" : "text-slate-500"} dark:text-zinc-400`}>
               These appear inside train passenger forms for faster booking.
             </p>
           </div>
@@ -136,9 +121,8 @@ export default function SavedPassengersPage() {
             {Array.from({ length: 6 }).map((_, index) => (
               <div
                 key={index}
-                className={`h-28 animate-pulse rounded-2xl border ${
-                  isDark ? "border-zinc-800 bg-[#18181b]" : "border-slate-200 bg-slate-100"
-                }`}
+                className={`h-28 animate-pulse rounded-2xl border ${isDark ? "border-zinc-800 bg-[#18181b]" : "border-slate-200 bg-slate-100"
+                  } dark:bg-[#18181b] dark:border-zinc-800`}
               />
             ))}
           </div>
@@ -150,15 +134,13 @@ export default function SavedPassengersPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.04 }}
-                className={`rounded-2xl border p-4 ${
-                  isDark ? "border-zinc-800 bg-[#18181b]" : "border-slate-200 bg-slate-50/80"
-                }`}
+                className={`rounded-2xl border p-4 ${isDark ? "border-zinc-800 bg-[#18181b]" : "border-slate-200 bg-slate-50/80"
+                  } dark:bg-[#18181b] dark:border-zinc-800`}
               >
                 <div className="flex items-start gap-3">
                   <span
-                    className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
-                      isDark ? "bg-cyan-950/60 text-cyan-300" : "bg-cyan-50 text-cyan-700"
-                    }`}
+                    className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${isDark ? "bg-cyan-950/60 text-cyan-300" : "bg-cyan-50 text-cyan-700"
+                      }`}
                   >
                     <UserRoundCheck size={20} />
                   </span>
@@ -176,9 +158,8 @@ export default function SavedPassengersPage() {
           </div>
         ) : (
           <div
-            className={`rounded-2xl border border-dashed px-5 py-12 text-center ${
-              isDark ? "border-zinc-700/60 bg-[#18181b]" : "border-slate-300 bg-slate-50"
-            }`}
+            className={`rounded-2xl border border-dashed px-5 py-12 text-center ${isDark ? "border-zinc-700/60 bg-[#18181b]" : "border-slate-300 bg-slate-50"
+              } dark:bg-[#18181b] dark:border-zinc-800`}
           >
             <UserRoundCheck className="mx-auto h-10 w-10 text-slate-400" />
             <h3 className={`mt-3 text-base font-black ${isDark ? "text-slate-50" : "text-slate-950"}`}>
@@ -215,9 +196,8 @@ function Stat({
 
   return (
     <div
-      className={`flex items-center gap-3 border-b px-5 py-4 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0 ${
-        isDark ? "border-zinc-800" : "border-slate-200"
-      }`}
+      className={`flex items-center gap-3 border-b px-5 py-4 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0 ${isDark ? "border-zinc-800" : "border-slate-200"
+        }`}
     >
       <span className={`inline-flex h-10 w-10 items-center justify-center rounded-full ${toneClass}`}>
         <Icon size={18} />

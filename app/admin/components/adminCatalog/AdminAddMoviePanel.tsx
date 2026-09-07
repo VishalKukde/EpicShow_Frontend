@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { apiFetch } from "@/lib/api";
 import {
     Film,
@@ -15,9 +15,10 @@ import {
     ChevronRight,
     Star,
     Clock,
-    Layers,
     UploadCloud,
     Check,
+    Calendar,
+    Rocket,
 } from "lucide-react";
 
 const LANGUAGE_OPTIONS = [
@@ -59,9 +60,9 @@ const REQUIRED_FIELDS = [
 ];
 
 export default function AdminAddMoviePanel() {
-    const [activeTab, setActiveTab] = useState<"tmdb" | "json">("tmdb");
+    const [activeTab, setActiveTab] = useState<"tmdb" | "upcoming" | "json">("tmdb");
 
-    // --- TMDB Explorer State ---
+    // --- TMDB Explorer State (Released Movies) ---
     const [language, setLanguage] = useState("en");
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState<number | null>(null);
@@ -69,6 +70,17 @@ export default function AdminAddMoviePanel() {
     const [movies, setMovies] = useState<TmdbMovie[]>([]);
     const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
     const [error, setError] = useState<string | null>(null);
+
+    // --- TMDB Upcoming Movies State ---
+    const [upcomingLanguage, setUpcomingLanguage] = useState("en");
+    const [upcomingPage, setUpcomingPage] = useState(1);
+    const [upcomingTotalPages, setUpcomingTotalPages] = useState<number | null>(null);
+    const [upcomingTotalResults, setUpcomingTotalResults] = useState<number | null>(null);
+    const [upcomingMovies, setUpcomingMovies] = useState<TmdbMovie[]>([]);
+    const [upcomingStatus, setUpcomingStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+    const [upcomingError, setUpcomingError] = useState<string | null>(null);
+
+    // --- Insert State (Shared) ---
     const [insertState, setInsertState] = useState<Record<string, "idle" | "saving" | "success" | "error">>({});
     const [insertError, setInsertError] = useState<Record<string, string>>({});
 
@@ -78,12 +90,12 @@ export default function AdminAddMoviePanel() {
     const [jsonStatus, setJsonStatus] = useState<"idle" | "saving" | "success" | "error">("idle");
     const [jsonResult, setJsonResult] = useState<Record<string, unknown> | Record<string, unknown>[] | null>(null);
 
-    // TMDB API Loader
+    // TMDB Released Movies Loader
     const loadTmdbMovies = async () => {
         setStatus("loading");
         setError(null);
         try {
-            const res = await fetch(`/api/tmdb/discover?lang=${language}&page=${page}`);
+            const res = await fetch(`/api/tmdb/discover?lang=${language}&page=${page}&type=released`);
             const data = await res.json();
             if (!res.ok) {
                 throw new Error(data?.message || "Failed to fetch TMDB movies");
@@ -98,25 +110,37 @@ export default function AdminAddMoviePanel() {
         }
     };
 
+    // TMDB Upcoming Movies Loader
+    const loadUpcomingMovies = async () => {
+        setUpcomingStatus("loading");
+        setUpcomingError(null);
+        try {
+            const res = await fetch(`/api/tmdb/discover?lang=${upcomingLanguage}&page=${upcomingPage}&type=upcoming`);
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data?.message || "Failed to fetch upcoming TMDB movies");
+            }
+            setUpcomingMovies(data.items || []);
+            setUpcomingTotalPages(data.totalPages ?? null);
+            setUpcomingTotalResults(data.totalResults ?? null);
+            setUpcomingStatus("success");
+        } catch (err) {
+            setUpcomingStatus("error");
+            setUpcomingError(err instanceof Error ? err.message : "Failed to fetch upcoming TMDB movies");
+        }
+    };
+
     // Add Movie to Website via Backend API
     const handleAddToSite = async (movie: TmdbMovie) => {
         const key = String(movie.tmdbId ?? movie.name);
         setInsertState((prev) => ({ ...prev, [key]: "saving" }));
         setInsertError((prev) => ({ ...prev, [key]: "" }));
 
+        // For upcoming movies, fallback runtime to 120 mins if TMDB unreleased payload runtime is null
         const runtimeValue =
-            movie.runtimeMinutes === null || movie.runtimeMinutes === undefined
-                ? null
-                : Number(movie.runtimeMinutes);
-
-        if (!runtimeValue || Number.isNaN(runtimeValue)) {
-            setInsertState((prev) => ({ ...prev, [key]: "error" }));
-            setInsertError((prev) => ({
-                ...prev,
-                [key]: "Runtime missing from TMDB data. Cannot insert without runtime.",
-            }));
-            return;
-        }
+            movie.runtimeMinutes && !Number.isNaN(Number(movie.runtimeMinutes))
+                ? Number(movie.runtimeMinutes)
+                : 120;
 
         try {
             await apiFetch("/movies", {
@@ -124,7 +148,7 @@ export default function AdminAddMoviePanel() {
                 body: JSON.stringify({
                     name: movie.name,
                     description: movie.description,
-                    genre: movie.genre,
+                    genre: movie.genre?.length ? movie.genre : ["Upcoming"],
                     imageUrl: movie.imageUrl,
                     language: movie.language,
                     runtimeMinutes: runtimeValue,
@@ -213,7 +237,7 @@ export default function AdminAddMoviePanel() {
                     border: "1px solid var(--admin-border)",
                     borderRadius: 20,
                 }}
-                className="flex flex-wrap items-center justify-between gap-4 p-5 shadow-sm"
+                className="flex flex-wrap items-center justify-between gap-4 p-5 shadow-xs"
             >
                 <div className="flex items-center gap-3">
                     <div className="grid h-12 w-12 place-items-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/30">
@@ -229,7 +253,7 @@ export default function AdminAddMoviePanel() {
                             </span>
                         </div>
                         <p style={{ color: "var(--admin-text-secondary)" }} className="mt-0.5 text-xs font-semibold m-0">
-                            Fetch trending movies from TMDB API or manually import JSON payloads directly into your backend catalog.
+                            Fetch trending or upcoming Hollywood & Bollywood movies from TMDB API and add directly to collection.
                         </p>
                     </div>
                 </div>
@@ -237,22 +261,38 @@ export default function AdminAddMoviePanel() {
                 {/* Tab Switchers */}
                 <div
                     style={{ background: "var(--admin-soft)", border: "1px solid var(--admin-border)", borderRadius: 14 }}
-                    className="p-1 flex items-center gap-1"
+                    className="p-1 flex flex-wrap items-center gap-1"
                 >
                     <button
                         onClick={() => setActiveTab("tmdb")}
-                        className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-extrabold transition cursor-pointer ${activeTab === "tmdb"
+                        className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-extrabold transition cursor-pointer ${activeTab === "tmdb"
                                 ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
                                 : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
                             }`}
                     >
                         <Sparkles size={15} />
-                        <span>TMDB Explorer</span>
+                        <span>TMDB Trending</span>
+                    </button>
+
+                    <button
+                        onClick={() => {
+                            setActiveTab("upcoming");
+                            if (upcomingMovies.length === 0 && upcomingStatus === "idle") {
+                                loadUpcomingMovies();
+                            }
+                        }}
+                        className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-extrabold transition cursor-pointer ${activeTab === "upcoming"
+                                ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                                : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                            }`}
+                    >
+                        <Rocket size={15} />
+                        <span>Upcoming Releases</span>
                     </button>
 
                     <button
                         onClick={() => setActiveTab("json")}
-                        className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-extrabold transition cursor-pointer ${activeTab === "json"
+                        className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-extrabold transition cursor-pointer ${activeTab === "json"
                                 ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
                                 : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
                             }`}
@@ -263,7 +303,7 @@ export default function AdminAddMoviePanel() {
                 </div>
             </div>
 
-            {/* Tab 1: TMDB Explorer */}
+            {/* Tab 1: TMDB Trending Movies Explorer */}
             {activeTab === "tmdb" && (
                 <div className="space-y-6">
                     {/* Controls Bar */}
@@ -279,7 +319,7 @@ export default function AdminAddMoviePanel() {
                         <div className="flex items-center gap-2">
                             <Globe size={16} className="text-indigo-500 shrink-0" />
                             <span style={{ color: "var(--admin-text)" }} className="text-xs font-bold">
-                                Language:
+                                Language / Industry:
                             </span>
                             <div className="flex flex-wrap gap-1.5">
                                 {LANGUAGE_OPTIONS.map((opt) => (
@@ -288,7 +328,7 @@ export default function AdminAddMoviePanel() {
                                         type="button"
                                         onClick={() => setLanguage(opt.value)}
                                         className={`rounded-xl px-3 py-1.5 text-xs font-extrabold transition cursor-pointer ${language === opt.value
-                                                ? "bg-indigo-600 text-white shadow-sm"
+                                                ? "bg-indigo-600 text-white shadow-xs"
                                                 : "border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
                                             }`}
                                     >
@@ -339,7 +379,7 @@ export default function AdminAddMoviePanel() {
                                 className="flex cursor-pointer items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2 text-xs font-extrabold text-white shadow-lg shadow-indigo-600/30 transition hover:bg-indigo-700 active:scale-95 disabled:opacity-50"
                             >
                                 <Search size={15} />
-                                <span>{status === "loading" ? "Fetching TMDB..." : "Load TMDB Movies"}</span>
+                                <span>{status === "loading" ? "Fetching TMDB..." : "Load Trending Movies"}</span>
                             </button>
                         </div>
                     </div>
@@ -438,7 +478,7 @@ export default function AdminAddMoviePanel() {
 
                                                 <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pt-2 border-t border-slate-200 dark:border-slate-800">
                                                     <span className="flex items-center gap-1">
-                                                        <Clock size={13} /> {movie.runtimeMinutes ? `${movie.runtimeMinutes} mins` : "Runtime N/A"}
+                                                        <Clock size={13} /> {movie.runtimeMinutes ? `${movie.runtimeMinutes} mins` : "120 mins"}
                                                     </span>
                                                     <span>{movie.releaseDate || "TBA"}</span>
                                                 </div>
@@ -450,36 +490,29 @@ export default function AdminAddMoviePanel() {
                                             <button
                                                 type="button"
                                                 onClick={() => handleAddToSite(movie)}
-                                                disabled={curState === "saving" || curState === "success" || !movie.runtimeMinutes}
+                                                disabled={curState === "saving" || curState === "success"}
                                                 className={`w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-extrabold transition cursor-pointer shadow-md ${curState === "success"
                                                         ? "bg-emerald-600 text-white"
                                                         : curState === "saving"
                                                             ? "bg-indigo-500/50 text-white cursor-wait"
-                                                            : !movie.runtimeMinutes
-                                                                ? "bg-slate-300 dark:bg-slate-800 text-slate-500 cursor-not-allowed"
-                                                                : "bg-indigo-600 hover:bg-indigo-700 text-white active:scale-95"
+                                                            : "bg-indigo-600 hover:bg-indigo-700 text-white active:scale-95"
                                                     }`}
                                             >
                                                 {curState === "success" ? (
                                                     <>
-                                                        <Check size={16} /> Added to Website
+                                                        <Check size={16} /> Added to Movie Collection
                                                     </>
                                                 ) : curState === "saving" ? (
-                                                    "Adding to Database..."
+                                                    "Adding to Collection..."
                                                 ) : (
                                                     <>
-                                                        <PlusCircle size={16} /> Add to Website
+                                                        <PlusCircle size={16} /> Add to Movie Collection
                                                     </>
                                                 )}
                                             </button>
 
                                             {curErr && (
                                                 <p className="text-[11px] font-bold text-rose-500 m-0 text-center">{curErr}</p>
-                                            )}
-                                            {!movie.runtimeMinutes && (
-                                                <p className="text-[10px] font-medium text-slate-400 m-0 text-center">
-                                                    Runtime unavailable from TMDB API
-                                                </p>
                                             )}
                                         </div>
                                     </div>
@@ -497,7 +530,7 @@ export default function AdminAddMoviePanel() {
                                     Ready to Load TMDB Catalog
                                 </h3>
                                 <p style={{ color: "var(--admin-text-secondary)" }} className="text-xs font-semibold m-0 max-w-md mx-auto">
-                                    Select your preferred language filter and click "Load TMDB Movies" to browse trending titles.
+                                    Select your preferred language filter and click "Load Trending Movies" to browse titles.
                                 </p>
                             </div>
                         )
@@ -505,7 +538,245 @@ export default function AdminAddMoviePanel() {
                 </div>
             )}
 
-            {/* Tab 2: Manual JSON Import */}
+            {/* Tab 2: TMDB Upcoming Movies Explorer */}
+            {activeTab === "upcoming" && (
+                <div className="space-y-6">
+                    {/* Controls Bar for Upcoming Movies */}
+                    <div
+                        style={{
+                            background: "var(--admin-surface)",
+                            border: "1px solid var(--admin-border)",
+                            borderRadius: 20,
+                        }}
+                        className="p-5 shadow-lg flex flex-wrap items-center justify-between gap-4"
+                    >
+                        {/* Language / Industry Filter */}
+                        <div className="flex items-center gap-2">
+                            <Rocket size={18} className="text-amber-500 shrink-0" />
+                            <span style={{ color: "var(--admin-text)" }} className="text-xs font-bold">
+                                Upcoming Industry:
+                            </span>
+                            <div className="flex flex-wrap gap-1.5">
+                                {LANGUAGE_OPTIONS.map((opt) => (
+                                    <button
+                                        key={opt.value}
+                                        type="button"
+                                        onClick={() => setUpcomingLanguage(opt.value)}
+                                        className={`rounded-xl px-3.5 py-1.5 text-xs font-extrabold transition cursor-pointer ${upcomingLanguage === opt.value
+                                                ? "bg-amber-500 text-slate-950 shadow-xs font-black"
+                                                : "border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
+                                            }`}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Pagination & Load Action */}
+                        <div className="flex flex-wrap items-center gap-3">
+                            <div className="flex items-center gap-2">
+                                <span style={{ color: "var(--admin-text-secondary)" }} className="text-xs font-bold">
+                                    Page:
+                                </span>
+                                <input
+                                    type="number"
+                                    min={1}
+                                    value={upcomingPage}
+                                    onChange={(e) => setUpcomingPage(Math.max(1, Number(e.target.value || 1)))}
+                                    style={{
+                                        background: "var(--admin-surface)",
+                                        border: "1px solid var(--admin-border)",
+                                        color: "var(--admin-text)",
+                                    }}
+                                    className="w-16 rounded-xl px-2.5 py-1.5 text-xs font-mono text-center outline-none focus:border-amber-500"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setUpcomingPage((p) => Math.max(1, p - 1))}
+                                    className="rounded-xl border border-slate-200 dark:border-slate-800 p-1.5 text-slate-400 hover:text-amber-500 cursor-pointer"
+                                >
+                                    <ChevronLeft size={16} />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setUpcomingPage((p) => p + 1)}
+                                    className="rounded-xl border border-slate-200 dark:border-slate-800 p-1.5 text-slate-400 hover:text-amber-500 cursor-pointer"
+                                >
+                                    <ChevronRight size={16} />
+                                </button>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={loadUpcomingMovies}
+                                disabled={upcomingStatus === "loading"}
+                                className="flex cursor-pointer items-center gap-2 rounded-xl bg-amber-500 px-5 py-2 text-xs font-black text-slate-950 shadow-lg shadow-amber-500/20 transition hover:bg-amber-400 active:scale-95 disabled:opacity-50"
+                            >
+                                <Rocket size={15} />
+                                <span>{upcomingStatus === "loading" ? "Fetching Upcoming..." : "Fetch Upcoming Movies"}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Status Banners */}
+                    {upcomingError && (
+                        <div className="rounded-xl bg-rose-500/10 border border-rose-500/20 p-4 text-xs font-black text-rose-500 flex items-center gap-2">
+                            <AlertTriangle size={18} />
+                            <span>{upcomingError}</span>
+                        </div>
+                    )}
+
+                    {(upcomingTotalPages || upcomingTotalResults) && (
+                        <div
+                            style={{ background: "var(--admin-surface)", border: "1px solid var(--admin-border)", borderRadius: 14 }}
+                            className="px-4 py-2.5 text-xs font-bold text-slate-400 flex items-center justify-between"
+                        >
+                            <span>
+                                Found <strong>{upcomingTotalResults?.toLocaleString()}</strong> upcoming movies from Hollywood & Bollywood
+                            </span>
+                            <span>
+                                Page <strong>{upcomingPage}</strong> of <strong>{upcomingTotalPages}</strong>
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Upcoming Movies Cards Grid */}
+                    {upcomingMovies.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {upcomingMovies.map((movie) => {
+                                const key = String(movie.tmdbId ?? movie.name);
+                                const curState = insertState[key] || "idle";
+                                const curErr = insertError[key] || "";
+
+                                return (
+                                    <div
+                                        key={key}
+                                        style={{
+                                            background: "var(--admin-surface)",
+                                            border: "1px solid var(--admin-border)",
+                                            borderRadius: 20,
+                                        }}
+                                        className="overflow-hidden shadow-lg flex flex-col justify-between transition hover:border-amber-500/40"
+                                    >
+                                        {/* Poster Header */}
+                                        <div>
+                                            <div className="relative h-56 w-full bg-slate-900 overflow-hidden">
+                                                {movie.imageUrl ? (
+                                                    <img
+                                                        src={movie.imageUrl}
+                                                        alt={movie.name}
+                                                        className="h-full w-full object-cover transition duration-300 hover:scale-105"
+                                                    />
+                                                ) : (
+                                                    <div className="grid h-full place-items-center text-slate-500 text-xs font-bold">
+                                                        No Poster Image
+                                                    </div>
+                                                )}
+                                                <div className="absolute top-3 left-3 rounded-full bg-amber-500 backdrop-blur-md px-2.5 py-1 text-[10px] font-black uppercase text-slate-950 flex items-center gap-1 shadow-md">
+                                                    <Rocket size={11} /> UPCOMING ({movie.language})
+                                                </div>
+                                                {movie.rating && (
+                                                    <div className="absolute top-3 right-3 rounded-full bg-slate-950/80 backdrop-blur-md px-2.5 py-1 text-[10px] font-black text-amber-400 border border-amber-500/20 flex items-center gap-1">
+                                                        <Star size={11} className="fill-amber-400" />
+                                                        <span>{movie.rating.toFixed(1)}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Content details */}
+                                            <div className="p-5 space-y-3">
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <h3 style={{ color: "var(--admin-text)" }} className="text-base font-black leading-tight m-0">
+                                                        {movie.name}
+                                                    </h3>
+                                                </div>
+
+                                                <p
+                                                    style={{ color: "var(--admin-text-secondary)" }}
+                                                    className="text-xs font-semibold leading-relaxed m-0 line-clamp-3"
+                                                >
+                                                    {movie.description}
+                                                </p>
+
+                                                {/* Genres */}
+                                                <div className="flex flex-wrap gap-1.5 pt-1">
+                                                    {movie.genre?.map((g) => (
+                                                        <span
+                                                            key={g}
+                                                            className="rounded-lg bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 text-[10px] font-black text-amber-500"
+                                                        >
+                                                            {g}
+                                                        </span>
+                                                    ))}
+                                                </div>
+
+                                                {/* Release Date & Runtime */}
+                                                <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pt-2 border-t border-slate-200 dark:border-slate-800">
+                                                    <span className="flex items-center gap-1">
+                                                        <Clock size={13} /> {movie.runtimeMinutes ? `${movie.runtimeMinutes} mins` : "120 mins (Est.)"}
+                                                    </span>
+                                                    <span className="flex items-center gap-1 font-bold text-amber-500">
+                                                        <Calendar size={13} /> {movie.releaseDate ? `Releasing ${movie.releaseDate}` : "Coming Soon"}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Action Button */}
+                                        <div className="p-5 pt-0 space-y-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleAddToSite(movie)}
+                                                disabled={curState === "saving" || curState === "success"}
+                                                className={`w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-extrabold transition cursor-pointer shadow-md ${curState === "success"
+                                                        ? "bg-emerald-600 text-white"
+                                                        : curState === "saving"
+                                                            ? "bg-amber-500/50 text-slate-950 cursor-wait"
+                                                            : "bg-amber-500 hover:bg-amber-400 text-slate-950 font-black active:scale-95"
+                                                    }`}
+                                            >
+                                                {curState === "success" ? (
+                                                    <>
+                                                        <Check size={16} /> Added to Movie Collection
+                                                    </>
+                                                ) : curState === "saving" ? (
+                                                    "Adding to Collection..."
+                                                ) : (
+                                                    <>
+                                                        <PlusCircle size={16} /> Add to Movie Collection
+                                                    </>
+                                                )}
+                                            </button>
+
+                                            {curErr && (
+                                                <p className="text-[11px] font-bold text-rose-500 m-0 text-center">{curErr}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        upcomingStatus === "idle" && (
+                            <div
+                                style={{ background: "var(--admin-surface)", border: "1px solid var(--admin-border)", borderRadius: 20 }}
+                                className="p-12 text-center space-y-3"
+                            >
+                                <Rocket className="mx-auto text-amber-500 animate-bounce" size={32} />
+                                <h3 style={{ color: "var(--admin-text)" }} className="text-base font-black m-0">
+                                    Ready to Fetch Upcoming Movies
+                                </h3>
+                                <p style={{ color: "var(--admin-text-secondary)" }} className="text-xs font-semibold m-0 max-w-md mx-auto">
+                                    Select Hollywood (EN) or Bollywood (HI) and click "Fetch Upcoming Movies" to browse unreleased upcoming releases.
+                                </p>
+                            </div>
+                        )
+                    )}
+                </div>
+            )}
+
+            {/* Tab 3: Manual JSON Import */}
             {activeTab === "json" && (
                 <div
                     style={{

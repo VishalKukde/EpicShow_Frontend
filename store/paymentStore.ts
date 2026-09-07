@@ -68,6 +68,8 @@ export const usePaymentStore = create<PaymentState>()(
       name: "payment-store",
       partialize: (state) => ({
         mockTicket: state.mockTicket,
+        verifiedAmount: state.verifiedAmount,
+        verifiedSeats: state.verifiedSeats,
       }),
     }
   )

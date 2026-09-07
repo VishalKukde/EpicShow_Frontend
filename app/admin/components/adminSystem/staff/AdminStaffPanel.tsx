@@ -1,24 +1,31 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import {
     ShieldCheck,
     UserPlus,
-    Lock,
     Smartphone,
-    KeyRound,
     CheckCircle2,
     AlertTriangle,
-    XCircle,
     Search,
-    MoreVertical,
     History,
     X,
-    Mail,
     User,
     BadgeCheck,
+    UserX,
+    Check,
     RefreshCcw,
+    Loader2,
+    Lock,
+    Sparkles,
 } from "lucide-react";
+import {
+    getStoredUserStatuses,
+    setUserAccountStatus,
+    UserAccountStatus,
+} from "@/lib/userStatusStore";
+import { apiFetch } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 export type StaffMember = {
     id: string;
@@ -31,7 +38,7 @@ export type StaffMember = {
     permissions: string[];
     lastActive: string;
     ipAddress: string;
-    status: "Active" | "Suspended";
+    status: "Active" | "Suspended" | "Deactivated";
 };
 
 export type AuditLog = {
@@ -43,7 +50,35 @@ export type AuditLog = {
     severity: "info" | "warning" | "critical";
 };
 
+type ApiUserResponse = {
+    success: boolean;
+    data: Array<{
+        _id: string;
+        name: string;
+        email: string;
+        phone?: string;
+        avatar?: string;
+        role?: "user" | "organizer" | "admin";
+        membership?: "free" | "pro";
+        status?: string;
+        lastLogin?: string;
+        createdAt?: string;
+    }>;
+};
+
 const INITIAL_STAFF: StaffMember[] = [
+    {
+        id: "STF-100",
+        name: "Demo Customer User",
+        email: "demo@gmail.com",
+        role: "Support Operator",
+        department: "Customer Service",
+        mfaStatus: "Enforced (Authenticator App)",
+        permissions: ["Customer View", "Booking Lookup"],
+        lastActive: "Active today",
+        ipAddress: "127.0.0.1 (IN)",
+        status: "Active",
+    },
     {
         id: "STF-101",
         name: "Vishal Sharma",
@@ -92,18 +127,6 @@ const INITIAL_STAFF: StaffMember[] = [
         ipAddress: "114.143.20.9 (IN)",
         status: "Active",
     },
-    {
-        id: "STF-105",
-        name: "Rohan Kapoor",
-        email: "rohan.k@epicshow.in",
-        role: "Operations Manager",
-        department: "Operations",
-        mfaStatus: "Enforced (Authenticator App)",
-        permissions: ["Movie Catalog", "Sports Management"],
-        lastActive: "2 days ago",
-        ipAddress: "182.72.90.10 (IN)",
-        status: "Suspended",
-    },
 ];
 
 const RECENT_AUDIT_LOGS: AuditLog[] = [
@@ -142,10 +165,14 @@ const RECENT_AUDIT_LOGS: AuditLog[] = [
 ];
 
 export default function AdminStaffPanel() {
-    const [staff, setStaff] = useState<StaffMember[]>(INITIAL_STAFF);
+    const { user: currentAdmin } = useAuth();
+    const [staff, setStaff] = useState<StaffMember[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
     const [search, setSearch] = useState("");
     const [roleFilter, setRoleFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
+    const [statusToast, setStatusToast] = useState<string | null>(null);
 
     // Invite Staff Modal State
     const [inviteModalOpen, setInviteModalOpen] = useState(false);
@@ -153,6 +180,93 @@ export default function AdminStaffPanel() {
     const [newStaffEmail, setNewStaffEmail] = useState("");
     const [newStaffRole, setNewStaffRole] = useState<StaffMember["role"]>("Support Operator");
     const [inviteSuccessMsg, setInviteSuccessMsg] = useState("");
+
+    // Fetch live users API data
+    const fetchStaffFromApi = useCallback(() => {
+        setLoading(true);
+        setError("");
+        apiFetch("/admin/users?limit=100", { notifyOnError: false })
+            .then((res: ApiUserResponse) => {
+                const storedStatuses = getStoredUserStatuses();
+                if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
+                    const adminUsers = res.data.filter((u) => u.role === "admin");
+                    const targetList = adminUsers.length > 0 ? adminUsers : res.data;
+                    const mappedStaff: StaffMember[] = targetList.map((u, idx) => {
+                        const normalizedEmail = u.email ? u.email.toLowerCase().trim() : "";
+                        const savedStatus = storedStatuses[normalizedEmail];
+
+                        let role: StaffMember["role"] = "Super Admin";
+                        let department: StaffMember["department"] = "Security & Exec";
+                        let permissions = ["Full Administrative Control", "Security Policy", "Financial Audit"];
+
+                        if (u.role === "admin") {
+                            role = "Super Admin";
+                            department = "Security & Exec";
+                            permissions = ["Full Administrative Control", "Security Policy", "Financial Audit"];
+                        } else if (u.role === "organizer") {
+                            role = "Operations Manager";
+                            department = "Operations";
+                            permissions = ["Booking Management", "Venue Operations", "Refund Claims"];
+                        } else if (u.membership === "pro") {
+                            role = "Finance Auditor";
+                            department = "Finance";
+                            permissions = ["Revenue Analytics", "Financial Reports", "Refund Approval"];
+                        }
+
+                        const mfaStatus: StaffMember["mfaStatus"] = u.role === "admin"
+                            ? "Enforced (Hardware Key)"
+                            : "Enforced (Authenticator App)";
+
+                        const formattedLastActive = u.lastLogin
+                            ? new Date(u.lastLogin).toLocaleDateString("en-IN", {
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                            })
+                            : "Active recently";
+
+                        return {
+                            id: u._id || `STF-${100 + idx}`,
+                            name: u.name || (u.email ? u.email.split("@")[0] : "Unnamed User"),
+                            email: u.email || "no-email@epicshow.in",
+                            avatar: u.avatar,
+                            role,
+                            department,
+                            mfaStatus,
+                            permissions,
+                            lastActive: formattedLastActive,
+                            ipAddress: u.phone ? `Ph: ${u.phone}` : "127.0.0.1 (IN)",
+                            status: (u.status || savedStatus || "Active") as UserAccountStatus,
+                        };
+                    });
+                    setStaff(mappedStaff);
+                } else {
+                    // Fallback to initial admin staff if API returned empty array
+                    setStaff(
+                        INITIAL_STAFF.filter((s) => s.role === "Super Admin").map((s) => {
+                            const normalizedEmail = s.email.toLowerCase().trim();
+                            return storedStatuses[normalizedEmail] ? { ...s, status: storedStatuses[normalizedEmail] } : s;
+                        })
+                    );
+                }
+            })
+            .catch((err) => {
+                setError(err instanceof Error ? err.message : "Failed to load live staff data");
+                const storedStatuses = getStoredUserStatuses();
+                setStaff(
+                    INITIAL_STAFF.filter((s) => s.role === "Super Admin").map((s) => {
+                        const normalizedEmail = s.email.toLowerCase().trim();
+                        return storedStatuses[normalizedEmail] ? { ...s, status: storedStatuses[normalizedEmail] } : s;
+                    })
+                );
+            })
+            .finally(() => setLoading(false));
+    }, []);
+
+    useEffect(() => {
+        fetchStaffFromApi();
+    }, [fetchStaffFromApi]);
 
     // Filter staff list
     const filteredStaff = useMemo(() => {
@@ -167,14 +281,39 @@ export default function AdminStaffPanel() {
 
     // Statistics
     const activeCount = staff.filter((s) => s.status === "Active").length;
+    const suspendedCount = staff.filter((s) => s.status === "Suspended" || s.status === "Deactivated").length;
     const mfaEnforcedCount = staff.filter((s) => s.mfaStatus.startsWith("Enforced")).length;
     const mfaRate = staff.length ? Math.round((mfaEnforcedCount / staff.length) * 100) : 0;
 
-    // Toggle Staff Status
-    const toggleStaffStatus = (id: string) => {
+    const [confirmStaffAction, setConfirmStaffAction] = useState<{ id: string; name: string; email: string; newStatus: UserAccountStatus } | null>(null);
+
+    // Change Staff Status (Activate, Suspend, Deactivate)
+    const updateStaffStatus = (id: string, newStatus: UserAccountStatus) => {
+        const targetStaff = staff.find((s) => s.id === id);
+        if (!targetStaff) return;
+
+        setUserAccountStatus(targetStaff.email, newStatus);
+
         setStaff((prev) =>
-            prev.map((s) => (s.id === id ? { ...s, status: s.status === "Active" ? "Suspended" : "Active" } : s))
+            prev.map((s) => (s.id === id ? { ...s, status: newStatus } : s))
         );
+
+        apiFetch("/admin/users/status", {
+            method: "PATCH",
+            body: JSON.stringify({ email: targetStaff.email, status: newStatus }),
+        }).catch((err) => {
+            console.error("Failed to sync staff status with backend:", err);
+        });
+
+        const statusMsg = newStatus === "Active"
+            ? `Account for ${targetStaff.name} (${targetStaff.email}) is now Activated.`
+            : newStatus === "Suspended"
+                ? `Account for ${targetStaff.name} (${targetStaff.email}) has been Suspended. Login access revoked.`
+                : `Account for ${targetStaff.name} (${targetStaff.email}) has been Deactivated. Login access revoked.`;
+
+        setStatusToast(statusMsg);
+        setConfirmStaffAction(null);
+        setTimeout(() => setStatusToast(null), 4000);
     };
 
     // Handle Invite New Staff Submit
@@ -222,6 +361,14 @@ export default function AdminStaffPanel() {
 
     return (
         <div className="space-y-6 pb-16 select-none">
+            {/* Notification Toast for Account Status Updates */}
+            {statusToast && (
+                <div className="fixed top-5 right-5 z-50 flex items-center gap-3 rounded-2xl bg-slate-900 border border-slate-700 p-4 text-xs font-black text-white shadow-2xl backdrop-blur-md animate-fadeIn">
+                    <CheckCircle2 size={18} className="text-emerald-400" />
+                    <span>{statusToast}</span>
+                </div>
+            )}
+
             {/* Top Banner */}
             <div
                 style={{
@@ -241,23 +388,43 @@ export default function AdminStaffPanel() {
                                 Staff Access & RBAC Security Control
                             </h2>
                             <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-black text-emerald-500 uppercase tracking-wider">
-                                MFA Enforced
+                                Live API Connected
                             </span>
                         </div>
                         <p style={{ color: "var(--admin-text-secondary)" }} className="mt-0.5 text-xs font-semibold m-0">
-                            Manage team access privileges, enforce multi-factor authentication, and monitor security audit logs.
+                            Manage team access privileges, suspend/deactivate accounts, enforce MFA, and monitor security audit logs.
                         </p>
                     </div>
                 </div>
 
-                <button
-                    onClick={() => setInviteModalOpen(true)}
-                    className="flex cursor-pointer items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-extrabold text-white shadow-lg shadow-indigo-600/30 transition hover:bg-indigo-700 active:scale-95"
-                >
-                    <UserPlus size={16} />
-                    <span>Invite Staff Member</span>
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={fetchStaffFromApi}
+                        disabled={loading}
+                        className="flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-bold text-slate-200 transition hover:bg-slate-700 active:scale-95 disabled:opacity-50"
+                        title="Refresh Live API Staff Data"
+                    >
+                        <RefreshCcw size={14} className={loading ? "animate-spin text-indigo-400" : ""} />
+                        <span>Refresh Data</span>
+                    </button>
+
+                    <button
+                        onClick={() => setInviteModalOpen(true)}
+                        className="flex cursor-pointer items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-extrabold text-white shadow-lg shadow-indigo-600/30 transition hover:bg-indigo-700 active:scale-95"
+                    >
+                        <UserPlus size={16} />
+                        <span>Invite Staff Member</span>
+                    </button>
+                </div>
             </div>
+
+            {/* Error banner if API fails */}
+            {error && (
+                <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs font-bold text-rose-500 flex items-center justify-between">
+                    <span>{error}</span>
+                    <button onClick={fetchStaffFromApi} className="underline text-[11px]">Retry API</button>
+                </div>
+            )}
 
             {/* Security KPI Metrics */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -308,13 +475,13 @@ export default function AdminStaffPanel() {
                     className="rounded-2xl p-4 shadow-sm"
                 >
                     <div className="flex items-center justify-between text-slate-400">
-                        <span className="text-xs font-bold uppercase tracking-wider">Security Threats (24h)</span>
-                        <Lock size={18} className="text-rose-500" />
+                        <span className="text-xs font-bold uppercase tracking-wider">Suspended / Deactivated</span>
+                        <UserX size={18} className="text-rose-500" />
                     </div>
                     <p style={{ color: "var(--admin-text)" }} className="mt-2 text-2xl font-black m-0 font-mono">
-                        0 <span className="text-xs font-semibold text-emerald-500">Clean</span>
+                        {suspendedCount}
                     </p>
-                    <p className="mt-1 text-[11px] font-semibold text-slate-400 m-0">Zero compromised accounts</p>
+                    <p className="mt-1 text-[11px] font-semibold text-rose-500 m-0">Login Access Blocked</p>
                 </div>
             </div>
 
@@ -379,6 +546,7 @@ export default function AdminStaffPanel() {
                             <option value="all">All Statuses</option>
                             <option value="Active">Active</option>
                             <option value="Suspended">Suspended</option>
+                            <option value="Deactivated">Deactivated</option>
                         </select>
                     </div>
 
@@ -399,101 +567,141 @@ export default function AdminStaffPanel() {
                                 className="text-[11px] font-black uppercase tracking-wider text-slate-400"
                             >
                                 <th className="py-3.5 px-4">Staff Member</th>
-                                <th className="py-3.5 px-4">Role & Department</th>
+                                <th className="py-3.5 px-4">Role</th>
                                 <th className="py-3.5 px-4">MFA Security</th>
-                                <th className="py-3.5 px-4">Assigned Modules</th>
                                 <th className="py-3.5 px-4">Last Activity</th>
                                 <th className="py-3.5 px-4">Status</th>
-                                <th className="py-3.5 px-4 text-right">Action</th>
+                                <th className="py-3.5 px-4 text-right">Access Controls</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-xs">
-                            {filteredStaff.map((s) => (
-                                <tr key={s.id} className="transition hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
-                                    <td className="py-3.5 px-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="grid h-9 w-9 place-items-center rounded-xl bg-indigo-600/10 text-indigo-500 font-extrabold text-sm">
-                                                {s.name.charAt(0)}
-                                            </div>
-                                            <div>
-                                                <span style={{ color: "var(--admin-text)" }} className="font-extrabold block">
-                                                    {s.name}
-                                                </span>
-                                                <span style={{ color: "var(--admin-text-secondary)" }} className="text-[11px] font-medium block">
-                                                    {s.email}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td className="py-3.5 px-4">
-                                        <span className="inline-block rounded-md bg-indigo-500/10 px-2 py-0.5 text-[10px] font-black text-indigo-500 uppercase mb-0.5">
-                                            {s.role}
-                                        </span>
-                                        <p style={{ color: "var(--admin-text-secondary)" }} className="text-[11px] font-semibold m-0">
-                                            {s.department}
-                                        </p>
-                                    </td>
-
-                                    <td className="py-3.5 px-4">
-                                        {s.mfaStatus.startsWith("Enforced") ? (
-                                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[10.5px] font-black text-emerald-500">
-                                                <CheckCircle2 size={12} /> {s.mfaStatus}
-                                            </span>
-                                        ) : (
-                                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[10.5px] font-black text-amber-500">
-                                                <AlertTriangle size={12} /> {s.mfaStatus}
-                                            </span>
-                                        )}
-                                    </td>
-
-                                    <td className="py-3.5 px-4 max-w-[200px]">
-                                        <div className="flex flex-wrap gap-1">
-                                            {s.permissions.map((perm, i) => (
-                                                <span
-                                                    key={i}
-                                                    className="rounded bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-bold text-slate-600 dark:text-slate-300"
-                                                >
-                                                    {perm}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </td>
-
-                                    <td className="py-3.5 px-4">
-                                        <p style={{ color: "var(--admin-text)" }} className="font-semibold m-0">
-                                            {s.lastActive}
-                                        </p>
-                                        <p style={{ color: "var(--admin-text-secondary)" }} className="text-[10.5px] font-mono m-0">
-                                            {s.ipAddress}
-                                        </p>
-                                    </td>
-
-                                    <td className="py-3.5 px-4">
-                                        {s.status === "Active" ? (
-                                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-[10.5px] font-black text-emerald-500 uppercase">
-                                                Active
-                                            </span>
-                                        ) : (
-                                            <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 border border-rose-500/20 px-2.5 py-0.5 text-[10.5px] font-black text-rose-500 uppercase">
-                                                Suspended
-                                            </span>
-                                        )}
-                                    </td>
-
-                                    <td className="py-3.5 px-4 text-right">
-                                        <button
-                                            onClick={() => toggleStaffStatus(s.id)}
-                                            className={`cursor-pointer rounded-lg px-2.5 py-1 text-[11px] font-extrabold transition active:scale-95 ${s.status === "Active"
-                                                ? "bg-rose-500/10 text-rose-500 hover:bg-rose-500/20"
-                                                : "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20"
-                                                }`}
-                                        >
-                                            {s.status === "Active" ? "Suspend" : "Activate"}
-                                        </button>
+                            {loading ? (
+                                Array.from({ length: 4 }).map((_, i) => (
+                                    <tr key={i}>
+                                        <td colSpan={6} className="py-4 px-4">
+                                            <div className="h-6 w-full animate-pulse rounded bg-slate-200/50 dark:bg-slate-800/50" />
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : filteredStaff.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="py-8 text-center text-xs font-bold text-slate-400">
+                                        No staff accounts match your search filters.
                                     </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                filteredStaff.map((s) => {
+                                    const isSelf = Boolean(currentAdmin?.email && s.email.toLowerCase() === currentAdmin.email.toLowerCase());
+                                    const isTargetAdmin = Boolean(s.role && (s.role === "Super Admin" || s.role.toLowerCase().includes("admin")));
+
+                                    return (
+                                        <tr key={s.id} className="transition hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
+                                            <td className="py-3.5 px-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="grid h-9 w-9 place-items-center rounded-xl bg-indigo-600/10 text-indigo-500 font-extrabold text-sm overflow-hidden">
+                                                        {s.avatar ? (
+                                                            // eslint-disable-next-next/no-img-element
+                                                            <img src={s.avatar} alt={s.name} className="h-full w-full object-cover" />
+                                                        ) : (
+                                                            s.name.charAt(0).toUpperCase()
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <span style={{ color: "var(--admin-text)" }} className="font-extrabold block">
+                                                            {s.name}
+                                                        </span>
+                                                        <span style={{ color: "var(--admin-text-secondary)" }} className="text-[11px]">
+                                                            {s.email}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <td className="py-3.5 px-4">
+                                                <span className="rounded-lg bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 text-[11px] font-black text-indigo-500">
+                                                    {s.role}
+                                                </span>
+                                            </td>
+
+                                            <td className="py-3.5 px-4">
+                                                {s.mfaStatus.startsWith("Enforced") ? (
+                                                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[10.5px] font-black text-emerald-500">
+                                                        <CheckCircle2 size={12} /> {s.mfaStatus}
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[10.5px] font-black text-amber-500">
+                                                        <AlertTriangle size={12} /> {s.mfaStatus}
+                                                    </span>
+                                                )}
+                                            </td>
+
+                                            <td className="py-3.5 px-4">
+                                                <p style={{ color: "var(--admin-text)" }} className="font-semibold m-0">
+                                                    {s.lastActive}
+                                                </p>
+                                                <p style={{ color: "var(--admin-text-secondary)" }} className="text-[10.5px] font-mono m-0">
+                                                    {s.ipAddress}
+                                                </p>
+                                            </td>
+
+                                            <td className="py-3.5 px-4">
+                                                {s.status === "Active" ? (
+                                                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-[10.5px] font-black text-emerald-500 uppercase">
+                                                        <Check size={12} /> Active
+                                                    </span>
+                                                ) : s.status === "Suspended" ? (
+                                                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 text-[10.5px] font-black text-amber-500 uppercase">
+                                                        <AlertTriangle size={12} /> Suspended
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 border border-rose-500/20 px-2.5 py-0.5 text-[10.5px] font-black text-rose-500 uppercase">
+                                                        <UserX size={12} /> Deactivated
+                                                    </span>
+                                                )}
+                                            </td>
+
+                                            <td className="py-3.5 px-4 text-right">
+                                                <div className="flex items-center justify-end gap-1.5">
+                                                    {isSelf ? (
+                                                        <span className="inline-flex items-center gap-1 rounded-lg bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 text-[11px] font-black text-amber-500" title="You cannot suspend or deactivate your own account">
+                                                            <ShieldCheck size={12} /> Self Protected
+                                                        </span>
+                                                    ) : isTargetAdmin ? (
+                                                        <span className="inline-flex items-center gap-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 text-[11px] font-black text-indigo-400" title="Admins cannot suspend or deactivate other admin accounts">
+                                                            <ShieldCheck size={12} /> Admin Protected
+                                                        </span>
+                                                    ) : s.status === "Active" ? (
+                                                        <>
+                                                            <button
+                                                                onClick={() => setConfirmStaffAction({ id: s.id, name: s.name, email: s.email, newStatus: "Suspended" })}
+                                                                className="cursor-pointer rounded-lg bg-amber-500/10 px-2.5 py-1 text-[11px] font-extrabold text-amber-500 hover:bg-amber-500/20 transition active:scale-95"
+                                                                title="Suspend User Login Access"
+                                                            >
+                                                                Suspend
+                                                            </button>
+                                                            <button
+                                                                onClick={() => setConfirmStaffAction({ id: s.id, name: s.name, email: s.email, newStatus: "Deactivated" })}
+                                                                className="cursor-pointer rounded-lg bg-rose-500/10 px-2.5 py-1 text-[11px] font-extrabold text-rose-500 hover:bg-rose-500/20 transition active:scale-95"
+                                                                title="Deactivate User Account"
+                                                            >
+                                                                Deactivate
+                                                            </button>
+                                                        </>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => setConfirmStaffAction({ id: s.id, name: s.name, email: s.email, newStatus: "Active" })}
+                                                            className="cursor-pointer rounded-lg bg-emerald-500/10 px-2.5 py-1 text-[11px] font-extrabold text-emerald-500 hover:bg-emerald-500/20 transition active:scale-95"
+                                                            title="Re-activate User Account"
+                                                        >
+                                                            Activate Account
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -660,6 +868,119 @@ export default function AdminStaffPanel() {
                                 </div>
                             </form>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* Modal: Confirm Staff Account Action */}
+            {confirmStaffAction && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 dark:bg-slate-950/80 p-5 backdrop-blur-sm animate-fadeIn">
+                    <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-2xl dark:border-slate-800 dark:bg-slate-900 dark:text-white space-y-4">
+                        <div className="flex items-center gap-3">
+                            <div
+                                className={`grid h-11 w-11 place-items-center rounded-2xl font-bold ${confirmStaffAction.newStatus === "Suspended"
+                                    ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                                    : confirmStaffAction.newStatus === "Deactivated"
+                                        ? "bg-rose-500/10 text-rose-500 border border-rose-500/20"
+                                        : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                                    }`}
+                            >
+                                {confirmStaffAction.newStatus === "Suspended" ? (
+                                    <AlertTriangle size={22} />
+                                ) : confirmStaffAction.newStatus === "Deactivated" ? (
+                                    <UserX size={22} />
+                                ) : (
+                                    <Check size={22} />
+                                )}
+                            </div>
+                            <div>
+                                <h3 className="text-base font-black m-0 text-slate-900 dark:text-white">
+                                    Confirm Account {confirmStaffAction.newStatus}?
+                                </h3>
+                                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 m-0 mt-0.5">
+                                    Target Staff: <strong className="text-slate-800 dark:text-white">{confirmStaffAction.name}</strong> ({confirmStaffAction.email})
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Consequences breakdown */}
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs space-y-2.5 dark:border-slate-800 dark:bg-slate-950/90">
+                            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block border-b border-slate-200 dark:border-slate-800 pb-1.5">
+                                Administrative Consequences & Impact
+                            </span>
+                            {confirmStaffAction.newStatus === "Suspended" && (
+                                <>
+                                    <div className="flex items-start gap-2.5 text-amber-700 dark:text-amber-300">
+                                        <AlertTriangle size={15} className="shrink-0 mt-0.5 text-amber-500" />
+                                        <span>
+                                            <strong>Login Access Blocked:</strong> Staff member cannot log in and will see a red notification banner explicitly stating their account is suspended.
+                                        </span>
+                                    </div>
+                                    <div className="flex items-start gap-2.5 text-slate-600 dark:text-slate-300">
+                                        <Lock size={15} className="shrink-0 mt-0.5 text-amber-500" />
+                                        <span>
+                                            <strong>Session Revocation:</strong> Active auth sessions will fail authentication check immediately.
+                                        </span>
+                                    </div>
+                                    <div className="flex items-start gap-2.5 text-slate-500 dark:text-slate-400 text-[11px]">
+                                        <ShieldCheck size={15} className="shrink-0 mt-0.5 text-emerald-500" />
+                                        <span>Permissions and profile records remain safely stored in system database.</span>
+                                    </div>
+                                </>
+                            )}
+                            {confirmStaffAction.newStatus === "Deactivated" && (
+                                <>
+                                    <div className="flex items-start gap-2.5 text-rose-700 dark:text-rose-300">
+                                        <UserX size={15} className="shrink-0 mt-0.5 text-rose-500" />
+                                        <span>
+                                            <strong>Staff Deactivation:</strong> Admin user access is disabled across all platform administrative panels.
+                                        </span>
+                                    </div>
+                                    <div className="flex items-start gap-2.5 text-slate-600 dark:text-slate-300">
+                                        <Lock size={15} className="shrink-0 mt-0.5 text-rose-500" />
+                                        <span>
+                                            <strong>Access Terminated:</strong> User cannot access customer tables, booking management, or financial reports.
+                                        </span>
+                                    </div>
+                                </>
+                            )}
+                            {confirmStaffAction.newStatus === "Active" && (
+                                <>
+                                    <div className="flex items-start gap-2.5 text-emerald-700 dark:text-emerald-300">
+                                        <Check size={15} className="shrink-0 mt-0.5 text-emerald-500" />
+                                        <span>
+                                            <strong>Access Restored:</strong> Staff member will regain immediate full access to log in and manage the platform.
+                                        </span>
+                                    </div>
+                                    <div className="flex items-start gap-2.5 text-slate-600 dark:text-slate-300">
+                                        <Sparkles size={15} className="shrink-0 mt-0.5 text-emerald-500" />
+                                        <span>Suspension warnings will be removed from sign-in screens instantly.</span>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        <div className="flex items-center justify-end gap-3 pt-2">
+                            <button
+                                type="button"
+                                onClick={() => setConfirmStaffAction(null)}
+                                className="rounded-xl border border-slate-200 bg-slate-100 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition cursor-pointer"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => updateStaffStatus(confirmStaffAction.id, confirmStaffAction.newStatus)}
+                                className={`rounded-xl px-4 py-2 text-xs font-black text-white shadow-lg transition active:scale-95 cursor-pointer ${confirmStaffAction.newStatus === "Suspended"
+                                    ? "bg-amber-500 hover:bg-amber-600 shadow-amber-500/25"
+                                    : confirmStaffAction.newStatus === "Deactivated"
+                                        ? "bg-rose-600 hover:bg-rose-700 shadow-rose-600/25"
+                                        : "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/25"
+                                    }`}
+                            >
+                                Confirm {confirmStaffAction.newStatus}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

@@ -21,13 +21,13 @@ export default function CopyButton({ value }: { value: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="ml-2 p-1 rounded hover:bg-gray-200 transition"
+      className="ml-1.5 inline-flex items-center justify-center p-1 rounded-md hover:bg-zinc-500/20 text-zinc-400 hover:text-indigo-500 transition-colors"
       aria-label="Copy"
     >
       {copied ? (
-        <Check size={14} className="text-green-600" />
+        <Check size={13} className="text-emerald-500" />
       ) : (
-        <Copy size={14} className="text-gray-500" />
+        <Copy size={13} />
       )}
     </button>
   );

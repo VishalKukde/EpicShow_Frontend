@@ -9,6 +9,7 @@ type MovieCardProps = {
   showTitle?: boolean;
   releaseDate?: string | null;
   showReleaseDate?: boolean;
+  heightClass?: string;
   onClick?: () => void;
 };
 
@@ -29,6 +30,7 @@ export default function MovieCard({
   showTitle = true,
   releaseDate,
   showReleaseDate = false,
+  heightClass = "h-[360px] sm:h-[300px] lg:h-[330px]",
   onClick,
 }: MovieCardProps) {
   const formattedDate = showReleaseDate ? formatDate(releaseDate) : null;
@@ -39,8 +41,8 @@ export default function MovieCard({
       transition={{ duration: 0.25 }}
       onClick={onClick}
     >
-      <div className="relative overflow-hidden rounded-[24px] border border-slate-200/80 bg-white/70 shadow-[0_18px_45px_rgba(15,23,42,0.08)] transition-all duration-300 group-hover:border-slate-300 group-hover:shadow-[0_22px_55px_rgba(15,23,42,0.12)] dark:border-slate-700 dark:bg-slate-900/70 dark:shadow-[0_18px_45px_rgba(2,6,23,0.35)]">
-        <div className="relative h-[360px] overflow-hidden sm:h-[300px] lg:h-[330px]">
+      <div className="relative overflow-hidden rounded-[20px] border border-slate-200/80 bg-white/70 shadow-xs transition-all duration-300 group-hover:border-slate-300 dark:border-zinc-800 dark:bg-[#18181b]">
+        <div className={`relative overflow-hidden ${heightClass}`}>
           <Image
             src={imageUrl || "/dummy.webp"}
             alt={title}

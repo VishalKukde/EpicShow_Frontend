@@ -15,6 +15,7 @@ import {
 import { apiFetch } from "@/lib/api";
 import type { DashboardData } from "../../adminDashboard/types";
 import { currency } from "../../adminDashboard/formatters";
+import RevenueChart from "../../adminDashboard/RevenueChart";
 
 type AdminRevenuePanelProps = {
     dashboard?: DashboardData | null;
@@ -82,83 +83,65 @@ export default function AdminRevenuePanel({ dashboard }: AdminRevenuePanelProps)
 
     // 1. Category-Wise Actual Sales (EXCLUDING Event Category)
     const categorySales = useMemo(() => {
-        if (orders.length > 0) {
-            const catMap: Record<string, { name: string; revenue: number; count: number; color: string }> = {
-                movies: { name: "Movies", revenue: 0, count: 0, color: "#6366F1" },
-                sports: { name: "Sports", revenue: 0, count: 0, color: "#10B981" },
-                gaming: { name: "Gaming & Esports", revenue: 0, count: 0, color: "#F59E0B" },
-                trains: { name: "Transit & Trains", revenue: 0, count: 0, color: "#EC4899" },
-            };
+        const catMap: Record<string, { name: string; revenue: number; count: number; color: string }> = {
+            movies: { name: "Movies", revenue: 0, count: 0, color: "#6366F1" },
+            sports: { name: "Sports", revenue: 0, count: 0, color: "#10B981" },
+            gaming: { name: "Gaming & Esports", revenue: 0, count: 0, color: "#F59E0B" },
+            trains: { name: "Transit & Trains", revenue: 0, count: 0, color: "#EC4899" },
+        };
 
-            orders.forEach((ord) => {
-                let bType = (ord.bookingType || ord.showType || "movies").toLowerCase();
-                // REMOVE EVENT CATEGORY
-                if (bType === "events" || bType === "event") return;
+        orders.forEach((ord) => {
+            let bType = (ord.bookingType || ord.showType || "movies").toLowerCase();
+            // REMOVE EVENT CATEGORY
+            if (bType === "events" || bType === "event") return;
 
-                if (bType.includes("movie")) bType = "movies";
-                else if (bType.includes("sport")) bType = "sports";
-                else if (bType.includes("game")) bType = "gaming";
-                else if (bType.includes("train") || bType.includes("transit")) bType = "trains";
-                else bType = "movies";
+            if (bType.includes("movie")) bType = "movies";
+            else if (bType.includes("sport")) bType = "sports";
+            else if (bType.includes("game")) bType = "gaming";
+            else if (bType.includes("train") || bType.includes("transit")) bType = "trains";
+            else bType = "movies";
 
-                catMap[bType].revenue += ord.totalAmount || ord.amount || 0;
-                catMap[bType].count += ord.ticketCount || 1;
-            });
+            catMap[bType].revenue += ord.totalAmount || ord.amount || 0;
+            catMap[bType].count += ord.ticketCount || 1;
+        });
 
-            const totalCatRev = Object.values(catMap).reduce((acc, c) => acc + c.revenue, 0) || 1;
+        const totalCatRev = Object.values(catMap).reduce((acc, c) => acc + c.revenue, 0);
 
-            return Object.values(catMap).map((c) => ({
-                ...c,
-                share: Math.round((c.revenue / totalCatRev) * 100),
-            }));
-        }
-
-        return [
-            { name: "Movies", revenue: 3450000, count: 18450, share: 54, color: "#6366F1" },
-            { name: "Sports", revenue: 1860000, count: 8200, share: 29, color: "#10B981" },
-            { name: "Gaming & Esports", revenue: 630000, count: 3900, share: 10, color: "#F59E0B" },
-            { name: "Transit & Trains", revenue: 480000, count: 2800, share: 7, color: "#EC4899" },
-        ];
+        return Object.values(catMap).map((c) => ({
+            ...c,
+            share: totalCatRev > 0 ? Math.round((c.revenue / totalCatRev) * 100) : 0,
+        }));
     }, [orders]);
 
     const totalCategoryRev = useMemo(() => categorySales.reduce((acc, c) => acc + c.revenue, 0), [categorySales]);
 
     // 2. Payment Method Sales PIE CHART
     const paymentMethodSales = useMemo(() => {
-        if (orders.length > 0) {
-            const methodMap: Record<string, { name: string; revenue: number; count: number; color: string; icon: any }> = {
-                upi: { name: "UPI / QR Code", revenue: 0, count: 0, color: "#6366F1", icon: <Smartphone size={15} /> },
-                card: { name: "Credit / Debit Card", revenue: 0, count: 0, color: "#10B981", icon: <CreditCard size={15} /> },
-                wallet: { name: "EpicWallet", revenue: 0, count: 0, color: "#F59E0B", icon: <Wallet size={15} /> },
-                netbanking: { name: "NetBanking", revenue: 0, count: 0, color: "#EC4899", icon: <Landmark size={15} /> },
-            };
+        const methodMap: Record<string, { name: string; revenue: number; count: number; color: string; icon: any }> = {
+            upi: { name: "UPI / QR Code", revenue: 0, count: 0, color: "#6366F1", icon: <Smartphone size={15} /> },
+            card: { name: "Credit / Debit Card", revenue: 0, count: 0, color: "#10B981", icon: <CreditCard size={15} /> },
+            wallet: { name: "EpicWallet", revenue: 0, count: 0, color: "#F59E0B", icon: <Wallet size={15} /> },
+            netbanking: { name: "NetBanking", revenue: 0, count: 0, color: "#EC4899", icon: <Landmark size={15} /> },
+        };
 
-            orders.forEach((ord) => {
-                let mKey = (ord.paymentMethod || ord.method || "upi").toLowerCase();
-                if (mKey.includes("upi") || mKey.includes("qr")) mKey = "upi";
-                else if (mKey.includes("card") || mKey.includes("credit") || mKey.includes("debit")) mKey = "card";
-                else if (mKey.includes("wallet") || mKey.includes("epic")) mKey = "wallet";
-                else if (mKey.includes("net") || mKey.includes("bank")) mKey = "netbanking";
-                else mKey = "upi";
+        orders.forEach((ord) => {
+            let mKey = (ord.paymentMethod || ord.method || "upi").toLowerCase();
+            if (mKey.includes("upi") || mKey.includes("qr")) mKey = "upi";
+            else if (mKey.includes("card") || mKey.includes("credit") || mKey.includes("debit")) mKey = "card";
+            else if (mKey.includes("wallet") || mKey.includes("epic")) mKey = "wallet";
+            else if (mKey.includes("net") || mKey.includes("bank")) mKey = "netbanking";
+            else mKey = "upi";
 
-                methodMap[mKey].revenue += ord.totalAmount || ord.amount || 0;
-                methodMap[mKey].count += 1;
-            });
+            methodMap[mKey].revenue += ord.totalAmount || ord.amount || 0;
+            methodMap[mKey].count += 1;
+        });
 
-            const totalMethodRev = Object.values(methodMap).reduce((acc, m) => acc + m.revenue, 0) || 1;
+        const totalMethodRev = Object.values(methodMap).reduce((acc, m) => acc + m.revenue, 0);
 
-            return Object.values(methodMap).map((m) => ({
-                ...m,
-                share: Math.round((m.revenue / totalMethodRev) * 100),
-            }));
-        }
-
-        return [
-            { name: "UPI / QR Code", revenue: 2850000, count: 1420, share: 45, color: "#6366F1", icon: <Smartphone size={15} /> },
-            { name: "Credit / Debit Card", revenue: 2100000, count: 890, share: 33, color: "#10B981", icon: <CreditCard size={15} /> },
-            { name: "EpicWallet", revenue: 880000, count: 410, share: 14, color: "#F59E0B", icon: <Wallet size={15} /> },
-            { name: "NetBanking", revenue: 510000, count: 220, share: 8, color: "#EC4899", icon: <Landmark size={15} /> },
-        ];
+        return Object.values(methodMap).map((m) => ({
+            ...m,
+            share: totalMethodRev > 0 ? Math.round((m.revenue / totalMethodRev) * 100) : 0,
+        }));
     }, [orders]);
 
     const totalPaymentRev = useMemo(() => paymentMethodSales.reduce((acc, p) => acc + p.revenue, 0), [paymentMethodSales]);
@@ -181,71 +164,36 @@ export default function AdminRevenuePanel({ dashboard }: AdminRevenuePanelProps)
 
     // 3. Payment Status Breakdown
     const paymentStatusSales = useMemo(() => {
-        if (orders.length > 0) {
-            let paidRev = 0;
-            let paidCount = 0;
-            let pendingRev = 0;
-            let pendingCount = 0;
-            let failedRev = 0;
-            let failedCount = 0;
+        let paidRev = 0;
+        let paidCount = 0;
+        let pendingRev = 0;
+        let pendingCount = 0;
+        let failedRev = 0;
+        let failedCount = 0;
 
-            orders.forEach((ord) => {
-                const st = ord.paymentStatus || ord.status;
-                const amt = ord.totalAmount || ord.amount || 0;
-                if (st === "paid" || st === "success") {
-                    paidRev += amt;
-                    paidCount += 1;
-                } else if (st === "refunded" || st === "refund_initiated" || st === "failed") {
-                    failedRev += amt;
-                    failedCount += 1;
-                } else {
-                    pendingRev += amt;
-                    pendingCount += 1;
-                }
-            });
+        orders.forEach((ord) => {
+            const st = ord.paymentStatus || ord.status;
+            const amt = ord.totalAmount || ord.amount || 0;
+            if (st === "paid" || st === "success") {
+                paidRev += amt;
+                paidCount += 1;
+            } else if (st === "refunded" || st === "refund_initiated" || st === "failed") {
+                failedRev += amt;
+                failedCount += 1;
+            } else {
+                pendingRev += amt;
+                pendingCount += 1;
+            }
+        });
 
-            const totalStatusCount = orders.length || 1;
-
-            return [
-                {
-                    status: "Confirmed / Paid",
-                    revenue: paidRev,
-                    count: paidCount,
-                    share: Math.round((paidCount / totalStatusCount) * 100),
-                    color: "#10B981",
-                    badgeBg: "rgba(16, 185, 129, 0.12)",
-                    badgeBorder: "rgba(16, 185, 129, 0.3)",
-                    icon: <CheckCircle2 size={14} />,
-                },
-                {
-                    status: "Pending / Processing",
-                    revenue: pendingRev,
-                    count: pendingCount,
-                    share: Math.round((pendingCount / totalStatusCount) * 100),
-                    color: "#F59E0B",
-                    badgeBg: "rgba(245, 158, 11, 0.12)",
-                    badgeBorder: "rgba(245, 158, 11, 0.3)",
-                    icon: <Clock size={14} />,
-                },
-                {
-                    status: "Refunded / Failed",
-                    revenue: failedRev,
-                    count: failedCount,
-                    share: Math.round((failedCount / totalStatusCount) * 100),
-                    color: "#EF4444",
-                    badgeBg: "rgba(239, 68, 68, 0.12)",
-                    badgeBorder: "rgba(239, 68, 68, 0.3)",
-                    icon: <RefreshCw size={14} />,
-                },
-            ];
-        }
+        const totalStatusCount = orders.length;
 
         return [
             {
                 status: "Confirmed / Paid",
-                revenue: 5980000,
-                count: 2840,
-                share: 93,
+                revenue: paidRev,
+                count: paidCount,
+                share: totalStatusCount > 0 ? Math.round((paidCount / totalStatusCount) * 100) : 0,
                 color: "#10B981",
                 badgeBg: "rgba(16, 185, 129, 0.12)",
                 badgeBorder: "rgba(16, 185, 129, 0.3)",
@@ -253,9 +201,9 @@ export default function AdminRevenuePanel({ dashboard }: AdminRevenuePanelProps)
             },
             {
                 status: "Pending / Processing",
-                revenue: 280000,
-                count: 120,
-                share: 4,
+                revenue: pendingRev,
+                count: pendingCount,
+                share: totalStatusCount > 0 ? Math.round((pendingCount / totalStatusCount) * 100) : 0,
                 color: "#F59E0B",
                 badgeBg: "rgba(245, 158, 11, 0.12)",
                 badgeBorder: "rgba(245, 158, 11, 0.3)",
@@ -263,9 +211,9 @@ export default function AdminRevenuePanel({ dashboard }: AdminRevenuePanelProps)
             },
             {
                 status: "Refunded / Failed",
-                revenue: 180000,
-                count: 85,
-                share: 3,
+                revenue: failedRev,
+                count: failedCount,
+                share: totalStatusCount > 0 ? Math.round((failedCount / totalStatusCount) * 100) : 0,
                 color: "#EF4444",
                 badgeBg: "rgba(239, 68, 68, 0.12)",
                 badgeBorder: "rgba(239, 68, 68, 0.3)",
@@ -307,6 +255,9 @@ export default function AdminRevenuePanel({ dashboard }: AdminRevenuePanelProps)
                     <span>{fetchingOrders ? "Syncing Telemetry..." : "Refresh Live Sales"}</span>
                 </button>
             </div>
+
+            {/* Main Monthly Revenue Bar Graph driven by API data */}
+            <RevenueChart data={dashboard?.monthlyRevenue || []} expanded={true} />
 
             {/* Category-Wise Sales (Actual Sales) & Payment Method PIE CHART */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 relative z-10">

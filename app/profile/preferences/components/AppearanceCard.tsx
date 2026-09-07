@@ -11,9 +11,8 @@ type AppearanceCardProps = {
 export function AppearanceCard({ dark, isPro, setTheme, toggleTheme }: AppearanceCardProps) {
   return (
     <article
-      className={`rounded-3xl border p-5 shadow-sm ${
-        dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-white"
-      }`}
+      className={`rounded-3xl border p-5 shadow-sm ${dark ? "border-zinc-800 bg-[#18181b]" : "border-gray-200 bg-white"
+        } dark:bg-[#18181b] dark:border-zinc-800`}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -23,9 +22,8 @@ export function AppearanceCard({ dark, isPro, setTheme, toggleTheme }: Appearanc
           </p>
         </div>
         <span
-          className={`rounded-full px-2 py-1 text-[10px] font-semibold ${
-            dark ? "bg-zinc-800 text-zinc-200" : "bg-gray-100 text-gray-700"
-          }`}
+          className={`rounded-full px-2 py-1 text-[10px] font-semibold ${dark ? "bg-zinc-800 text-zinc-200" : "bg-gray-100 text-gray-700"
+            }`}
         >
           {isPro ? `Active: ${dark ? "Dark" : "Light"}` : "Free: Light only"}
         </span>
@@ -36,11 +34,10 @@ export function AppearanceCard({ dark, isPro, setTheme, toggleTheme }: Appearanc
           type="button"
           onClick={() => setTheme("light")}
           disabled={!isPro && dark}
-          className={`inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition cursor-pointer ${
-            !dark
+          className={`inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition cursor-pointer ${!dark
               ? "border-gray-900 bg-gray-900 text-white"
               : "border-zinc-700 bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
-          } ${!isPro && dark ? "opacity-50 cursor-not-allowed" : ""}`}
+            } ${!isPro && dark ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           <Sun className="h-4 w-4" />
           Light
@@ -49,9 +46,8 @@ export function AppearanceCard({ dark, isPro, setTheme, toggleTheme }: Appearanc
           type="button"
           onClick={() => setTheme("dark")}
           disabled={!isPro}
-          className={`inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition cursor-pointer ${
-            dark ? "border-indigo-400 bg-zinc-950 text-zinc-50" : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
-          } ${!isPro ? "cursor-not-allowed opacity-50" : ""}`}
+          className={`inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition cursor-pointer ${dark ? "border-indigo-400 bg-zinc-950 text-zinc-50" : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+            } ${!isPro ? "cursor-not-allowed opacity-50" : ""}`}
         >
           <Moon className="h-4 w-4" />
           Dark
@@ -59,9 +55,8 @@ export function AppearanceCard({ dark, isPro, setTheme, toggleTheme }: Appearanc
       </div>
 
       <div
-        className={`mt-4 flex items-center justify-between rounded-xl border px-3 py-2.5 sm:px-4 ${
-          dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-gray-50"
-        }`}
+        className={`mt-4 flex items-center justify-between rounded-xl border px-3 py-2.5 sm:px-4 ${dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-gray-50"
+          }`}
       >
         <div>
           <p className={`text-sm font-medium ${dark ? "text-zinc-100" : "text-gray-900"}`}>Toggle theme</p>
@@ -75,14 +70,12 @@ export function AppearanceCard({ dark, isPro, setTheme, toggleTheme }: Appearanc
           disabled={!isPro}
           role="switch"
           aria-checked={dark}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition focus-visible:outline-none focus-visible:ring-2 cursor-pointer ${
-            dark ? "bg-indigo-500 focus-visible:ring-indigo-300" : "bg-zinc-400 focus-visible:ring-gray-400"
-          } ${!isPro ? "cursor-not-allowed opacity-50" : ""}`}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition focus-visible:outline-none focus-visible:ring-2 cursor-pointer ${dark ? "bg-indigo-500 focus-visible:ring-indigo-300" : "bg-zinc-400 focus-visible:ring-gray-400"
+            } ${!isPro ? "cursor-not-allowed opacity-50" : ""}`}
         >
           <span
-            className={`inline-block h-5 w-5 rounded-full shadow-sm transition-transform ${
-              dark ? "bg-zinc-950" : "bg-white"
-            } ${dark ? "translate-x-5" : "translate-x-0.5"}`}
+            className={`inline-block h-5 w-5 rounded-full shadow-sm transition-transform ${dark ? "bg-zinc-950" : "bg-white"
+              } ${dark ? "translate-x-5" : "translate-x-0.5"}`}
           />
         </button>
       </div>

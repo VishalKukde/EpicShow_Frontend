@@ -97,9 +97,24 @@ function LoginPageContent() {
                         </p>
 
                         {error && (
-                            <p className="mb-4 rounded-lg border px-3 py-2 text-sm auth-error">
-                                {error}
-                            </p>
+                            <div className={`mb-4 rounded-xl border p-3 text-xs font-bold flex items-center gap-2.5 ${error.toLowerCase().includes("suspended")
+                                ? "border-rose-500/30 bg-rose-500/10 text-rose-500 dark:text-rose-400"
+                                : "auth-error"
+                                }`}>
+                                {error.toLowerCase().includes("suspended") ? (
+                                    <>
+                                        <span className="shrink-0 rounded-full bg-rose-500/20 p-1 text-rose-500">
+                                            ⚠️
+                                        </span>
+                                        <div>
+                                            <p className="font-extrabold text-sm m-0">Your account is suspended</p>
+                                            <p className="font-medium opacity-80 m-0 text-[11px]">Please contact system administrator or support team.</p>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <span>{error}</span>
+                                )}
+                            </div>
                         )}
 
                         <form className="space-y-4" onSubmit={handleLogin}>

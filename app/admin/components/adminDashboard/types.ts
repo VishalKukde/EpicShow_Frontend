@@ -19,7 +19,6 @@ export type ActivePage =
   | "customers"
   // Marketing & Growth
   | "coupons"
-  | "loyalty"
   | "banners"
   // Financial Analytics
   | "revenue"

@@ -166,6 +166,7 @@ const PaymentPage = () => {
         await markLastUsedPaymentMethod();
         await fetch("/api/wallet/transactions/revalidate", { method: "POST" });
 
+        setProcessingMessage("Getting booking details...");
         useBookingStore.getState().resetBooking();
         usePaymentStore.getState().resetPayment();
         goToSuccess(orderData.bookingId);
@@ -216,6 +217,7 @@ const PaymentPage = () => {
             await markLastUsedPaymentMethod();
             await fetch("/api/wallet/transactions/revalidate", { method: "POST" });
 
+            setProcessingMessage("Getting booking details...");
             useBookingStore.getState().resetBooking();
             usePaymentStore.getState().resetPayment();
             goToSuccess(orderData.bookingId);
@@ -278,9 +280,8 @@ const PaymentPage = () => {
   if (!verifiedAmount && !loading) {
     return (
       <div
-        className={`min-h-screen flex items-center justify-center ${
-          mode === "dark" ? "bg-zinc-950 text-zinc-300" : "bg-slate-50 text-slate-500"
-        }`}
+        className={`min-h-screen flex items-center justify-center ${mode === "dark" ? "bg-zinc-950 text-zinc-300" : "bg-slate-50 text-slate-500"
+          }`}
       >
         <p>Preparing payment...</p>
       </div>
@@ -288,145 +289,219 @@ const PaymentPage = () => {
   }
 
   return (
-    <div className={`min-h-screen px-4 pb-10 pt-28 ${mode === "dark" ? "bg-zinc-950" : "bg-gradient-to-b from-slate-50 to-white"}`}>
-      <CheckoutNavbar backUrl={`/movies/${item?._id}/seat-layout`} />
+    <div className={`relative min-h-screen px-4 pb-10 pt-22 transition-colors duration-300 ${mode === "dark"
+      ? "bg-zinc-950 text-zinc-100 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-indigo-950/30 via-zinc-950 to-zinc-950"
+      : "bg-slate-50 text-slate-900 bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-indigo-50/60 via-slate-50 to-amber-50/40"
+      } select-none`}>
+      {/* Background Decorative Glows */}
+      <div className="pointer-events-none absolute top-0 left-1/4 h-80 w-80 rounded-full bg-indigo-600/10 blur-[120px]" />
+      <div className="pointer-events-none absolute top-1/3 right-1/4 h-80 w-80 rounded-full bg-amber-500/10 blur-[140px]" />
 
-      <div className="mx-auto grid w-full max-w-4xl gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <section className={`rounded-3xl border p-5 shadow-[0_12px_40px_rgba(15,23,42,0.08)] sm:p-6 ${mode === "dark" ? "border-zinc-700 bg-zinc-900" : "border-slate-200 bg-white"}`}>
-          <div className={`rounded-2xl border p-4 ${mode === "dark" ? "border-zinc-700 bg-zinc-800" : "border-indigo-100 bg-gradient-to-r from-indigo-50 to-cyan-50"}`}>
-            <p className={`text-xs font-semibold uppercase tracking-[0.2em] ${mode === "dark" ? "text-indigo-300" : "text-indigo-700"}`}>
-              Total Payable
-            </p>
-            <p className={`mt-1 text-3xl font-bold ${mode === "dark" ? "text-white" : "text-slate-900"}`}>
-              ₹{payableAmount.toFixed(2)}
-            </p>
-            {appliedCoupon && (
-              <p className={`mt-1 text-xs ${mode === "dark" ? "text-emerald-300" : "text-emerald-700"}`}>
-                Coupon {appliedCoupon.code} applied
-              </p>
-            )}
-            {redeemReward && (
-              <p className={`mt-1 text-xs ${mode === "dark" ? "text-emerald-300" : "text-emerald-700"}`}>
-                Reward redemption applied (100 points = ₹100 off)
-              </p>
-            )}
-          </div>
+      <CheckoutNavbar
+        backUrl={`/movies/${item?._id}/review`}
+        title="Payment Options"
+        badgeText="Step 3 of 3 • Finalize Order"
+      />
 
-          <div className="mt-5 space-y-3">
-            <div className={`flex items-center gap-2 text-sm font-semibold ${mode === "dark" ? "text-zinc-100" : "text-slate-800"}`}>
-              <CreditCard className="h-4 w-4 text-indigo-600" />
-              Choose Payment Method
-            </div>
+      <main className="relative mx-auto max-w-5xl">
+        {/* 2-Column Aligned Card Grid */}
+        <div className="grid w-full gap-5 lg:grid-cols-[1.2fr_0.8fr] items-start">
+          {/* Main Content Column */}
+          <section className="space-y-4">
+            {/* Total Payable Card */}
+            <div className={`relative overflow-hidden rounded-2xl border p-4 sm:p-4.5 backdrop-blur-xl shadow-md transition-all ${mode === "dark"
+              ? "border-zinc-800/80 bg-zinc-900/90"
+              : "border-white/80 bg-white/90 shadow-[0_10px_25px_rgba(15,23,42,0.04)]"
+              }`}>
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className={`text-xs font-bold uppercase tracking-wider ${mode === "dark" ? "text-indigo-400" : "text-indigo-600"}`}>
+                    Total Payable Amount
+                  </p>
+                  <p className={`mt-1 text-2xl sm:text-3xl font-extrabold ${mode === "dark" ? "text-white" : "text-slate-900"}`}>
+                    ₹{payableAmount.toFixed(2)}
+                  </p>
+                </div>
 
-            {!disabledMethods.upi && (
-              <PaymentOption
-                mode={mode}
-                active={method === "upi"}
-                onClick={() => handleSelectMethod("upi")}
-                title="UPI"
-                desc="Google Pay, PhonePe, Paytm"
-                badge="Fastest"
-              />
-            )}
-
-            {!disabledMethods.card && (
-              <PaymentOption
-                mode={mode}
-                active={method === "card"}
-                onClick={() => handleSelectMethod("card")}
-                title="Credit / Debit Card"
-                desc="Visa, Mastercard, RuPay"
-              />
-            )}
-
-            {!disabledMethods.wallet && (
-              <PaymentOption
-                mode={mode}
-                active={method === "wallet"}
-                onClick={() => handleSelectMethod("wallet")}
-                title="Wallet Balance"
-                desc={`Available: ₹${walletBalance.toFixed(2)}`}
-                badge={walletBalance >= payableAmount ? "Ready" : "Low Balance"}
-              />
-            )}
-          </div>
-
-          {(error || actionError) && (
-            <div className={`mt-4 rounded-2xl border px-4 py-3 text-sm ${mode === "dark" ? "border-red-700 bg-red-500/15 text-red-300" : "border-red-300 bg-red-100/70 text-red-700"}`}>
-              {actionError || error}
-            </div>
-          )}
-
-          {walletInsufficient && (
-            <div className={`mt-4 rounded-2xl border px-4 py-3 text-sm ${mode === "dark" ? "border-amber-600 bg-amber-500/15 text-amber-300" : "border-amber-300 bg-amber-100/70 text-amber-800"}`}>
-              Wallet balance is insufficient for this payment. Please top up wallet or use UPI/Card.
-            </div>
-          )}
-
-          <button
-            onClick={handlePayment}
-            disabled={loading || walletInsufficient}
-            className={`mt-5 w-full cursor-pointer rounded-2xl px-5 py-4 text-base font-semibold text-white shadow-[0_12px_28px_rgba(79,70,229,0.35)] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60 ${
-              mode === "dark"
-                ? "bg-indigo-600 hover:bg-indigo-500"
-                : "bg-gradient-to-r from-indigo-600 to-indigo-700"
-            }`}
-          >
-            {payButtonLabel}
-          </button>
-        </section>
-
-        <aside className={`rounded-3xl border p-5 shadow-[0_12px_40px_rgba(15,23,42,0.08)] sm:p-6 ${mode === "dark" ? "border-zinc-700 bg-zinc-900" : "border-slate-200 bg-white"}`}>
-          <h3 className={`text-base font-semibold ${mode === "dark" ? "text-zinc-100" : "text-slate-900"}`}>Order Summary</h3>
-          <div className="mt-4 space-y-3 text-sm">
-            <div className={`flex items-center justify-between ${mode === "dark" ? "text-zinc-300" : "text-slate-600"}`}>
-              <span>Movie</span>
-              <span className={`max-w-[65%] truncate text-right font-medium ${mode === "dark" ? "text-zinc-100" : "text-slate-900"}`}>
-                {item?.name || "-"}
-              </span>
-            </div>
-            <div className={`flex items-center justify-between ${mode === "dark" ? "text-zinc-300" : "text-slate-600"}`}>
-              <span>Date</span>
-              <span className={`font-medium ${mode === "dark" ? "text-zinc-100" : "text-slate-900"}`}>{date || "-"}</span>
-            </div>
-            <div className={`flex items-center justify-between ${mode === "dark" ? "text-zinc-300" : "text-slate-600"}`}>
-              <span>Show Time</span>
-              <span className={`font-medium ${mode === "dark" ? "text-zinc-100" : "text-slate-900"}`}>{slot || "-"}</span>
-            </div>
-            <div className={`flex items-center justify-between ${mode === "dark" ? "text-zinc-300" : "text-slate-600"}`}>
-              <span>Seats</span>
-              <span className={`font-medium ${mode === "dark" ? "text-zinc-100" : "text-slate-900"}`}>{seats.length}</span>
-            </div>
-          </div>
-
-          <div className={`my-4 h-px ${mode === "dark" ? "bg-zinc-700" : "bg-slate-200"}`} />
-
-          <div className={`flex items-center justify-between text-base font-semibold ${mode === "dark" ? "text-zinc-100" : "text-slate-900"}`}>
-            <span>Payable Amount</span>
-            <span>₹{payableAmount.toFixed(2)}</span>
-          </div>
-
-          <div className={`mt-4 rounded-2xl border px-3 py-2.5 text-xs ${mode === "dark" ? "border-zinc-700 bg-zinc-800 text-zinc-300" : "border-slate-200 bg-slate-50 text-slate-600"}`}>
-            <div className={`flex items-center gap-2 font-medium ${mode === "dark" ? "text-zinc-200" : "text-slate-700"}`}>
-              <ShieldCheck className="h-4 w-4 text-emerald-600" />
-              256-bit secure checkout
-            </div>
-            <p className="mt-1">Your payment and booking details are encrypted and protected.</p>
-          </div>
-
-          {method === "wallet" && (
-            <div className={`mt-3 rounded-2xl border px-3 py-2.5 text-xs ${mode === "dark" ? "border-zinc-700 bg-zinc-800 text-zinc-300" : "border-indigo-200 bg-indigo-50 text-indigo-800"}`}>
-              <div className="flex items-center gap-2 font-medium">
-                <Wallet className="h-4 w-4" />
-                Wallet payment selected
+                <div className="flex flex-col items-end gap-1">
+                  {appliedCoupon && (
+                    <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2.5 py-0.5 text-xs font-bold text-emerald-400 border border-emerald-500/30">
+                      🎟️ {appliedCoupon.code} Saved ₹{appliedCoupon.off.toFixed(2)}
+                    </span>
+                  )}
+                  {redeemReward && (
+                    <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/15 px-2.5 py-0.5 text-xs font-bold text-amber-400 border border-amber-500/30">
+                      👑 Reward Points Applied
+                    </span>
+                  )}
+                </div>
               </div>
-              <p className="mt-1">
-                Amount will be deducted instantly from your wallet balance.
+            </div>
+
+            {/* Payment Options Selection Card */}
+            <div className={`rounded-2xl border p-5 sm:p-6 backdrop-blur-xl shadow-md transition-all ${mode === "dark"
+              ? "border-zinc-800/80 bg-zinc-900/90"
+              : "border-white/80 bg-white/90 shadow-[0_10px_25px_rgba(15,23,42,0.04)]"
+              }`}>
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className={`text-xs font-bold uppercase tracking-wider ${mode === "dark" ? "text-zinc-200" : "text-slate-800"}`}>
+                  Choose Payment Method
+                </h3>
+                <span className={`text-xs font-medium ${mode === "dark" ? "text-zinc-400" : "text-slate-500"}`}>
+                  Select 1 option
+                </span>
+              </div>
+
+              <div className="space-y-3.5">
+                {!disabledMethods.upi && (
+                  <PaymentOption
+                    mode={mode}
+                    active={method === "upi"}
+                    onClick={() => handleSelectMethod("upi")}
+                    title="Instant UPI"
+                    desc="Google Pay, PhonePe, Paytm, BHIM"
+                    badge="Fastest"
+                  />
+                )}
+
+                {!disabledMethods.card && (
+                  <PaymentOption
+                    mode={mode}
+                    active={method === "card"}
+                    onClick={() => handleSelectMethod("card")}
+                    title="Credit / Debit Card"
+                    desc="Visa, Mastercard, RuPay, American Express"
+                  />
+                )}
+
+                {!disabledMethods.wallet && (
+                  <PaymentOption
+                    mode={mode}
+                    active={method === "wallet"}
+                    onClick={() => handleSelectMethod("wallet")}
+                    title="Epic Wallet Balance"
+                    desc={`Available Balance: ₹${walletBalance.toFixed(2)}`}
+                    badge={walletBalance >= payableAmount ? "Ready" : "Low Balance"}
+                  />
+                )}
+              </div>
+            </div>
+
+            {(error || actionError) && (
+              <div className={`rounded-2xl border p-4 text-xs font-medium ${mode === "dark" ? "border-red-500/40 bg-red-500/15 text-red-300" : "border-red-200 bg-red-50 text-red-700"}`}>
+                <div className="flex items-center gap-2">
+                  <span className="text-base">⚠️</span>
+                  <span>{actionError || error}</span>
+                </div>
+              </div>
+            )}
+
+            {walletInsufficient && (
+              <div className={`rounded-2xl border p-4 text-xs font-medium ${mode === "dark" ? "border-amber-500/40 bg-amber-500/15 text-amber-300" : "border-amber-200 bg-amber-50 text-amber-800"}`}>
+                💡 Wallet balance is insufficient for this booking amount. Please select UPI or Card.
+              </div>
+            )}
+          </section>
+
+          {/* Right Summary Sidebar Card - Perfectly Aligned */}
+          <aside className={`rounded-2xl border p-5 sm:p-6 backdrop-blur-xl shadow-lg transition-all lg:sticky lg:top-24 ${mode === "dark"
+            ? "border-zinc-800/80 bg-zinc-900/90 shadow-[0_15px_35px_rgba(0,0,0,0.35)]"
+            : "border-white/80 bg-white/90 shadow-[0_15px_35px_rgba(15,23,42,0.05)]"
+            }`}>
+            <h3 className={`text-xs font-bold uppercase tracking-wider ${mode === "dark" ? "text-zinc-200" : "text-slate-800"}`}>
+              Order Breakdown
+            </h3>
+
+            {/* Movie Info Header */}
+            <div className="mt-4 flex items-center gap-3 rounded-xl border border-zinc-500/10 bg-zinc-500/5 p-3">
+              {item?.imageUrl ? (
+                <img
+                  src={item.imageUrl}
+                  alt={item?.name || "Movie"}
+                  className="h-12 w-9 rounded-lg object-cover shadow-sm shrink-0"
+                />
+              ) : (
+                <div className="flex h-12 w-9 items-center justify-center rounded-lg bg-indigo-600/20 text-lg font-bold text-indigo-400 shrink-0">
+                  🎬
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <h4 className={`truncate text-sm font-bold ${mode === "dark" ? "text-white" : "text-slate-900"}`}>
+                  {item?.name || "Movie Ticket"}
+                </h4>
+                {item?.language && (
+                  <p className={`mt-0.5 text-xs ${mode === "dark" ? "text-zinc-400" : "text-slate-500"}`}>
+                    {item.language} {item?.genre ? `• ${Array.isArray(item.genre) ? item.genre.join(", ") : item.genre}` : ""}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Detail Rows */}
+            <div className="mt-4 space-y-2.5 text-xs sm:text-sm">
+              <div className={`flex items-center justify-between ${mode === "dark" ? "text-zinc-400" : "text-slate-600"}`}>
+                <span>Date</span>
+                <span className={`font-semibold ${mode === "dark" ? "text-zinc-100" : "text-slate-900"}`}>{date || "-"}</span>
+              </div>
+              <div className={`flex items-center justify-between ${mode === "dark" ? "text-zinc-400" : "text-slate-600"}`}>
+                <span>Show Time</span>
+                <span className={`font-semibold ${mode === "dark" ? "text-zinc-100" : "text-slate-900"}`}>{slot || "-"}</span>
+              </div>
+              <div className={`flex items-center justify-between ${mode === "dark" ? "text-zinc-400" : "text-slate-600"}`}>
+                <span>Seats Selected</span>
+                <span className={`font-bold ${mode === "dark" ? "text-indigo-400" : "text-indigo-600"}`}>
+                  {seats.length} Ticket{seats.length > 1 ? "s" : ""}
+                </span>
+              </div>
+            </div>
+
+            <div className={`my-4 h-px ${mode === "dark" ? "bg-zinc-800" : "bg-slate-200"}`} />
+
+            {/* Final Payable */}
+            <div className={`flex items-center justify-between text-base font-bold ${mode === "dark" ? "text-white" : "text-slate-900"}`}>
+              <span>Payable Amount</span>
+              <span className="text-xl font-extrabold text-amber-500">₹{payableAmount.toFixed(2)}</span>
+            </div>
+
+            {/* Security Guarantee Box */}
+            <div className={`mt-4 rounded-xl border p-3 text-xs ${mode === "dark" ? "border-zinc-800 bg-zinc-950/80 text-zinc-400" : "border-slate-200 bg-slate-50 text-slate-600"}`}>
+              <div className={`flex items-center gap-1.5 font-bold ${mode === "dark" ? "text-emerald-400" : "text-emerald-700"}`}>
+                <ShieldCheck className="h-4 w-4" />
+                256-Bit Encrypted Payment
+              </div>
+              <p className="mt-1 leading-relaxed text-[11px]">
+                Your payment credentials are key-encrypted & processed through Razorpay.
               </p>
             </div>
-          )}
-        </aside>
-      </div>
+
+            {method === "wallet" && (
+              <div className={`mt-3 rounded-xl border p-3 text-xs ${mode === "dark" ? "border-indigo-500/30 bg-indigo-950/40 text-indigo-300" : "border-indigo-200 bg-indigo-50 text-indigo-800"}`}>
+                <div className="flex items-center gap-1.5 font-bold">
+                  <Wallet className="h-4 w-4" />
+                  Wallet Debit Active
+                </div>
+                <p className="mt-1 leading-relaxed text-[11px]">
+                  Amount will be deducted instantly from your available wallet balance.
+                </p>
+              </div>
+            )}
+
+            <button
+              onClick={handlePayment}
+              disabled={loading || walletInsufficient}
+              className={`mt-5 w-full cursor-pointer rounded-xl py-3.5 px-5 text-center text-sm font-bold text-white shadow-md transition-all duration-200 hover:scale-[1.005] hover:shadow-[0_10px_25px_rgba(79,70,229,0.35)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 ${mode === "dark"
+                ? "bg-linear-to-r from-indigo-600 via-indigo-500 to-indigo-600"
+                : "bg-linear-to-r from-indigo-600 via-indigo-700 to-slate-900"
+                }`}
+            >
+              <span className="inline-flex items-center justify-center gap-2">
+                <CreditCard className="h-4 w-4" />
+                {payButtonLabel}
+              </span>
+            </button>
+          </aside>
+        </div>
+      </main>
     </div>
   );
 };

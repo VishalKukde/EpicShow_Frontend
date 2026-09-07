@@ -1,328 +1,188 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AlertCircle, Bug, CheckCircle2, LifeBuoy, Send } from "lucide-react";
+import { Bug, CheckCircle2, Send, ShieldAlert } from "lucide-react";
 import { useThemeStore } from "@/store/themeStore";
 import { toast } from "@/lib/toast";
 
-const issueTypes = [
-  "App crash",
-  "Payment failed",
-  "Booking issue",
-  "Wallet issue",
-  "Login or account issue",
-  "UI bug",
-  "Performance problem",
-  "Something else",
-];
-
-const affectedAreas = [
-  "Home Page",
-  "Movie Details",
-  "Seat Selection",
-  "Payment",
-  "Wallet",
-  "Profile",
-  "Notifications",
+const issueCategories = [
+  "Booking & Tickets",
+  "Payments & Wallet",
+  "Train Travel & PNR",
+  "Login & Account",
+  "UI / Display Bug",
+  "Performance & Speed",
   "Other",
 ];
-
-const priorities = [
-  { id: "low", label: "Low", hint: "Minor issue, workaround available" },
-  { id: "medium", label: "Medium", hint: "Affects normal usage" },
-  { id: "high", label: "High", hint: "Blocks booking or payment" },
-] as const;
 
 export default function ReportIssuePage() {
   const mode = useThemeStore((s) => s.mode);
   const dark = mode === "dark";
 
-  const [issueType, setIssueType] = useState(issueTypes[0]);
-  const [priority, setPriority] = useState<(typeof priorities)[number]["id"]>("medium");
-  const [selectedAreas, setSelectedAreas] = useState<string[]>(["Profile"]);
+  const [category, setCategory] = useState(issueCategories[0]);
   const [summary, setSummary] = useState("");
-  const [steps, setSteps] = useState("");
-  const [expected, setExpected] = useState("");
-  const [actual, setActual] = useState("");
+  const [description, setDescription] = useState("");
   const [contactEmail, setContactEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const isFormValid = useMemo(() => {
-    return summary.trim().length >= 8 && steps.trim().length >= 10;
-  }, [summary, steps]);
-
-  const toggleArea = (area: string) => {
-    setSelectedAreas((prev) =>
-      prev.includes(area) ? prev.filter((item) => item !== area) : [...prev, area]
-    );
-  };
-
-  const resetForm = () => {
-    setIssueType(issueTypes[0]);
-    setPriority("medium");
-    setSelectedAreas(["Profile"]);
-    setSummary("");
-    setSteps("");
-    setExpected("");
-    setActual("");
-    setContactEmail("");
-  };
+    return summary.trim().length >= 5 && description.trim().length >= 10;
+  }, [summary, description]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isFormValid) {
-      toast.warning("Please add a clear summary and detailed steps to reproduce.");
+      toast.warning("Please provide a summary and brief description.");
       return;
     }
 
-    setSubmitted(true);
-    toast.success("Issue submitted successfully. Thanks for reporting.");
-    // Placeholder submission flow until backend endpoint is wired.
-    window.setTimeout(() => setSubmitted(false), 4500);
-    resetForm();
+    setSubmitting(true);
+    window.setTimeout(() => {
+      setSubmitting(false);
+      setSubmitted(true);
+      toast.success("Issue reported successfully. Thanks for letting us know!");
+      setSummary("");
+      setDescription("");
+      setContactEmail("");
+      window.setTimeout(() => setSubmitted(false), 4500);
+    }, 600);
   };
 
   return (
-    <div className="select-none space-y-5 px-3 py-2 pb-6 sm:px-4 lg:px-0">
-      {/* Admin-Style Top Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-b pb-4 border-slate-200 dark:border-zinc-800">
+    <div className="select-none space-y-4 px-3 py-2 pb-6 sm:px-4 lg:px-0">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3 border-slate-200 dark:border-zinc-800">
         <div>
-          <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${dark ? "text-zinc-50" : "text-slate-900"}`}>
+          <div className="flex items-center gap-2">
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${dark
+                  ? "border-amber-400/30 bg-amber-500/15 text-amber-300"
+                  : "border-amber-200 bg-amber-50 text-amber-700"
+                }`}
+            >
+              <ShieldAlert className="h-3 w-3" />
+              Technical Support
+            </span>
+          </div>
+          <h1 className={`mt-1.5 text-xl font-black tracking-tight ${dark ? "text-white" : "text-slate-900"} dark:text-white`}>
             Report an Issue
           </h1>
-          <p className={`text-xs font-medium mt-0.5 ${dark ? "text-zinc-400" : "text-slate-500"}`}>
-            Submit technical bugs, booking errors, or account problems to the support team.
+          <p className={`text-xs font-medium ${dark ? "text-zinc-400" : "text-slate-500"} dark:text-zinc-400`}>
+            Encountered a bug or payment problem? Send us a quick report below.
           </p>
         </div>
       </div>
 
       <section
-        className={`rounded-2xl border p-5 shadow-sm sm:p-6 ${
-          dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-white"
-        }`}
+        className={`rounded-2xl border p-4 sm:p-5 shadow-xs ${dark ? "border-zinc-800 bg-[#18181b]" : "border-slate-200 bg-white"
+          } dark:bg-[#18181b] dark:border-zinc-800`}
       >
-        <div className="mb-5 flex items-center gap-2">
-          <Bug className={`h-5 w-5 ${dark ? "text-indigo-300" : "text-indigo-600"}`} />
-          <h2 className={`text-lg font-semibold ${dark ? "text-zinc-100" : "text-gray-900"}`}>
-            Issue Details
+        <div className="mb-4 flex items-center gap-2 border-b pb-3 border-slate-100 dark:border-zinc-800/80">
+          <Bug className="h-4.5 w-4.5 text-indigo-500" />
+          <h2 className={`text-sm font-bold uppercase tracking-wider ${dark ? "text-zinc-200" : "text-slate-800"}`}>
+            Quick Issue Form
           </h2>
         </div>
 
-        <form className="space-y-5" onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <label className="space-y-2">
-              <span className={`text-sm font-medium ${dark ? "text-zinc-200" : "text-gray-700"}`}>
-                Issue Type
+        <form className="space-y-3.5" onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="block space-y-1.5">
+              <span className={`text-xs font-bold uppercase tracking-wider ${dark ? "text-zinc-400" : "text-slate-600"}`}>
+                Issue Category
               </span>
               <select
-                value={issueType}
-                onChange={(e) => setIssueType(e.target.value)}
-                className={`w-full rounded-xl border px-3 py-2 text-sm outline-none transition ${
-                  dark
-                    ? "border-zinc-700 bg-zinc-950 text-zinc-100 focus:border-indigo-400"
-                    : "border-gray-200 bg-white text-gray-800 focus:border-indigo-300"
-                }`}
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none transition ${dark
+                    ? "border-zinc-700 bg-zinc-900 text-zinc-100 focus:border-indigo-500"
+                    : "border-slate-200 bg-white text-slate-800 focus:border-indigo-400"
+                  }`}
               >
-                {issueTypes.map((item) => (
-                  <option key={item}>{item}</option>
+                {issueCategories.map((item) => (
+                  <option key={item} className={dark ? "bg-zinc-900 text-zinc-100" : ""}>
+                    {item}
+                  </option>
                 ))}
               </select>
             </label>
 
-            <label className="space-y-2">
-              <span className={`text-sm font-medium ${dark ? "text-zinc-200" : "text-gray-700"}`}>
-                Contact Email (optional)
+            <label className="block space-y-1.5">
+              <span className={`text-xs font-bold uppercase tracking-wider ${dark ? "text-zinc-400" : "text-slate-600"}`}>
+                Your Email <span className="normal-case font-normal opacity-70">(Optional)</span>
               </span>
               <input
                 type="email"
                 value={contactEmail}
                 onChange={(e) => setContactEmail(e.target.value)}
-                placeholder="you@example.com"
-                className={`w-full rounded-xl border px-3 py-2 text-sm outline-none transition ${
-                  dark
-                    ? "border-zinc-700 bg-zinc-950 text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-400"
-                    : "border-gray-200 bg-white text-gray-800 placeholder:text-gray-400 focus:border-indigo-300"
-                }`}
+                placeholder="For status updates (optional)"
+                className={`w-full rounded-xl border px-3 py-2 text-xs font-medium outline-none transition ${dark
+                    ? "border-zinc-700 bg-zinc-900 text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-500"
+                    : "border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:border-indigo-400"
+                  }`}
               />
             </label>
           </div>
 
-          <div className="space-y-2">
-            <span className={`text-sm font-medium ${dark ? "text-zinc-200" : "text-gray-700"}`}>
-              Priority
-            </span>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-              {priorities.map((item) => {
-                const active = priority === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setPriority(item.id)}
-                    className={`rounded-xl border px-3 py-2 text-left transition ${
-                      active
-                        ? dark
-                          ? "border-indigo-400 bg-indigo-500/20"
-                          : "border-indigo-300 bg-indigo-50"
-                        : dark
-                          ? "border-zinc-700 bg-zinc-950 hover:border-zinc-600"
-                          : "border-gray-200 bg-white hover:border-gray-300"
-                    }`}
-                  >
-                    <p className={`text-sm font-semibold ${dark ? "text-zinc-100" : "text-gray-900"}`}>
-                      {item.label}
-                    </p>
-                    <p className={`mt-0.5 text-xs ${dark ? "text-zinc-400" : "text-gray-500"}`}>
-                      {item.hint}
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <span className={`text-sm font-medium ${dark ? "text-zinc-200" : "text-gray-700"}`}>
-              Affected Areas (choose multiple)
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {affectedAreas.map((area) => {
-                const active = selectedAreas.includes(area);
-                return (
-                  <button
-                    key={area}
-                    type="button"
-                    onClick={() => toggleArea(area)}
-                    className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                      active
-                        ? dark
-                          ? "border-indigo-400 bg-indigo-500/20 text-indigo-200"
-                          : "border-indigo-300 bg-indigo-50 text-indigo-700"
-                        : dark
-                          ? "border-zinc-700 text-zinc-300 hover:border-zinc-600"
-                          : "border-gray-300 text-gray-700 hover:border-gray-400"
-                    }`}
-                  >
-                    {area}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <label className="block space-y-2">
-            <span className={`text-sm font-medium ${dark ? "text-zinc-200" : "text-gray-700"}`}>
-              Short Summary
+          <label className="block space-y-1.5">
+            <span className={`text-xs font-bold uppercase tracking-wider ${dark ? "text-zinc-400" : "text-slate-600"}`}>
+              Issue Summary
             </span>
             <input
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
-              placeholder="Example: Wallet top-up fails after payment"
-              className={`w-full rounded-xl border px-3 py-2 text-sm outline-none transition ${
-                dark
-                  ? "border-zinc-700 bg-zinc-950 text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-400"
-                  : "border-gray-200 bg-white text-gray-800 placeholder:text-gray-400 focus:border-indigo-300"
-              }`}
+              placeholder="e.g., Payment completed but ticket not generated"
+              className={`w-full rounded-xl border px-3 py-2 text-xs font-medium outline-none transition ${dark
+                  ? "border-zinc-700 bg-zinc-900 text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-500"
+                  : "border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:border-indigo-400"
+                }`}
+              required
             />
           </label>
 
-          <label className="block space-y-2">
-            <span className={`text-sm font-medium ${dark ? "text-zinc-200" : "text-gray-700"}`}>
-              Steps to Reproduce
+          <label className="block space-y-1.5">
+            <span className={`text-xs font-bold uppercase tracking-wider ${dark ? "text-zinc-400" : "text-slate-600"}`}>
+              Description & Details
             </span>
             <textarea
               rows={4}
-              value={steps}
-              onChange={(e) => setSteps(e.target.value)}
-              placeholder="1) Open wallet, 2) Click Add Money, 3) Complete payment..."
-              className={`w-full resize-none rounded-xl border px-3 py-2 text-sm outline-none transition ${
-                dark
-                  ? "border-zinc-700 bg-zinc-950 text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-400"
-                  : "border-gray-200 bg-white text-gray-800 placeholder:text-gray-400 focus:border-indigo-300"
-              }`}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Briefly describe what happened..."
+              className={`w-full resize-none rounded-xl border px-3 py-2 text-xs font-medium outline-none transition ${dark
+                  ? "border-zinc-700 bg-zinc-900 text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-500"
+                  : "border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:border-indigo-400"
+                }`}
+              required
             />
           </label>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <label className="space-y-2">
-              <span className={`text-sm font-medium ${dark ? "text-zinc-200" : "text-gray-700"}`}>
-                Expected Result (optional)
-              </span>
-              <textarea
-                rows={3}
-                value={expected}
-                onChange={(e) => setExpected(e.target.value)}
-                placeholder="Payment should credit wallet instantly."
-                className={`w-full resize-none rounded-xl border px-3 py-2 text-sm outline-none transition ${
-                  dark
-                    ? "border-zinc-700 bg-zinc-950 text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-400"
-                    : "border-gray-200 bg-white text-gray-800 placeholder:text-gray-400 focus:border-indigo-300"
-                }`}
-              />
-            </label>
-
-            <label className="space-y-2">
-              <span className={`text-sm font-medium ${dark ? "text-zinc-200" : "text-gray-700"}`}>
-                Actual Result (optional)
-              </span>
-              <textarea
-                rows={3}
-                value={actual}
-                onChange={(e) => setActual(e.target.value)}
-                placeholder="Payment succeeded but balance did not update."
-                className={`w-full resize-none rounded-xl border px-3 py-2 text-sm outline-none transition ${
-                  dark
-                    ? "border-zinc-700 bg-zinc-950 text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-400"
-                    : "border-gray-200 bg-white text-gray-800 placeholder:text-gray-400 focus:border-indigo-300"
-                }`}
-              />
-            </label>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3 pt-1">
+          <div className="pt-1">
             <button
               type="submit"
-              disabled={!isFormValid}
-              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-white transition ${
-                isFormValid
-                  ? dark
-                    ? "bg-indigo-600 hover:bg-indigo-500"
-                    : "bg-gray-900 hover:bg-gray-800"
-                  : "cursor-not-allowed bg-gray-400"
-              }`}
+              disabled={!isFormValid || submitting}
+              className={`inline-flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold text-white transition shadow-xs ${isFormValid && !submitting
+                  ? "bg-indigo-600 hover:bg-indigo-500"
+                  : dark
+                    ? "bg-zinc-800 text-zinc-500 border border-zinc-700/60 cursor-not-allowed"
+                    : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                }`}
             >
-              <Send className="h-4 w-4" />
-              Submit Issue
+              <Send className="h-3.5 w-3.5" />
+              {submitting ? "Submitting..." : "Submit Report"}
             </button>
-
-            <div
-              className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs ${
-                dark ? "bg-zinc-800 text-zinc-300" : "bg-indigo-50 text-gray-700"
-              }`}
-            >
-              <LifeBuoy className="h-4 w-4" />
-              Include exact steps for faster resolution.
-            </div>
           </div>
-
-          {!isFormValid && (
-            <p className={`inline-flex items-center gap-2 text-xs ${dark ? "text-amber-300" : "text-amber-700"}`}>
-              <AlertCircle className="h-4 w-4" />
-              Add at least 8 characters in summary and 10 in steps.
-            </p>
-          )}
         </form>
 
         {submitted && (
           <div
-            className={`mt-5 inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm ${
-              dark
+            className={`mt-4 inline-flex items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-bold ${dark
                 ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
                 : "border-emerald-300 bg-emerald-50 text-emerald-700"
-            }`}
+              }`}
           >
-            <CheckCircle2 className="h-4 w-4" />
-            Thanks. Your issue report has been submitted.
+            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+            Report submitted successfully. Thank you!
           </div>
         )}
       </section>

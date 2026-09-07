@@ -78,8 +78,11 @@ export default function PaymentMethodsCard({ methods }: PaymentMethodsCardProps)
   };
 
   return (
-    <div className={`rounded-2xl border p-5 shadow-sm border-gray-200 bg-white`}>
-      <h2 className={`text-lg font-semibold ${dark ? "text-white" : "text-gray-900"}`}>Payment Methods</h2>
+    <div
+      className={`rounded-2xl border p-5 shadow-sm ${dark ? "border-zinc-800 bg-[#18181b]" : "border-gray-200 bg-white"
+        } dark:bg-[#18181b] dark:border-zinc-800`}
+    >
+      <h2 className={`text-lg font-bold ${dark ? "text-white" : "text-gray-900"} dark:text-white`}>Payment Methods</h2>
       <div className="mt-4 space-y-3">
         {methods.map((method) => {
           const isDisabled = disabledMethods[method.method];
@@ -87,32 +90,33 @@ export default function PaymentMethodsCard({ methods }: PaymentMethodsCardProps)
           return (
             <div
               key={method.label}
-              className={`flex items-center justify-between rounded-xl border p-3 ${
-                isDisabled
+              className={`flex items-center justify-between rounded-xl border p-3 ${isDisabled
                   ? dark
-                    ? "border-zinc-700 bg-zinc-800/60 opacity-80"
+                    ? "border-zinc-800 bg-zinc-800/60 opacity-80"
                     : "border-gray-200 bg-gray-50 opacity-80"
-                  : "border-gray-200"
-              }`}
+                  : dark
+                    ? "border-zinc-800 bg-zinc-900/60"
+                    : "border-gray-200"
+                } dark:border-zinc-800`}
             >
               <div className="flex items-center gap-2">
-                <CreditCard className={`h-4 w-4 ${dark ? "text-zinc-300" : "text-gray-600"}`} />
+                <CreditCard className={`h-4 w-4 ${dark ? "text-zinc-300" : "text-gray-600"} dark:text-zinc-300`} />
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className={`text-sm font-medium ${dark ? "text-white" : "text-gray-800"}`}>{method.label}</p>
+                    <p className={`text-sm font-medium ${dark ? "text-white" : "text-gray-800"} dark:text-white`}>{method.label}</p>
                     {isDisabled && (
                       <span className={`rounded-full px-2 py-0.5 text-[8px] font-semibold border uppercase ${dark ? "bg-zinc-700 text-zinc-300 border-zinc-500" : "bg-gray-200 text-gray-600 border-gray-300"}`}>
                         Disabled
                       </span>
                     )}
                   </div>
-                  <p className={`text-xs ${dark ? "text-zinc-400" : "text-gray-500"}`}>{method.detail}</p>
+                  <p className={`text-xs ${dark ? "text-zinc-400" : "text-gray-500"} dark:text-zinc-400`}>{method.detail}</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => openManageModal(method)}
-                className={`cursor-pointer rounded-md px-2 py-1 text-xs font-medium text-indigo-600 border ${dark ? "hover:bg-indigo-800 border-indigo-500" : "hover:bg-indigo-50 border-indigo-300"}`}
+                className={`cursor-pointer rounded-md px-2 py-1 text-xs font-semibold text-indigo-600 border ${dark ? "hover:bg-zinc-800 border-zinc-700 text-indigo-400" : "hover:bg-indigo-50 border-indigo-300"}`}
               >
                 Manage
               </button>
@@ -163,15 +167,14 @@ export default function PaymentMethodsCard({ methods }: PaymentMethodsCardProps)
                       type="button"
                       onClick={handleToggleMethod}
                       disabled={saving}
-                      className={`border cursor-pointer rounded-full px-3 py-1 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-60 ${
-                        disabledMethods[selectedMethod?.method || "upi"]
+                      className={`border cursor-pointer rounded-full px-3 py-1 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-60 ${disabledMethods[selectedMethod?.method || "upi"]
                           ? dark
                             ? "bg-emerald-500/15 text-emerald-300 border-emerald-600"
                             : "bg-emerald-100 text-emerald-700 border-emerald-300"
                           : dark
                             ? "bg-zinc-700 text-zinc-300"
                             : "bg-gray-200 text-gray-700"
-                      }`}
+                        }`}
                     >
                       {saving
                         ? "Saving..."

@@ -29,30 +29,31 @@ export default function SecurityToggleCard({
       : "border border-indigo-700 bg-indigo-600 text-white";
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+    <div
+      className={`rounded-2xl border p-5 shadow-sm ${dark ? "border-zinc-800 bg-[#18181b]" : "border-gray-200 bg-white"
+        } dark:bg-[#18181b] dark:border-zinc-800`}
+    >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-          <p className="text-sm text-gray-500">{note}</p>
+          <h2 className={`text-lg font-bold ${dark ? "text-white" : "text-gray-900"} dark:text-white`}>{title}</h2>
+          <p className={`text-sm ${dark ? "text-zinc-400" : "text-gray-500"} dark:text-zinc-400`}>{note}</p>
           <p
-            className={`mt-2 rounded-md border px-2 py-1 text-xs font-medium ${
-              dark
+            className={`mt-2 rounded-md border px-2 py-1 text-xs font-medium ${dark
                 ? "border-amber-900/60 bg-amber-950/40 text-amber-200"
                 : "border-amber-200 bg-amber-50 text-amber-800"
-            }`}
+              }`}
           >
             This is currently unavailable and will be available soon.
           </p>
         </div>
-        <Icon className="h-5 w-5 text-indigo-600" />
+        <Icon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
       </div>
       <button
         type="button"
         onClick={onToggle}
         disabled
-        className={`mt-4 cursor-pointer rounded-xl px-4 py-2 text-sm font-medium ${
-          enabled ? activeClass : "border border-gray-300 bg-gray-100 text-gray-900"
-        } disabled:cursor-not-allowed disabled:opacity-60`}
+        className={`mt-4 cursor-pointer rounded-xl px-4 py-2 text-sm font-medium ${enabled ? activeClass : dark ? "border border-zinc-700 bg-zinc-800 text-zinc-300" : "border border-gray-300 bg-gray-100 text-gray-900"
+          } disabled:cursor-not-allowed disabled:opacity-60`}
       >
         {enabled ? enabledLabel : disabledLabel}
       </button>

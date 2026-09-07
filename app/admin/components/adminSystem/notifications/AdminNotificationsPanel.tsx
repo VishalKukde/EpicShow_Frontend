@@ -21,7 +21,7 @@ export type BroadcastCampaign = {
     title: string;
     body: string;
     channel: "Push Notification" | "In-App Popup" | "SMS Alert";
-    targetSegment: "All Registered Users" | "VIP Loyalty Members" | "Movie Enthusiasts" | "Train Travelers";
+    targetSegment: "All Registered Users" | "Pro Plan Subscribers" | "Movie Enthusiasts" | "Train Travelers";
     deepLink: string;
     sentCount: number;
     openRate: string;
@@ -56,11 +56,11 @@ const INITIAL_CAMPAIGNS: BroadcastCampaign[] = [
     },
     {
         id: "BC-503",
-        title: "👑 VIP Loyalty Level Up Warning!",
-        body: "You are only 150 points away from Gold VIP tier status. Claim your bonus points now.",
+        title: "👑 Pro Plan Subscription Discount",
+        body: "Upgrade your membership today to enjoy priority seat picks and zero convenience fees.",
         channel: "Push Notification",
-        targetSegment: "VIP Loyalty Members",
-        deepLink: "/loyalty",
+        targetSegment: "Pro Plan Subscribers",
+        deepLink: "/profile/subscription",
         sentCount: 42000,
         openRate: "62.4%",
         dispatchedAt: "2026-09-02 18:15",
@@ -117,7 +117,7 @@ export default function AdminNotificationsPanel() {
 
         setTimeout(() => {
             let recipientEstimate = 2450000;
-            if (targetSegment === "VIP Loyalty Members") recipientEstimate = 42000;
+            if (targetSegment === "Pro Plan Subscribers") recipientEstimate = 42000;
             if (targetSegment === "Movie Enthusiasts") recipientEstimate = 842000;
             if (targetSegment === "Train Travelers") recipientEstimate = 154000;
 
@@ -338,7 +338,7 @@ export default function AdminNotificationsPanel() {
                                     <option value="All Registered Users">All Users (2.45 Million)</option>
                                     <option value="Movie Enthusiasts">Movie Enthusiasts (842k Users)</option>
                                     <option value="Train Travelers">Train Travelers (154k Users)</option>
-                                    <option value="VIP Loyalty Members">VIP Loyalty Members (42k Users)</option>
+                                    <option value="Pro Plan Subscribers">Pro Plan Subscribers (42k Users)</option>
                                 </select>
                             </div>
                         </div>

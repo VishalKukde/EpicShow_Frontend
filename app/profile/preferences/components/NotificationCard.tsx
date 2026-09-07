@@ -23,7 +23,7 @@ export function NotificationCard({
 }: NotificationCardProps) {
   return (
     <article
-      className={`rounded-2xl border p-5 shadow-sm ${dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-white"}`}
+      className={`rounded-2xl border p-5 shadow-sm ${dark ? "border-zinc-800 bg-[#18181b]" : "border-gray-200 bg-white"} dark:bg-[#18181b] dark:border-zinc-800`}
     >
       <div className="flex items-start justify-between gap-3">
         <div>

@@ -80,66 +80,65 @@ const TicketCard = ({
             <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`rounded-3xl shadow-lg border overflow-hidden relative ${mode === "dark" ? "bg-zinc-900 border-zinc-700/10" : "bg-white border border-gray-100"}`}
+                className={`relative overflow-hidden rounded-2xl border shadow-lg transition-all ${mode === "dark"
+                    ? "border-zinc-800 bg-zinc-900/90 shadow-[0_15px_35px_rgba(0,0,0,0.35)] backdrop-blur-xl"
+                    : "border-white/80 bg-white/90 shadow-[0_15px_35px_rgba(15,23,42,0.05)] backdrop-blur-xl"
+                    }`}
             >
-
-                {/* Tear edge */}
-                <div className="absolute -left-2 -right-2 top-[45%] flex justify-between pointer-events-none z-99">
-                    <div className="w-4 h-4 bg-background rounded-full" />
-                    <div className="w-4 h-4 bg-background rounded-full" />
+                {/* Tear edge cutouts */}
+                <div className="absolute -left-2.5 -right-2.5 top-[50%] flex justify-between pointer-events-none z-20">
+                    <div className={`w-5 h-5 rounded-full border ${mode === "dark" ? "bg-zinc-950 border-zinc-800" : "bg-slate-50 border-slate-200"}`} />
+                    <div className={`w-5 h-5 rounded-full border ${mode === "dark" ? "bg-zinc-950 border-zinc-800" : "bg-slate-50 border-slate-200"}`} />
                 </div>
 
                 {/* Header */}
-                <div className={`flex items-center justify-between px-4 py-5 sm:px-6 border-b border-dashed ${mode === "dark" ? "border-zinc-700" : "border-gray-200"}`}>
-                    {/* Left Section */}
-                    <div className="flex flex-col">
-                        <h2 className={`text-xl sm:text-2xl font-semibold ${mode === "dark" ? "text-zinc-100" : "text-gray-900"}`}>
+                <div className={`flex items-center justify-between p-4 sm:p-5 border-b border-dashed ${mode === "dark" ? "border-zinc-800" : "border-slate-200"}`}>
+                    <div className="flex flex-col min-w-0 pr-3">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400">Selected Show & Cinema</span>
+                        <h2 className={`truncate text-lg sm:text-xl font-black tracking-tight mt-0.5 ${mode === "dark" ? "text-white" : "text-slate-900"}`}>
                             {"name" in (item || {}) ? item?.name : (item as Event | null)?.title}
                         </h2>
-                        <p className={`mt-1 ${mode === "dark" ? "text-zinc-400" : "text-gray-500"}`}>
-                            {venue}
+                        <p className={`mt-0.5 truncate text-xs font-medium ${mode === "dark" ? "text-zinc-400" : "text-slate-500"}`}>
+                            {venue || "Cinema Location"}
                         </p>
                     </div>
 
-                    {/* Right Section */}
-                    <div className="flex">
+                    <div className="flex shrink-0">
                         <ReviewSeatTimer />
                     </div>
-
                 </div>
 
-                {/* Details */}
-                <div className="px-4 py-6 sm:px-6 space-y-4 text-sm">
-
-                    {/* <Detail label="Date" value={formatDate(date!)} mode={mode} />
-                    <Detail label="Time" value={slot} mode={mode} /> */}
-
-                    <div className="flex justify-between items-start">
-                        <span className={mode === "dark" ? "text-zinc-400" : "text-gray-500"}>Seats</span>
-                        <div className="flex gap-2 flex-wrap justify-end">
-                            {seats.map((s: Seat) => (
+                {/* Details Body */}
+                <div className="p-4 sm:p-5 space-y-3.5 text-xs">
+                    <div className="flex justify-between items-center">
+                        <span className={`font-semibold uppercase tracking-wider text-[11px] ${mode === "dark" ? "text-zinc-400" : "text-slate-500"}`}>Seats Selected</span>
+                        <div className="flex gap-1.5 flex-wrap justify-end">
+                            {seats.map((s: Seat, idx: number) => (
                                 <span
-                                    key={s.id}
-                                    className={`px-3 py-1 rounded-full text-xs font-medium ${mode === "dark" ? "bg-zinc-800 text-zinc-200" : "bg-gray-100 text-gray-800"}`}
+                                    key={`${s.id}-${s.number || idx}`}
+                                    className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-xs font-bold text-amber-500"
                                 >
-                                    {/*row number */}
                                     {s.id}
                                 </span>
                             ))}
                         </div>
                     </div>
 
-                    {/* Change slot */}
-                    <button
-                        onClick={handleUnlockSeats}
-                        className={`text-sm font-medium underline underline-offset-4 transition cursor-pointer ${mode === "dark" ? "text-zinc-100 hover:text-zinc-300" : "text-gray-900 hover:text-gray-700"}`}
-                    >
-                        Change date / time
-                    </button>
-
+                    <div className="flex items-center justify-between pt-1">
+                        <button
+                            onClick={handleUnlockSeats}
+                            className={`text-xs font-bold underline underline-offset-4 transition cursor-pointer ${mode === "dark" ? "text-indigo-400 hover:text-indigo-300" : "text-indigo-600 hover:text-indigo-700"
+                                }`}
+                        >
+                            Change date / time
+                        </button>
+                        <span className={`text-[11px] ${mode === "dark" ? "text-zinc-500" : "text-slate-400"}`}>
+                            {seats.length} Seat{seats.length > 1 ? "s" : ""} Reserved
+                        </span>
+                    </div>
                 </div>
             </motion.div>
         </div>
     )
 }
-export default TicketCard
+export default TicketCard;

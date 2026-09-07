@@ -9,7 +9,6 @@ import AdminOrdersTable from "./components/adminOperations/orders/AdminOrdersTab
 import AdminRefundsTable from "./components/adminOperations/refunds/AdminRefundsTable";
 import AdminVenuesPanel from "./components/adminOperations/venue/AdminVenuesPanel";
 import AdminCouponsPanel from "./components/adminMarketing/coupons/AdminCouponsPanel";
-import AdminLoyaltyPanel from "./components/adminMarketing/loyalty/AdminLoyaltyPanel";
 import AdminBannersPanel from "./components/adminMarketing/banners/AdminBannersPanel";
 import AdminRevenuePanel from "./components/adminFinancial/revenue/AdminRevenuePanel";
 import AdminReportingPanel from "./components/adminFinancial/reporting/AdminReportingPanel";
@@ -133,8 +132,6 @@ export default function Dashboard() {
             <AdminRefundsTable />
           ) : activeItem === "coupons" ? (
             <AdminCouponsPanel />
-          ) : activeItem === "loyalty" ? (
-            <AdminLoyaltyPanel />
           ) : activeItem === "banners" ? (
             <AdminBannersPanel />
           ) : activeItem === "revenue" ? (

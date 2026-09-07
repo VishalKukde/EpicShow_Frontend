@@ -49,22 +49,21 @@ export default function CurrentSubscriptionDetails({
   return (
     <section className="grid grid-cols-1 gap-4 xl:grid-cols-[1.15fr_0.85fr]">
       <article
-        className={`rounded-3xl border p-5 shadow-sm sm:p-6 ${
-          dark
-            ? "border-indigo-500/30 bg-zinc-900 shadow-[0_12px_30px_rgba(0,0,0,0.3)]"
+        className={`rounded-3xl border p-5 shadow-sm sm:p-6 ${dark
+            ? "border-indigo-500/30 bg-[#18181b]"
             : "border-indigo-200 bg-white"
-        }`}
+          } dark:bg-[#18181b] dark:border-indigo-500/30`}
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className={`text-xs font-semibold uppercase tracking-[0.2em] ${dark ? "text-indigo-300" : "text-indigo-600"}`}>
               Current Subscription
             </p>
-            <h2 className={`mt-2 flex items-center gap-2 text-2xl font-semibold ${dark ? "text-zinc-100" : "text-slate-900"}`}>
+            <h2 className={`mt-2 flex items-center gap-2 text-2xl font-semibold ${dark ? "text-zinc-100" : "text-slate-900"} dark:text-white`}>
               EpicShow Pro
               <Crown className={`h-5 w-5 ${dark ? "text-indigo-300" : "text-indigo-600"}`} />
             </h2>
-            <p className={`mt-1 text-sm ${dark ? "text-zinc-400" : "text-slate-600"}`}>
+            <p className={`mt-1 text-sm ${dark ? "text-zinc-400" : "text-slate-600"} dark:text-zinc-400`}>
               {isCancelled
                 ? "Cancellation is scheduled. Your Pro benefits continue until expiry."
                 : "Your Pro benefits are active on this account."}
@@ -72,15 +71,14 @@ export default function CurrentSubscriptionDetails({
           </div>
 
           <span
-            className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${
-              isCancelled
+            className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${isCancelled
                 ? dark
                   ? "border-amber-500/40 bg-amber-500/10 text-amber-300"
                   : "border-amber-300 bg-amber-50 text-amber-700"
                 : dark
                   ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
                   : "border-emerald-300 bg-emerald-50 text-emerald-700"
-            }`}
+              }`}
           >
             <ShieldCheck className="h-3.5 w-3.5" />
             {formatStatus(subscription?.status)}
@@ -104,11 +102,10 @@ export default function CurrentSubscriptionDetails({
           type="button"
           onClick={onCancelClick}
           disabled={busyAction !== null || isCancelled}
-          className={`mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto ${
-            dark
+          className={`mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto ${dark
               ? "border-red-500/40 bg-red-500/10 text-red-300 hover:bg-red-500/15"
               : "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
-          }`}
+            }`}
         >
           {busyAction === "cancel" ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -120,11 +117,10 @@ export default function CurrentSubscriptionDetails({
       </article>
 
       <article
-        className={`rounded-3xl border p-5 shadow-sm sm:p-6 ${
-          dark
-            ? "border-zinc-700 bg-zinc-900 shadow-[0_12px_30px_rgba(0,0,0,0.3)]"
+        className={`rounded-3xl border p-5 shadow-sm sm:p-6 ${dark
+            ? "border-zinc-800 bg-[#18181b]"
             : "border-slate-200 bg-white"
-        }`}
+          } dark:bg-[#18181b] dark:border-zinc-800`}
       >
         <div className="flex items-center gap-2">
           <Sparkles className={`h-5 w-5 ${dark ? "text-indigo-300" : "text-indigo-600"}`} />

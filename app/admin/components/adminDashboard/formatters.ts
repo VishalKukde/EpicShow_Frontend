@@ -27,7 +27,6 @@ export function formatActiveLabel(item: string) {
   if (item === "refunds") return "Refunds & Claims";
   if (item === "customers") return "Customer Directory";
   if (item === "coupons") return "Coupons & Promo Offers";
-  if (item === "loyalty") return "Loyalty & VIP Program";
   if (item === "banners") return "Hero Banners & Spotlight";
   if (item === "revenue") return "Revenue Intelligence";
   if (item === "reporting") return "Reports & Data Export";

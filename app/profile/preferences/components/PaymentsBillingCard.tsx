@@ -18,7 +18,7 @@ export function PaymentsBillingCard({
 }: PaymentsBillingCardProps) {
   return (
     <article
-      className={`rounded-3xl border p-5 shadow-sm ${dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-white"}`}
+      className={`rounded-3xl border p-5 shadow-sm ${dark ? "border-zinc-800 bg-[#18181b]" : "border-gray-200 bg-white"} dark:bg-[#18181b] dark:border-zinc-800`}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -32,9 +32,8 @@ export function PaymentsBillingCard({
 
       <div className="mt-4 space-y-3">
         <div
-          className={`rounded-xl border px-3 py-2.5 sm:px-4 ${
-            dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-white"
-          }`}
+          className={`rounded-xl border px-3 py-2.5 sm:px-4 ${dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-white"
+            }`}
         >
           <p className={`text-sm font-medium ${dark ? "text-zinc-100" : "text-gray-900"}`}>
             Preferred Payment Method
@@ -49,8 +48,7 @@ export function PaymentsBillingCard({
                   type="button"
                   disabled={isDisabled || !isPro}
                   onClick={() => setPreferredPaymentMethod(method)}
-                  className={`rounded-lg border px-2 py-2 text-xs font-medium uppercase transition ${
-                    isDisabled || !isPro
+                  className={`rounded-lg border px-2 py-2 text-xs font-medium uppercase transition ${isDisabled || !isPro
                       ? dark
                         ? "cursor-not-allowed border-zinc-700 bg-zinc-800 text-zinc-500 opacity-70"
                         : "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400 opacity-80"
@@ -61,7 +59,7 @@ export function PaymentsBillingCard({
                         : dark
                           ? "cursor-pointer border-zinc-700 bg-zinc-700 text-zinc-300 hover:bg-zinc-800"
                           : "cursor-pointer border-gray-200 bg-white text-gray-700 hover:bg-gray-100"
-                  }`}
+                    }`}
                   title={isDisabled ? "Enable this method from Manage Payment first" : undefined}
                 >
                   {method}

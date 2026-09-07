@@ -15,6 +15,7 @@ export interface User {
 
   role: "user" | "admin";
   membership: "free" | "pro";
+  status?: string;
 
   walletBalance: number;
 

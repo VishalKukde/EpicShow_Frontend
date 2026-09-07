@@ -161,11 +161,10 @@ function OnlineDot({ dark, small = false }: OnlineDotProps) {
   const size = small ? "h-2 w-2" : "h-2.5 w-2.5";
   return (
     <span
-      className={`${size} inline-block rounded-full bg-emerald-500 ${
-        dark
-          ? "ring-2 ring-zinc-900 shadow-[0_0_10px_rgba(16,185,129,0.45)]"
-          : "ring-2 ring-white shadow-[0_0_0_1px_rgba(16,185,129,0.3),0_0_10px_rgba(16,185,129,0.6)]"
-      }`}
+      className={`${size} inline-block rounded-full bg-emerald-500 ${dark
+        ? "ring-2 ring-zinc-900 shadow-[0_0_10px_rgba(16,185,129,0.45)]"
+        : "ring-2 ring-white shadow-[0_0_0_1px_rgba(16,185,129,0.3),0_0_10px_rgba(16,185,129,0.6)]"
+        }`}
     />
   );
 }
@@ -186,6 +185,7 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
   const [socketConnected, setSocketConnected] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [clearingConversation, setClearingConversation] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [typingConversationIds, setTypingConversationIds] = useState<string[]>([]);
   const [isPeerTyping, setIsPeerTyping] = useState(false);
   const [adminPresence, setAdminPresence] = useState({ online: false, onlineCount: 0 });
@@ -276,12 +276,12 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
             prev.map((item) =>
               item.id === conversationUserId
                 ? {
-                    ...item,
-                    unreadCount: 0,
-                    lastMessage: "",
-                    lastMessageAt: null,
-                    lastSenderRole: null,
-                  }
+                  ...item,
+                  unreadCount: 0,
+                  lastMessage: "",
+                  lastMessageAt: null,
+                  lastSenderRole: null,
+                }
                 : item
             )
           )
@@ -311,15 +311,8 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
         return;
       }
 
-      const peerName = isAdmin ? activeChatUser?.name || "this user" : "your support chat";
-      const actionName = actionLabel === "reset" ? "Reset chat" : "Delete chat";
-      const confirmationText = `This will permanently delete all messages for ${peerName} from the database. Continue?`;
-
-      if (
-        !options?.skipConfirm &&
-        typeof window !== "undefined" &&
-        !window.confirm(confirmationText)
-      ) {
+      if (!options?.skipConfirm) {
+        setShowDeleteModal(true);
         return;
       }
 
@@ -334,7 +327,7 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
 
         await apiFetch(path, { method: "DELETE" });
         applyConversationClearedLocally(targetConversationId);
-        toast.success(`${actionName} completed`);
+        toast.success(`${actionLabel === "reset" ? "Reset chat" : "Delete chat"} completed`);
       } catch (error) {
         const message = error instanceof Error ? error.message : "Unable to clear conversation";
         setErrorText(message);
@@ -343,7 +336,6 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
       }
     },
     [
-      activeChatUser?.name,
       activeUserId,
       applyConversationClearedLocally,
       clearingConversation,
@@ -676,19 +668,19 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
 
       const sendRequest = isAdmin
         ? new Promise<ChatSendAck>((resolve) => {
-            socket.emit("chat:send", sendPayload, (ack: ChatSendAck) => resolve(ack));
-          })
+          socket.emit("chat:send", sendPayload, (ack: ChatSendAck) => resolve(ack));
+        })
         : apiFetch("/chat/messages", {
-            method: "POST",
-            body: JSON.stringify({ text: trimmedMessage }),
-            notifyOnError: false,
-          }).then((response: { message?: ChatMessage } | null) => {
-            const payload = response?.message;
-            if (!payload) {
-              return { ok: false, message: "Unable to send message" };
-            }
-            return { ok: true, message: payload.id };
-          });
+          method: "POST",
+          body: JSON.stringify({ text: trimmedMessage }),
+          notifyOnError: false,
+        }).then((response: { message?: ChatMessage } | null) => {
+          const payload = response?.message;
+          if (!payload) {
+            return { ok: false, message: "Unable to send message" };
+          }
+          return { ok: true, message: payload.id };
+        });
 
       sendRequest
         .then((ack: ChatSendAck) => {
@@ -763,11 +755,10 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
   const renderMessageThread = (
     <section className="flex h-full min-h-0 flex-1 flex-col overflow-hidden border border-slate-200 bg-white/80 dark:border-zinc-800 dark:bg-zinc-950/80">
       <header
-        className={`flex h-[4.5rem] shrink-0 items-center gap-3 border-b px-4 sm:px-5 ${
-          dark
-            ? "border-zinc-800 bg-zinc-950/90 text-zinc-100"
-            : "border-slate-200 bg-white/90 text-slate-900"
-        }`}
+        className={`flex h-[4.5rem] shrink-0 items-center gap-3 border-b px-4 sm:px-5 ${dark
+          ? "border-zinc-800 bg-zinc-950/90 text-zinc-100"
+          : "border-slate-200 bg-white/90 text-slate-900"
+          }`}
       >
         {isAdmin ? (
           <button
@@ -814,11 +805,10 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
             <button
               type="button"
               onClick={() => {
-                void confirmAndClearConversation("delete", { skipConfirm: false });
+                setShowDeleteModal(true);
               }}
-              className={`inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border text-red-600 transition ${
-                dark ? "border-red-500/30 bg-red-500/10 hover:bg-red-500/20" : "border-red-200 bg-red-50 hover:bg-red-100"
-              }`}
+              className={`inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border text-red-600 transition ${dark ? "border-red-500/30 bg-red-500/10 hover:bg-red-500/20" : "border-red-200 bg-red-50 hover:bg-red-100"
+                }`}
               aria-label="Delete chat"
               title="Delete chat"
             >
@@ -830,9 +820,8 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
 
       <div
         ref={messageListRef}
-        className={`chat-scroll min-h-0 flex-1 overflow-y-auto px-3 py-4 sm:px-5 ${
-          dark ? "bg-zinc-950" : "bg-slate-50"
-        }`}
+        className={`chat-scroll min-h-0 flex-1 overflow-y-auto px-3 py-4 sm:px-5 ${dark ? "bg-zinc-950" : "bg-slate-50"
+          }`}
       >
         {loadingMessages ? (
           <div className="flex h-full items-center justify-center">
@@ -864,29 +853,27 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
                     />
                   ) : null}
                   <article
-                    className={`relative max-w-[80%] rounded-[1.2rem] px-3 py-2.5 text-sm ${
-                      isMine
-                        ? dark
-                          ? "bg-zinc-700 text-zinc-50 rounded-br-[0.5rem]"
-                          : "bg-slate-900 text-white rounded-br-[0.5rem]"
-                        : dark
-                          ? "bg-zinc-800 text-zinc-100 ring-1 ring-zinc-700 rounded-bl-[0.5rem]"
-                          : "bg-white text-slate-800 ring-1 ring-slate-200 rounded-bl-[0.5rem]"
-                    }`}
+                    className={`relative max-w-[80%] rounded-[1.2rem] px-3 py-2.5 text-sm ${isMine
+                      ? dark
+                        ? "bg-zinc-700 text-zinc-50 rounded-br-[0.5rem]"
+                        : "bg-slate-900 text-white rounded-br-[0.5rem]"
+                      : dark
+                        ? "bg-zinc-800 text-zinc-100 ring-1 ring-zinc-700 rounded-bl-[0.5rem]"
+                        : "bg-white text-slate-800 ring-1 ring-slate-200 rounded-bl-[0.5rem]"
+                      }`}
                   >
                     <p className="whitespace-pre-wrap break-words pr-11 leading-6 tracking-[0.01em]">
                       {message.text}
                     </p>
                     <p
-                      className={`absolute bottom-1.5 right-2.5 text-[9px] font-medium ${
-                        isMine
-                          ? dark
-                            ? "text-zinc-200/85"
-                            : "text-white/75"
-                          : dark
-                            ? "text-zinc-400"
-                            : "text-slate-400"
-                      }`}
+                      className={`absolute bottom-1.5 right-2.5 text-[9px] font-medium ${isMine
+                        ? dark
+                          ? "text-zinc-200/85"
+                          : "text-white/75"
+                        : dark
+                          ? "text-zinc-400"
+                          : "text-slate-400"
+                        }`}
                     >
                       {formatTime(message.createdAt)}
                     </p>
@@ -907,11 +894,10 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
             {showTypingIndicator ? (
               <div className="flex justify-start">
                 <div
-                  className={`inline-flex items-center gap-1.5 rounded-[1.2rem] rounded-bl-md px-3.5 py-2.5 shadow-[0_10px_28px_rgba(15,23,42,0.08)] ${
-                    dark
-                      ? "bg-zinc-800 text-zinc-200 ring-1 ring-zinc-700/80"
-                      : "bg-white/95 text-zinc-700 ring-1 ring-[#dfe9ff]"
-                  }`}
+                  className={`inline-flex items-center gap-1.5 rounded-[1.2rem] rounded-bl-md px-3.5 py-2.5 shadow-[0_10px_28px_rgba(15,23,42,0.08)] ${dark
+                    ? "bg-zinc-800 text-zinc-200 ring-1 ring-zinc-700/80"
+                    : "bg-white/95 text-zinc-700 ring-1 ring-[#dfe9ff]"
+                    }`}
                 >
                   <span className="text-[11px] font-medium text-emerald-500">Typing...</span>
                   <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-emerald-500 [animation-delay:-0.2s]" />
@@ -923,9 +909,8 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
           </div>
         ) : (
           <div
-            className={`flex h-full items-center justify-center text-center text-sm ${
-              dark ? "text-zinc-400" : "text-zinc-500"
-            }`}
+            className={`flex h-full items-center justify-center text-center text-sm ${dark ? "text-zinc-400" : "text-zinc-500"
+              }`}
           >
             {isAdmin
               ? activeUserId
@@ -938,9 +923,8 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
 
       <form
         onSubmit={sendMessage}
-        className={`flex items-center gap-3 border-t p-3 sm:p-4 ${
-          dark ? "border-zinc-800 bg-zinc-950/95" : "border-slate-200 bg-white/90"
-        }`}
+        className={`flex items-center gap-3 border-t p-3 sm:p-4 ${dark ? "border-zinc-800 bg-zinc-950/95" : "border-slate-200 bg-white/90"
+          }`}
       >
         <input
           ref={inputRef}
@@ -948,17 +932,24 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
           onChange={(event) => handleInputChange(event.target.value)}
           placeholder={placeholder}
           disabled={sending || clearingConversation || (isAdmin && !activeUserId)}
-          className={`h-12 flex-1 rounded-2xl border px-4 text-sm shadow-inner outline-none transition-all duration-200 ${
-            dark
-              ? "border-zinc-700 bg-zinc-900 text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-500"
-              : "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-slate-400"
-          } disabled:cursor-not-allowed disabled:opacity-70`}
+          className={`h-12 flex-1 rounded-2xl border px-4 text-sm shadow-inner outline-none transition-all duration-200 ${dark
+            ? "border-zinc-700 bg-zinc-900 text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-500"
+            : "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-slate-400"
+            } disabled:cursor-not-allowed disabled:opacity-70`}
         />
 
         <button
           type="submit"
           disabled={!canSend || sending || clearingConversation}
-          className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-sm transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+          className={`inline-flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-2xl font-bold transition duration-200 ${dark
+            ? canSend
+              ? "bg-indigo-600 text-white hover:bg-indigo-500 shadow-md shadow-indigo-600/30"
+              : "bg-zinc-800 text-zinc-500 border border-zinc-700/60 cursor-not-allowed opacity-60"
+            : canSend
+              ? "bg-indigo-600 text-white hover:bg-indigo-700 shadow-md shadow-indigo-600/20"
+              : "bg-indigo-600/50 text-white cursor-not-allowed opacity-60"
+            }`}
+          aria-label="Send message"
         >
           {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <SendHorizontal className="h-4 w-4" />}
         </button>
@@ -968,18 +959,16 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
 
   return (
     <div
-      className={`flex h-full min-h-0 overflow-hidden border-0 bg-transparent ${
-        dark ? "bg-transparent" : "bg-transparent"
-      }`}
+      className={`flex h-full min-h-0 overflow-hidden border-0 bg-transparent ${dark ? "bg-transparent" : "bg-transparent"
+        }`}
     >
       <div className="flex h-full min-h-0 w-full flex-col">
         {errorText ? (
           <div
-            className={`flex items-center justify-between gap-3 border-b px-3 py-2 text-xs ${
-              dark
-                ? "border-zinc-700 bg-red-900/30 text-red-200"
-                : "border-red-200 bg-red-50 text-red-700"
-            }`}
+            className={`flex items-center justify-between gap-3 border-b px-3 py-2 text-xs ${dark
+              ? "border-zinc-700 bg-red-900/30 text-red-200"
+              : "border-red-200 bg-red-50 text-red-700"
+              }`}
           >
             <span>
               {errorText.includes("Socket disconnected")
@@ -990,9 +979,8 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
               <button
                 type="button"
                 onClick={() => window.location.reload()}
-                className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-semibold ${
-                  dark ? "border-red-300/40 bg-red-500/10 text-red-100 hover:bg-red-500/20" : "border-red-200 bg-white text-red-700 hover:bg-red-100"
-                }`}
+                className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-semibold ${dark ? "border-red-300/40 bg-red-500/10 text-red-100 hover:bg-red-500/20" : "border-red-200 bg-white text-red-700 hover:bg-red-100"
+                  }`}
               >
                 <RefreshCw className="h-3 w-3" />
                 Refresh
@@ -1006,14 +994,12 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
         ) : (
           <div className="grid h-full min-h-0 w-full gap-0 lg:grid-cols-[19rem_minmax(0,1fr)]">
             <aside
-              className={`flex h-full min-h-0 flex-col border-r ${
-                dark ? "border-zinc-800 bg-zinc-950" : "border-slate-200 bg-slate-50"
-              } ${activeUserId ? "hidden lg:flex" : "flex"}`}
+              className={`flex h-full min-h-0 flex-col border-r ${dark ? "border-zinc-800 bg-zinc-950" : "border-slate-200 bg-slate-50"
+                } ${activeUserId ? "hidden lg:flex" : "flex"}`}
             >
               <header
-                className={`flex h-[4.5rem] shrink-0 items-center justify-between border-b px-4 ${
-                  dark ? "border-zinc-800 text-zinc-100" : "border-slate-200 text-slate-900"
-                }`}
+                className={`flex h-[4.5rem] shrink-0 items-center justify-between border-b px-4 ${dark ? "border-zinc-800 text-zinc-100" : "border-slate-200 text-slate-900"
+                  }`}
               >
                 <div>
                   <p className="text-sm font-semibold tracking-[0.02em]">User Chats</p>
@@ -1022,11 +1008,11 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
                   </p>
                 </div>
                 {socketConnected ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.1)]">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.1)]">
                     Live
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-semibold text-amber-700 shadow-[inset_0_0_0_1px_rgba(245,158,11,0.1)]">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-600 px-2.5 py-1 text-[10px] font-semibold text-amber-700 shadow-[inset_0_0_0_1px_rgba(245,158,11,0.1)]">
                     Reconnecting
                   </span>
                 )}
@@ -1048,15 +1034,14 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
                           key={chatUser.id}
                           type="button"
                           onClick={() => selectUserConversation(chatUser.id)}
-                          className={`w-full rounded-[1.2rem] border px-3 py-3 text-left transition-all duration-200 ${
-                            isActive
-                              ? dark
-                                ? "border-zinc-700 bg-zinc-800 shadow-sm"
-                                : "border-slate-200 bg-white shadow-sm"
-                              : dark
-                                ? "border-transparent hover:bg-zinc-800/80"
-                                : "border-transparent hover:bg-white"
-                          }`}
+                          className={`w-full rounded-[1.2rem] border px-3 py-3 text-left transition-all duration-200 ${isActive
+                            ? dark
+                              ? "border-zinc-700 bg-zinc-800 shadow-sm"
+                              : "border-slate-200 bg-white shadow-sm"
+                            : dark
+                              ? "border-transparent hover:bg-zinc-800/80"
+                              : "border-transparent hover:bg-white"
+                            }`}
                         >
                           <div className="flex items-start gap-2">
                             <ChatAvatar
@@ -1070,17 +1055,15 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
                                 <p
-                                  className={`truncate text-sm font-semibold ${
-                                    dark ? "text-zinc-100" : "text-zinc-900"
-                                  }`}
+                                  className={`truncate text-sm font-semibold ${dark ? "text-zinc-100" : "text-zinc-900"
+                                    }`}
                                 >
                                   {chatUser.name}
                                 </p>
                                 {chatUser.online ? <OnlineDot dark={dark} small /> : null}
                                 <span
-                                  className={`ml-auto shrink-0 text-[10px] font-medium ${
-                                    dark ? "text-zinc-500" : "text-zinc-400"
-                                  }`}
+                                  className={`ml-auto shrink-0 text-[10px] font-medium ${dark ? "text-zinc-500" : "text-zinc-400"
+                                    }`}
                                 >
                                   {formatTime(chatUser.lastMessageAt)}
                                 </span>
@@ -1088,13 +1071,12 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
 
                               <div className="mt-1.5 flex items-center gap-2">
                                 <p
-                                  className={`truncate text-xs ${
-                                    isTypingInList
-                                      ? "font-medium text-emerald-500"
-                                      : dark
-                                        ? "text-zinc-400"
-                                        : "text-zinc-500"
-                                  }`}
+                                  className={`truncate text-xs ${isTypingInList
+                                    ? "font-medium text-emerald-500"
+                                    : dark
+                                      ? "text-zinc-400"
+                                      : "text-zinc-500"
+                                    }`}
                                   title={chatUser.lastMessage || chatUser.email}
                                 >
                                   {isTypingInList
@@ -1118,9 +1100,8 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
                   </div>
                 ) : (
                   <div
-                    className={`flex h-full items-center justify-center px-4 text-center text-sm ${
-                      dark ? "text-zinc-400" : "text-zinc-500"
-                    }`}
+                    className={`flex h-full items-center justify-center px-4 text-center text-sm ${dark ? "text-zinc-400" : "text-zinc-500"
+                      }`}
                   >
                     No users found.
                   </div>
@@ -1134,6 +1115,75 @@ const AssistantChat = forwardRef<AssistantChatHandle>(function AssistantChat(_, 
           </div>
         )}
       </div>
+
+      {showDeleteModal ? (
+        <div
+          className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 px-4 backdrop-blur-xs"
+          onClick={() => {
+            if (!clearingConversation) setShowDeleteModal(false);
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-modal-title"
+            aria-describedby="delete-modal-desc"
+            className={`w-full max-w-md rounded-2xl border p-5 shadow-2xl transition-all ${dark ? "border-zinc-800 bg-[#18181b] text-zinc-100" : "border-gray-200 bg-white text-gray-900"
+              }`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <span className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${dark ? "bg-red-500/20 text-red-400" : "bg-red-50 text-red-600"
+                }`}>
+                <Trash2 className="h-5 w-5" />
+              </span>
+              <div>
+                <h3 id="delete-modal-title" className="text-base font-bold">Delete Chat History</h3>
+                <p className={`text-xs ${dark ? "text-zinc-400" : "text-gray-500"}`}>
+                  User: {peerName}
+                </p>
+              </div>
+            </div>
+
+            <p id="delete-modal-desc" className={`mt-4 text-sm leading-relaxed ${dark ? "text-zinc-300" : "text-gray-600"}`}>
+              Are you sure you want to delete all messages for <strong className={dark ? "text-white" : "text-gray-900"}>{peerName}</strong>? This action will permanently remove the entire conversation from the database.
+            </p>
+
+            <div className="mt-6 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                disabled={clearingConversation}
+                onClick={() => setShowDeleteModal(false)}
+                className={`cursor-pointer rounded-xl px-4 py-2 text-sm font-semibold transition ${dark ? "bg-zinc-800 text-zinc-200 hover:bg-zinc-700" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  } disabled:opacity-50`}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={clearingConversation}
+                onClick={async () => {
+                  await confirmAndClearConversation("delete", { skipConfirm: true });
+                  setShowDeleteModal(false);
+                }}
+                className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-500 disabled:opacity-50"
+              >
+                {clearingConversation ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4" />
+                    Delete Chat
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 });

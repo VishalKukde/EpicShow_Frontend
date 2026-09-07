@@ -11,6 +11,8 @@ import { usePaymentStore } from "@/store/paymentStore";
 import { useSportBookingStore } from "@/store/sportBookingStore";
 import { useThemeStore } from "@/store/themeStore";
 
+import { isAccountSuspendedOrDeactivated } from "@/lib/userStatusStore";
+
 interface AuthContextType {
   user: User | null;
   accessToken: string | null;
@@ -40,6 +42,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const setSession = (nextUser: User, token: string) => {
       if (cancelled) return;
+
+      if (
+        nextUser.status === "Suspended" ||
+        nextUser.status === "Deactivated" ||
+        isAccountSuspendedOrDeactivated(nextUser.email || "")
+      ) {
+        clearSession();
+        return;
+      }
+
       setUser(nextUser);
       setAccessToken(token);
       setToken(token);
@@ -71,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const bootstrapAuth = async () => {
       try {
-        const data: AuthResponse = await apiFetch("/auth/refresh", { method: "POST",  credentials: "include" });
+        const data: AuthResponse = await apiFetch("/auth/refresh", { method: "POST", credentials: "include" });
         setSession(data.user, data.accessToken);
       } catch {
         const token = getToken();
@@ -121,10 +133,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function login(email: string, password: string, rememberMe = false) {
+    if (isAccountSuspendedOrDeactivated(email)) {
+      throw new Error("Your account is suspended");
+    }
+
     const data: AuthResponse = await apiFetch("/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password, rememberMe }),
     });
+
+    if (
+      data.user?.status === "Suspended" ||
+      data.user?.status === "Deactivated" ||
+      isAccountSuspendedOrDeactivated(data.user?.email || email)
+    ) {
+      throw new Error("Your account is suspended");
+    }
 
     setUser(data.user);
     setToken(data.accessToken);

@@ -86,10 +86,10 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-[250px] bg-white border-r border-gray-200 flex-col select-none">
+      <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-[250px] bg-white border-r border-gray-200 flex-col select-none dark:bg-[#121214] dark:border-zinc-800">
         {/* HEADER */}
-        <div className="px-6 py-4 border-b border-gray-200 cursor-pointer" onClick={() => route.push("/")}>
-          <span className="font-semibold text-2xl text-gray-900 tracking-tight">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-zinc-800 cursor-pointer" onClick={() => route.push("/")}>
+          <span className="font-semibold text-2xl text-gray-900 dark:text-white tracking-tight">
             EpicShow
           </span>
         </div>
@@ -137,8 +137,8 @@ export default function Sidebar() {
                 <div className="flex items-center justify-between gap-3">
                   {/* LEFT SIDE */}
                   <div className="min-w-0">
-                    <p className="truncate font-semibold">
-                      {user?.name || "Guest"} 
+                    <p className="truncate font-semibold text-gray-900 dark:text-white">
+                      {user?.name || "Guest"}
                     </p>
 
                     <p className="truncate text-sm text-zinc-500 dark:text-zinc-400">
@@ -153,7 +153,7 @@ export default function Sidebar() {
 
           {/* MAIN */}
           <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase mb-2">
+            <p className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase mb-2">
               Home
             </p>
 
@@ -169,7 +169,7 @@ export default function Sidebar() {
               <SidebarItem href="/profile/favorite" icon={Heart}>
                 Favorites
               </SidebarItem>
-              
+
               <SidebarItem href="/profile/my-coupons" icon={TicketPercent}>
                 My Coupons
               </SidebarItem>
@@ -182,15 +182,15 @@ export default function Sidebar() {
 
           {/* BOOKINGS */}
           <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase mb-2">
+            <p className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase mb-2">
               Bookings
             </p>
 
             <button
               onClick={() => setOpenBookings(!openBookings)}
-              className="flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition cursor-pointer"
+              className="flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 dark:text-zinc-300 dark:hover:bg-zinc-800/60 transition cursor-pointer"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 font-semibold">
                 <Ticket className="w-4 h-4" />
                 My Bookings
               </div>
@@ -205,7 +205,7 @@ export default function Sidebar() {
               className={`overflow-hidden transition-all ${openBookings ? "max-h-78 mt-2" : "max-h-0"
                 }`}
             >
-              <div className="ml-6 space-y-1 border-l border-gray-200 pl-3">
+              <div className="ml-6 space-y-1 border-l border-gray-200 dark:border-zinc-800 pl-3">
 
                 <SubLink
                   href="/profile/bookings/movies"
@@ -237,15 +237,9 @@ export default function Sidebar() {
               </div>
             </div>
 
-            <button
-              onClick={() => route.push("/profile/refunds")}
-              className="flex items-center justify-between w-full px-3 py-2 mt-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <RotateCcw className="w-4 h-4" />
-                Refunds History
-              </div>
-            </button>
+            <SidebarItem href="/profile/refunds" icon={RotateCcw}>
+              Refunds History
+            </SidebarItem>
           </div>
 
           {/* ACTIVITY */}
@@ -418,12 +412,12 @@ function SubLink({
   return (
     <Link
       href={href}
-      className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-sm transition ${active
-        ? "bg-gray-900 text-white"
-        : "text-gray-600 hover:bg-gray-100"
+      className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-sm transition ${active
+        ? "bg-indigo-600 text-white font-bold shadow-xs dark:bg-indigo-600 dark:text-white"
+        : "text-slate-600 hover:bg-slate-100 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-200"
         }`}
     >
-      <Icon className="w-4 h-4" />
+      <Icon className="w-3.5 h-3.5" />
       {label}
     </Link>
   );

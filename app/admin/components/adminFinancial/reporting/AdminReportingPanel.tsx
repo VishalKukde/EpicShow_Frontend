@@ -109,93 +109,6 @@ function isRawId(str: string): boolean {
     );
 }
 
-const FALLBACK_DATA: ReportRow[] = [
-    {
-        id: "REP-001",
-        transactionId: "TXN-984210-EPIC-IMAX",
-        customerName: "Aarav Sharma",
-        customerEmail: "aarav.sharma.official@gmail.com",
-        category: "Movies",
-        itemTitle: "Avatar: Fire & Ash (IMAX 3D)",
-        revenue: 1300,
-        paymentMethod: "UPI / QR",
-        date: "2026-09-04 14:32",
-        status: "Confirmed",
-    },
-    {
-        id: "REP-002",
-        transactionId: "TXN-984211-IPL-EXECUTIVE",
-        customerName: "Diya Patel",
-        customerEmail: "diya.patel.corporate@outlook.com",
-        category: "Sports",
-        itemTitle: "IPL 2026 Finals - Executive Suite Stand",
-        revenue: 11500,
-        paymentMethod: "Credit Card",
-        date: "2026-09-04 12:15",
-        status: "Confirmed",
-    },
-    {
-        id: "REP-003",
-        transactionId: "TXN-984212-VALORANT-VIP",
-        customerName: "Rohan Gupta",
-        customerEmail: "rohan.g.gaming.pro@tech.in",
-        category: "Gaming",
-        itemTitle: "Valorant Masters VIP Arena Pass",
-        revenue: 2900,
-        paymentMethod: "EpicWallet",
-        date: "2026-09-03 18:45",
-        status: "Confirmed",
-    },
-    {
-        id: "REP-004",
-        transactionId: "TXN-984213-VANDE-BHARAT",
-        customerName: "Priya Nair",
-        customerEmail: "priya.nair.consultant@yahoo.com",
-        category: "Trains",
-        itemTitle: "Vande Bharat Express (Executive Chair Car)",
-        revenue: 2300,
-        paymentMethod: "NetBanking",
-        date: "2026-09-03 09:10",
-        status: "Confirmed",
-    },
-    {
-        id: "REP-005",
-        transactionId: "TXN-984214-INCEPTION-IMAX",
-        customerName: "Vikram Malhotra",
-        customerEmail: "vikram.malhotra.cinema@gmail.com",
-        category: "Movies",
-        itemTitle: "Inception: 15th Anniversary Re-Release",
-        revenue: 980,
-        paymentMethod: "UPI / QR",
-        date: "2026-09-02 21:00",
-        status: "Refunded",
-    },
-    {
-        id: "REP-006",
-        transactionId: "TXN-984215-ISL-FOOTBALL",
-        customerName: "Ananya Roy",
-        customerEmail: "ananya.roy.sports@gmail.com",
-        category: "Sports",
-        itemTitle: "ISL Football Championship Semifinals",
-        revenue: 1600,
-        paymentMethod: "Credit Card",
-        date: "2026-09-02 16:20",
-        status: "Confirmed",
-    },
-    {
-        id: "REP-007",
-        transactionId: "TXN-984216-REDBULL-GAMING",
-        customerName: "Karan Mehta",
-        customerEmail: "karan.mehta.campus@gmail.com",
-        category: "Gaming",
-        itemTitle: "Red Bull Campus Esport Gaming Lounge Pass",
-        revenue: 700,
-        paymentMethod: "EpicWallet",
-        date: "2026-09-01 11:05",
-        status: "Pending",
-    },
-];
-
 export default function AdminReportingPanel() {
     const [rawOrders, setRawOrders] = useState<ReportRow[]>([]);
     const [loading, setLoading] = useState(true);
@@ -218,7 +131,7 @@ export default function AdminReportingPanel() {
         setLoading(true);
         apiFetch("/admin/orders?limit=300", { notifyOnError: false })
             .then((payload: { data: any[] }) => {
-                if (payload?.data && Array.isArray(payload.data) && payload.data.length > 0) {
+                if (payload?.data && Array.isArray(payload.data)) {
                     const mapped: ReportRow[] = payload.data
                         .filter((ord) => {
                             const bType = (ord.bookingType || ord.showType || "").toLowerCase();
@@ -280,11 +193,11 @@ export default function AdminReportingPanel() {
                         });
                     setRawOrders(mapped);
                 } else {
-                    setRawOrders(FALLBACK_DATA);
+                    setRawOrders([]);
                 }
             })
             .catch(() => {
-                setRawOrders(FALLBACK_DATA);
+                setRawOrders([]);
             })
             .finally(() => setLoading(false));
     }, []);
@@ -774,8 +687,8 @@ export default function AdminReportingPanel() {
                                     type="button"
                                     onClick={() => setExportFormat("excel")}
                                     className={`flex flex-col items-center justify-center p-3.5 rounded-xl border text-xs font-bold transition cursor-pointer ${exportFormat === "excel"
-                                            ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                                            : "border-slate-200 dark:border-slate-800 text-slate-500"
+                                        ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                        : "border-slate-200 dark:border-slate-800 text-slate-500"
                                         }`}
                                 >
                                     <FileSpreadsheet size={22} className="mb-1" />
@@ -786,8 +699,8 @@ export default function AdminReportingPanel() {
                                     type="button"
                                     onClick={() => setExportFormat("csv")}
                                     className={`flex flex-col items-center justify-center p-3.5 rounded-xl border text-xs font-bold transition cursor-pointer ${exportFormat === "csv"
-                                            ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                                            : "border-slate-200 dark:border-slate-800 text-slate-500"
+                                        ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                        : "border-slate-200 dark:border-slate-800 text-slate-500"
                                         }`}
                                 >
                                     <FileText size={22} className="mb-1" />
@@ -806,8 +719,8 @@ export default function AdminReportingPanel() {
                                     type="button"
                                     onClick={() => setExportRange("filtered")}
                                     className={`flex flex-col items-center justify-center p-3 rounded-xl border text-xs font-bold transition cursor-pointer ${exportRange === "filtered"
-                                            ? "border-indigo-500 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
-                                            : "border-slate-200 dark:border-slate-800 text-slate-500"
+                                        ? "border-indigo-500 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
+                                        : "border-slate-200 dark:border-slate-800 text-slate-500"
                                         }`}
                                 >
                                     <Filter size={18} className="mb-1" />
@@ -818,8 +731,8 @@ export default function AdminReportingPanel() {
                                     type="button"
                                     onClick={() => setExportRange("page")}
                                     className={`flex flex-col items-center justify-center p-3 rounded-xl border text-xs font-bold transition cursor-pointer ${exportRange === "page"
-                                            ? "border-indigo-500 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
-                                            : "border-slate-200 dark:border-slate-800 text-slate-500"
+                                        ? "border-indigo-500 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
+                                        : "border-slate-200 dark:border-slate-800 text-slate-500"
                                         }`}
                                 >
                                     <Layers size={18} className="mb-1" />

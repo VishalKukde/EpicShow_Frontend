@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
+import { useThemeStore } from "@/store/themeStore";
 
 interface Props {
     booking: {
@@ -17,18 +18,16 @@ export default function DownloadTicketButton({
     payment: _payment,
 }: Props) {
     const [loading, setLoading] = useState(false);
+    const mode = useThemeStore((s) => s.mode);
     void _booking;
     void _payment;
 
     const downloadPDF = async () => {
         try {
             setLoading(true);
-
-            // Simulate slight delay for UX polish
             await new Promise((resolve) => setTimeout(resolve, 600));
-            // generateStyledTicket(booking, payment);
         } catch {
-            //   toast.error("Failed to generate ticket");
+            // toast error
         } finally {
             setLoading(false);
         }
@@ -38,24 +37,16 @@ export default function DownloadTicketButton({
         <button
             onClick={downloadPDF}
             disabled={true}
-            className={`
-      inline-flex items-center gap-2
-    px-6 py-2.5
-    rounded-xl
-    border border-gray-300
-    text-gray-900
-    text-sm font-semibold
-    hover:bg-gray-100
-    transition-all duration-200 cursor-not-allowed
-        ${loading
-                    ? "opacity-70 cursor-not-allowed"
-                    : "hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"}
-      `}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-xs font-bold transition-all duration-200 cursor-not-allowed ${mode === "dark"
+                    ? "border-zinc-700 bg-zinc-800/60 text-zinc-400"
+                    : "border-slate-300 bg-slate-100 text-slate-500"
+                } ${loading ? "opacity-70" : "hover:shadow-xs"
+                }`}
         >
             {loading ? (
-                <Loader2 size={16} className="animate-spin" />
+                <Loader2 size={14} className="animate-spin" />
             ) : (
-                <Download size={16} strokeWidth={2} />
+                <Download size={14} strokeWidth={2} />
             )}
 
             {loading ? "Generating..." : "Download Ticket"}

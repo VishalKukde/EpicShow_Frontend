@@ -91,7 +91,7 @@ export default function SubscriptionPage() {
       <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-b pb-4 border-slate-200 dark:border-zinc-800">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${mode === "dark" ? "text-zinc-50" : "text-slate-900"}`}>
+            <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${mode === "dark" ? "text-zinc-50" : "text-slate-900"} dark:text-white`}>
               Subscription Plans
             </h1>
             {status?.isPro && (
@@ -100,17 +100,16 @@ export default function SubscriptionPage() {
               </span>
             )}
           </div>
-          <p className={`text-xs font-medium mt-0.5 ${mode === "dark" ? "text-zinc-400" : "text-slate-500"}`}>
+          <p className={`text-xs font-medium mt-0.5 ${mode === "dark" ? "text-zinc-400" : "text-slate-500"} dark:text-zinc-400`}>
             {status?.isPro
-              ? `Your Pro benefits are active until ${
-                  status.subscription?.endDate
-                    ? new Intl.DateTimeFormat("en-IN", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      }).format(new Date(status.subscription.endDate))
-                    : "renewal"
-                }.`
+              ? `Your Pro benefits are active until ${status.subscription?.endDate
+                ? new Intl.DateTimeFormat("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                }).format(new Date(status.subscription.endDate))
+                : "renewal"
+              }.`
               : "Compare Free vs Pro tiers and upgrade to unlock priority booking and deals."}
           </p>
         </div>

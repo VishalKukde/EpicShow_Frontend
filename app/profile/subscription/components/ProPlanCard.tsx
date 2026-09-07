@@ -43,11 +43,10 @@ export default function ProPlanCard({
 
   return (
     <article
-      className={`rounded-3xl border p-5 shadow-sm ${
-        dark
-          ? "border-indigo-500/30 bg-zinc-900 shadow-[0_12px_30px_rgba(0,0,0,0.3)]"
+      className={`rounded-3xl border p-5 shadow-sm ${dark
+          ? "border-indigo-500/30 bg-[#18181b]"
           : "border-indigo-200 bg-indigo-50"
-      }`}
+        } dark:bg-[#18181b] dark:border-indigo-500/30`}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -84,9 +83,8 @@ export default function ProPlanCard({
           type="button"
           disabled={disabled || isPro}
           onClick={onUpgrade}
-          className={`inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-white transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-65 ${
-            dark ? "bg-indigo-500 hover:bg-indigo-400" : "bg-indigo-600 hover:bg-indigo-700"
-          }`}
+          className={`inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-white transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-65 ${dark ? "bg-indigo-500 hover:bg-indigo-400" : "bg-indigo-600 hover:bg-indigo-700"
+            }`}
         >
           {busyAction === "upgrade" ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -100,11 +98,10 @@ export default function ProPlanCard({
           type="button"
           disabled={disabled || !isPro || isCancelled}
           onClick={onCancel}
-          className={`inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-65 ${
-            dark
+          className={`inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-65 ${dark
               ? "border-zinc-600 bg-zinc-900 text-zinc-100 hover:bg-zinc-800"
               : "border-indigo-200 bg-white text-indigo-700 hover:bg-indigo-50"
-          }`}
+            }`}
         >
           {busyAction === "cancel" ? (
             <Loader2 className="h-4 w-4 animate-spin" />

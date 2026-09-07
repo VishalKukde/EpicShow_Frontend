@@ -21,25 +21,22 @@ export default function BillingCycleSelector({
 
   return (
     <section
-      className={`select-none rounded-3xl border p-4 shadow-sm sm:p-5 ${
-        dark
-          ? "border-zinc-800/70 bg-zinc-950 shadow-[0_12px_30px_rgba(0,0,0,0.3)]"
+      className={`select-none rounded-3xl border p-4 shadow-sm sm:p-5 ${dark
+          ? "border-zinc-800 bg-[#18181b]"
           : "border-gray-200 bg-white"
-      }`}
+        } dark:bg-[#18181b] dark:border-zinc-800`}
     >
       <p className={`text-sm font-medium ${dark ? "text-zinc-200" : "text-gray-700"}`}>
         Billing Cycle
       </p>
       <div
-        className={`relative mt-3 grid w-full max-w-xl grid-cols-3 rounded-xl border p-1 ${
-          dark ? "border-zinc-800 bg-zinc-900/90" : "border-gray-200 bg-gray-100"
-        }`}
+        className={`relative mt-3 grid w-full max-w-xl grid-cols-3 rounded-xl border p-1 ${dark ? "border-zinc-800 bg-zinc-900/90" : "border-gray-200 bg-gray-100"
+          }`}
       >
         <span
           aria-hidden
-          className={`pointer-events-none absolute bottom-1 left-1 top-1 rounded-lg shadow-sm transition-transform duration-300 ease-out ${
-            dark ? "bg-zinc-950 ring-1 ring-zinc-700/70" : "bg-gray-900"
-          }`}
+          className={`pointer-events-none absolute bottom-1 left-1 top-1 rounded-lg shadow-sm transition-transform duration-300 ease-out ${dark ? "bg-zinc-950 ring-1 ring-zinc-700/70" : "bg-gray-900"
+            }`}
           style={{
             width: "calc((100% - 0.5rem) / 3)",
             transform: `translateX(${activeIndex * 100}%)`,
@@ -51,15 +48,14 @@ export default function BillingCycleSelector({
             key={item}
             onClick={() => onChange(item)}
             aria-pressed={cycle === item}
-            className={`relative z-10 cursor-pointer rounded-lg px-3 py-2 text-sm font-medium capitalize transition-colors ${
-              cycle === item
+            className={`relative z-10 cursor-pointer rounded-lg px-3 py-2 text-sm font-medium capitalize transition-colors ${cycle === item
                 ? dark
                   ? "text-zinc-100"
                   : "text-white"
                 : dark
                   ? "text-zinc-300 hover:bg-zinc-700/80 hover:text-zinc-100"
                   : "text-gray-600 hover:bg-white"
-            }`}
+              }`}
           >
             {item}
           </button>
@@ -68,16 +64,14 @@ export default function BillingCycleSelector({
 
       <div className={`mt-4 flex flex-wrap gap-2 text-xs ${dark ? "text-zinc-300" : "text-gray-600"}`}>
         <span
-          className={`rounded-full px-3 py-1 ${
-            dark ? "bg-emerald-900/45 text-emerald-300 ring-1 ring-emerald-700/40" : "bg-emerald-50 text-emerald-700"
-          }`}
+          className={`rounded-full px-3 py-1 ${dark ? "bg-emerald-900/45 text-emerald-300 ring-1 ring-emerald-700/40" : "bg-emerald-50 text-emerald-700"
+            }`}
         >
           Quarterly saves ₹{quarterlySavings}/month
         </span>
         <span
-          className={`rounded-full px-3 py-1 ${
-            dark ? "bg-indigo-900/45 text-indigo-200 ring-1 ring-indigo-700/40" : "bg-indigo-50 text-gray-700"
-          }`}
+          className={`rounded-full px-3 py-1 ${dark ? "bg-indigo-900/45 text-indigo-200 ring-1 ring-indigo-700/40" : "bg-indigo-50 text-gray-700"
+            }`}
         >
           Yearly saves ₹{yearlySavings}/month
         </span>

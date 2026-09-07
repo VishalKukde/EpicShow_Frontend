@@ -175,10 +175,10 @@ export default function PreferencesPage() {
       {/* Admin-Style Top Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-b pb-4 border-slate-200 dark:border-zinc-800">
         <div>
-          <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${dark ? "text-zinc-50" : "text-slate-900"}`}>
+          <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${dark ? "text-zinc-50" : "text-slate-900"} dark:text-white`}>
             Preferences
           </h1>
-          <p className={`text-xs font-medium mt-0.5 ${dark ? "text-zinc-400" : "text-slate-500"}`}>
+          <p className={`text-xs font-medium mt-0.5 ${dark ? "text-zinc-400" : "text-slate-500"} dark:text-zinc-400`}>
             Personalize your app appearance, default seats, notifications, and language.
           </p>
         </div>
@@ -189,8 +189,8 @@ export default function PreferencesPage() {
 
         <LanguageCard dark={dark} language={language} setLanguage={setLanguage} />
 
-        
-{/* 
+
+        {/* 
         <AccessibilityCard
           dark={dark}
           reduceMotion={reduceMotion}
@@ -218,16 +218,16 @@ export default function PreferencesPage() {
             disabledPaymentMethods={disabledPaymentMethods}
           />
 
-       <NotificationCard
-          dark={dark}
-          bookingReminders={bookingReminders}
-          emailUpdates={emailUpdates}
-          offerAlerts={offerAlerts}
-          onToggleBookingReminders={() => setBookingReminders((v) => !v)}
-          onToggleEmailUpdates={() => setEmailUpdates((v) => !v)}
-          onToggleOfferAlerts={() => setOfferAlerts((v) => !v)}
-        /> 
-          </div>
+          <NotificationCard
+            dark={dark}
+            bookingReminders={bookingReminders}
+            emailUpdates={emailUpdates}
+            offerAlerts={offerAlerts}
+            onToggleBookingReminders={() => setBookingReminders((v) => !v)}
+            onToggleEmailUpdates={() => setEmailUpdates((v) => !v)}
+            onToggleOfferAlerts={() => setOfferAlerts((v) => !v)}
+          />
+        </div>
 
         {/* <TicketRefundCard
           dark={dark}

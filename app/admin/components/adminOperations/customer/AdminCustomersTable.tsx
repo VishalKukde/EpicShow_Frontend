@@ -1,9 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
-import { X, Search, Filter, Users, ShieldCheck, Award, Wallet, Mail, Phone, Clock, Calendar, Sparkles, CheckCircle2, UserCheck } from "lucide-react";
+import { X, Search, Filter, Users, ShieldCheck, Award, Wallet, Mail, Phone, Clock, Calendar, Sparkles, UserCheck, UserX, AlertTriangle, Check, Lock } from "lucide-react";
 import { apiFetch } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 import AdminFilterModal from "../../shared/AdminFilterModal";
+import { getStoredUserStatuses, setUserAccountStatus, UserAccountStatus } from "@/lib/userStatusStore";
 
 type CustomerRow = {
     _id: string;
@@ -22,6 +24,7 @@ type CustomerRow = {
     lastLogin?: string;
     createdAt: string;
     updatedAt: string;
+    status?: UserAccountStatus;
 };
 
 type CustomersResponse = {
@@ -179,7 +182,12 @@ export default function AdminCustomersTable() {
 
         apiFetch(`/admin/users?${query}`, { notifyOnError: false })
             .then((payload: CustomersResponse) => {
-                setRows(payload.data || []);
+                const storedStatuses = getStoredUserStatuses();
+                const mappedRows = (payload.data || []).map((r) => ({
+                    ...r,
+                    status: (r.status || storedStatuses[r.email ? r.email.toLowerCase().trim() : ""] || "Active") as UserAccountStatus,
+                }));
+                setRows(mappedRows);
                 setStats(payload.stats || null);
                 setRoles(payload.filters?.roles || []);
                 setMemberships(payload.filters?.memberships || []);
@@ -193,6 +201,25 @@ export default function AdminCustomersTable() {
         const timer = window.setTimeout(loadCustomers, 0);
         return () => window.clearTimeout(timer);
     }, [loadCustomers]);
+
+    const handleCustomerStatusChange = (email: string, newStatus: UserAccountStatus) => {
+        if (!email) return;
+        setUserAccountStatus(email, newStatus);
+        const normEmail = email.toLowerCase().trim();
+        setRows((prev) =>
+            prev.map((r) => (r.email && r.email.toLowerCase().trim() === normEmail ? { ...r, status: newStatus } : r))
+        );
+        if (selectedRow && selectedRow.email && selectedRow.email.toLowerCase().trim() === normEmail) {
+            setSelectedRow((prev) => (prev ? { ...prev, status: newStatus } : null));
+        }
+
+        apiFetch("/admin/users/status", {
+            method: "PATCH",
+            body: JSON.stringify({ email: normEmail, status: newStatus }),
+        }).catch((err) => {
+            console.error("Failed to sync customer status with backend:", err);
+        });
+    };
 
     const activeFilterCount = [role, membership, search.trim()].filter(Boolean).length;
     const updateSearch = (value: string) => {
@@ -284,7 +311,7 @@ export default function AdminCustomersTable() {
                     <div>
                         <p style={{ margin: 0, color: "var(--admin-text)", fontSize: 15, fontWeight: 800 }}>Customers Directory</p>
                         <p style={{ margin: "3px 0 0", color: "var(--admin-text-secondary)", fontSize: 12, fontWeight: 500 }}>
-                            Search customer profiles, wallet balances, reward point ranks, & security preferences.
+                            Search customer profiles, account statuses, wallet balances, reward points, & access controls.
                         </p>
                     </div>
 
@@ -343,7 +370,7 @@ export default function AdminCustomersTable() {
                     <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0 }}>
                         <thead style={{ position: "sticky", top: 0, zIndex: 10 }}>
                             <tr style={{ background: "var(--admin-surface)", backdropFilter: "blur(8px)" }}>
-                                {["Customer", "Phone", "Role", "Membership", "Wallet Balance", "Rewards", "Last Login", "Actions"].map((head) => (
+                                {["Customer", "Phone", "Role", "Status", "Membership", "Wallet Balance", "Rewards", "Last Login", "Actions"].map((head) => (
                                     <th
                                         key={head}
                                         style={{
@@ -366,10 +393,10 @@ export default function AdminCustomersTable() {
                         </thead>
                         <tbody>
                             {loading && Array.from({ length: 6 }, (_, index) => (
-                                <tr key={index}><td colSpan={8} style={{ padding: 18, borderBottom: "1px solid var(--admin-border)" }}><div style={{ height: 16, borderRadius: 999, background: "var(--admin-soft)", opacity: 0.6 }} /></td></tr>
+                                <tr key={index}><td colSpan={9} style={{ padding: 18, borderBottom: "1px solid var(--admin-border)" }}><div style={{ height: 16, borderRadius: 999, background: "var(--admin-soft)", opacity: 0.6 }} /></td></tr>
                             ))}
                             {!loading && rows.length === 0 && (
-                                <tr><td colSpan={8} style={{ padding: 38, color: "var(--admin-text-secondary)", textAlign: "center", fontWeight: 700 }}>No customers found matching search criteria.</td></tr>
+                                <tr><td colSpan={9} style={{ padding: 38, color: "var(--admin-text-secondary)", textAlign: "center", fontWeight: 700 }}>No customers found matching search criteria.</td></tr>
                             )}
                             {!loading && rows.map((row) => (
                                 <tr key={row._id} style={{ background: "transparent" }}>
@@ -401,6 +428,9 @@ export default function AdminCustomersTable() {
                                     </td>
                                     <td style={cellStyle}>{row.phone || "—"}</td>
                                     <td style={cellStyle}><StatusBadge value={titleCase(row.role)} tone={row.role === "admin" ? "blue" : "slate"} /></td>
+                                    <td style={cellStyle}>
+                                        <AccountStatusBadge status={row.status || "Active"} />
+                                    </td>
                                     <td style={cellStyle}><StatusBadge value={titleCase(row.membership)} tone={row.membership === "pro" ? "green" : "slate"} /></td>
                                     <td style={cellStyle}><strong style={{ color: "#10B981", fontSize: 13 }}>{formatDecimalCurrency(row.walletBalance || 0)}</strong></td>
                                     <td style={cellStyle}><span className="font-extrabold text-purple-600 dark:text-purple-400">{formatInteger(row.rewardPoints || 0)} PTS</span></td>
@@ -441,7 +471,13 @@ export default function AdminCustomersTable() {
             </div>
 
             {/* Customer Profile Modal */}
-            {selectedRow && <CustomerModal row={selectedRow} onClose={() => setSelectedRow(null)} />}
+            {selectedRow && (
+                <CustomerModal
+                    row={selectedRow}
+                    onClose={() => setSelectedRow(null)}
+                    onStatusChange={handleCustomerStatusChange}
+                />
+            )}
 
             {filtersOpen && (
                 <AdminFilterModal
@@ -471,20 +507,190 @@ export default function AdminCustomersTable() {
     );
 }
 
-function CustomerModal({ row, onClose }: { row: CustomerRow; onClose: () => void }) {
+function AccountStatusBadge({ status }: { status: UserAccountStatus }) {
+    if (status === "Active") {
+        return (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-black text-emerald-500 uppercase">
+                <Check size={11} /> Active
+            </span>
+        );
+    }
+    if (status === "Suspended") {
+        return (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 text-[10px] font-black text-amber-500 uppercase">
+                <AlertTriangle size={11} /> Suspended
+            </span>
+        );
+    }
+    return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 text-[10px] font-black text-rose-500 uppercase">
+            <UserX size={11} /> Deactivated
+        </span>
+    );
+}
+
+function CustomerModal({
+    row,
+    onClose,
+    onStatusChange,
+}: {
+    row: CustomerRow;
+    onClose: () => void;
+    onStatusChange: (email: string, newStatus: UserAccountStatus) => void;
+}) {
+    const { user: currentAdmin } = useAuth();
+    const [statusToast, setStatusToast] = useState<string | null>(null);
+    const [confirmTargetStatus, setConfirmTargetStatus] = useState<UserAccountStatus | null>(null);
+    const currentStatus = row.status || "Active";
+
+    const isSelf = Boolean(currentAdmin?.email && row.email?.toLowerCase() === currentAdmin.email.toLowerCase());
+    const isTargetAdmin = Boolean(row.role && row.role.toLowerCase().includes("admin"));
+
+    const applyStatusUpdate = (newStatus: UserAccountStatus) => {
+        onStatusChange(row.email, newStatus);
+        const msg =
+            newStatus === "Active"
+                ? `Customer account (${row.email}) is now Activated.`
+                : newStatus === "Suspended"
+                    ? `Customer account (${row.email}) has been Suspended.`
+                    : `Customer account (${row.email}) has been Deactivated.`;
+        setStatusToast(msg);
+        setConfirmTargetStatus(null);
+        setTimeout(() => setStatusToast(null), 3500);
+    };
+
     return (
         <div
             className="fixed inset-0 z-[60] grid place-items-center bg-slate-950/70 p-4 backdrop-blur-md cursor-pointer select-none"
             onClick={onClose}
         >
             <div
-                className="flex max-h-[min(85vh,680px)] w-full max-w-[700px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-2xl dark:border-slate-800 dark:bg-slate-900 dark:text-white cursor-default select-none"
+                className="flex max-h-[min(90vh,760px)] w-full max-w-[700px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-2xl dark:border-slate-800 dark:bg-slate-900 dark:text-white cursor-default select-none relative"
                 onClick={(event) => event.stopPropagation()}
             >
-                {/* Luxury Fixed Header Header */}
-                <div
-                    className="shrink-0 flex items-start justify-between gap-4 px-6 py-4 text-white border-b border-slate-700/40 bg-slate-900"
-                >
+                {/* Status Toast */}
+                {statusToast && (
+                    <div className="absolute top-3 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-xl bg-slate-950 border border-slate-700 px-4 py-2.5 text-xs font-black text-white shadow-2xl backdrop-blur-md animate-fadeIn">
+                        <Check size={16} className="text-emerald-400" />
+                        <span>{statusToast}</span>
+                    </div>
+                )}
+
+                {/* Confirmation Modal Overlay highlighting Consequences */}
+                {confirmTargetStatus && (
+                    <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/40 dark:bg-slate-950/80 p-5 backdrop-blur-sm animate-fadeIn">
+                        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-2xl dark:border-slate-800 dark:bg-slate-900 dark:text-white space-y-4">
+                            <div className="flex items-center gap-3">
+                                <div
+                                    className={`grid h-11 w-11 place-items-center rounded-2xl font-bold ${confirmTargetStatus === "Suspended"
+                                        ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                                        : confirmTargetStatus === "Deactivated"
+                                            ? "bg-rose-500/10 text-rose-500 border border-rose-500/20"
+                                            : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                                        }`}
+                                >
+                                    {confirmTargetStatus === "Suspended" ? (
+                                        <AlertTriangle size={22} />
+                                    ) : confirmTargetStatus === "Deactivated" ? (
+                                        <UserX size={22} />
+                                    ) : (
+                                        <Check size={22} />
+                                    )}
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-black m-0 text-slate-900 dark:text-white">
+                                        Confirm Account {confirmTargetStatus}?
+                                    </h3>
+                                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 m-0 mt-0.5">
+                                        Target: <strong className="text-slate-800 dark:text-white">{row.name}</strong> ({row.email})
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Consequences breakdown */}
+                            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs space-y-2.5 dark:border-slate-800 dark:bg-slate-950/90">
+                                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block border-b border-slate-200 dark:border-slate-800 pb-1.5">
+                                    Administrative Consequences & Impact
+                                </span>
+                                {confirmTargetStatus === "Suspended" && (
+                                    <>
+                                        <div className="flex items-start gap-2.5 text-amber-700 dark:text-amber-300">
+                                            <AlertTriangle size={15} className="shrink-0 mt-0.5 text-amber-500" />
+                                            <span>
+                                                <strong>Login Access Blocked:</strong> User cannot log in. They will be greeted with a red notification banner explicitly stating their account is suspended.
+                                            </span>
+                                        </div>
+                                        <div className="flex items-start gap-2.5 text-slate-600 dark:text-slate-300">
+                                            <Lock size={15} className="shrink-0 mt-0.5 text-amber-500" />
+                                            <span>
+                                                <strong>Session Revocation:</strong> Active auth tokens & credentials will fail authentication check immediately.
+                                            </span>
+                                        </div>
+                                        <div className="flex items-start gap-2.5 text-slate-500 dark:text-slate-400 text-[11px]">
+                                            <ShieldCheck size={15} className="shrink-0 mt-0.5 text-emerald-500" />
+                                            <span>Wallet balance, tickets, and booking history remain safely preserved in database.</span>
+                                        </div>
+                                    </>
+                                )}
+                                {confirmTargetStatus === "Deactivated" && (
+                                    <>
+                                        <div className="flex items-start gap-2.5 text-rose-700 dark:text-rose-300">
+                                            <UserX size={15} className="shrink-0 mt-0.5 text-rose-500" />
+                                            <span>
+                                                <strong>Platform Account Deactivation:</strong> User sign-in access is disabled across all platform touchpoints.
+                                            </span>
+                                        </div>
+                                        <div className="flex items-start gap-2.5 text-slate-600 dark:text-slate-300">
+                                            <Lock size={15} className="shrink-0 mt-0.5 text-rose-500" />
+                                            <span>
+                                                <strong>Access Terminated:</strong> User cannot access booking tickets, wallet refunds, or profile settings.
+                                            </span>
+                                        </div>
+                                    </>
+                                )}
+                                {confirmTargetStatus === "Active" && (
+                                    <>
+                                        <div className="flex items-start gap-2.5 text-emerald-700 dark:text-emerald-300">
+                                            <Check size={15} className="shrink-0 mt-0.5 text-emerald-500" />
+                                            <span>
+                                                <strong>Access Restored:</strong> User will regain immediate full access to log in, view bookings, and perform payments.
+                                            </span>
+                                        </div>
+                                        <div className="flex items-start gap-2.5 text-slate-600 dark:text-slate-300">
+                                            <Sparkles size={15} className="shrink-0 mt-0.5 text-emerald-500" />
+                                            <span>Suspension warnings will be removed from sign-in screens instantly.</span>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+
+                            <div className="flex items-center justify-end gap-3 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setConfirmTargetStatus(null)}
+                                    className="rounded-xl border border-slate-200 bg-slate-100 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => applyStatusUpdate(confirmTargetStatus)}
+                                    className={`rounded-xl px-4 py-2 text-xs font-black text-white shadow-lg transition active:scale-95 cursor-pointer ${confirmTargetStatus === "Suspended"
+                                        ? "bg-amber-500 hover:bg-amber-600 shadow-amber-500/25"
+                                        : confirmTargetStatus === "Deactivated"
+                                            ? "bg-rose-600 hover:bg-rose-700 shadow-rose-600/25"
+                                            : "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/25"
+                                        }`}
+                                >
+                                    Confirm {confirmTargetStatus}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Luxury Fixed Header */}
+                <div className="shrink-0 flex items-start justify-between gap-4 px-6 py-4 text-white border-b border-slate-700/40 bg-slate-900">
                     <div className="flex items-center gap-3.5">
                         <div className="relative rounded-xl p-[2px] bg-indigo-600">
                             {row.avatar ? (
@@ -559,6 +765,63 @@ function CustomerModal({ row, onClose }: { row: CustomerRow; onClose: () => void
                         <div className="grid gap-2 sm:grid-cols-2">
                             <LuxuryTile icon={<Sparkles size={12} />} label="Dark Mode" value={boolLabel(row.preferences?.darkMode)} />
                             <LuxuryTile icon={<Sparkles size={12} />} label="Notifications" value={boolLabel(row.preferences?.notifications)} />
+                        </div>
+                    </div>
+
+                    {/* Account Access Controls & Suspension Card (MOVED TO BOTTOM SIDE) */}
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 dark:border-slate-800 dark:bg-slate-950/40">
+                        <div className="mb-2 flex items-center justify-between">
+                            <div className="flex items-center gap-1.5">
+                                <Lock size={13} className="text-amber-500" />
+                                <h4 className="m-0 text-[11px] font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                                    Account Status & Access Management
+                                </h4>
+                            </div>
+                            <AccountStatusBadge status={currentStatus} />
+                        </div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 m-0">
+                            Super Admins can suspend or deactivate customer access. Click below to review administrative consequences before confirming.
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2">
+                            {isSelf ? (
+                                <div className="flex items-center gap-2 rounded-xl bg-amber-500/10 border border-amber-500/20 px-3.5 py-2 text-xs font-extrabold text-amber-500">
+                                    <ShieldCheck size={16} className="shrink-0" />
+                                    <span>Self Protection: You cannot suspend or deactivate your own admin account.</span>
+                                </div>
+                            ) : isTargetAdmin ? (
+                                <div className="flex items-center gap-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-2 text-xs font-extrabold text-indigo-400">
+                                    <ShieldCheck size={16} className="shrink-0 text-indigo-400" />
+                                    <span>Admin Protection: Admin accounts cannot be suspended or deactivated by other admins.</span>
+                                </div>
+                            ) : currentStatus === "Active" ? (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={() => setConfirmTargetStatus("Suspended")}
+                                        className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 px-3.5 py-2 text-xs font-extrabold text-amber-500 hover:bg-amber-500/20 transition active:scale-95"
+                                    >
+                                        <AlertTriangle size={14} />
+                                        Suspend Customer Access
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setConfirmTargetStatus("Deactivated")}
+                                        className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-rose-500/10 border border-rose-500/20 px-3.5 py-2 text-xs font-extrabold text-rose-500 hover:bg-rose-500/20 transition active:scale-95"
+                                    >
+                                        <UserX size={14} />
+                                        Deactivate Account
+                                    </button>
+                                </>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => setConfirmTargetStatus("Active")}
+                                    className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-2 text-xs font-extrabold text-emerald-500 hover:bg-emerald-500/20 transition active:scale-95"
+                                >
+                                    <Check size={14} />
+                                    Re-Activate Customer Account
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

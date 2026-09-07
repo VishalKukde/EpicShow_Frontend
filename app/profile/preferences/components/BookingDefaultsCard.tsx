@@ -91,14 +91,6 @@ export function BookingDefaultsCard({
       value: seatPreferences.train,
       options: trainSeatOptions,
     },
-    {
-      key: "flight",
-      title: "Flight",
-      subtitle: "Cabin seats",
-      icon: <Plane className="h-4 w-4" />,
-      value: seatPreferences.flight,
-      options: flightSeatOptions,
-    },
   ] satisfies Array<SeatPreferenceGroup<string>>;
 
   const [activeSeatCategory, setActiveSeatCategory] = useState<SeatPreferenceCategory>("movie");
@@ -106,7 +98,7 @@ export function BookingDefaultsCard({
 
   return (
     <article
-      className={`rounded-3xl border p-5 shadow-sm ${dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-white"}`}
+      className={`rounded-3xl border p-5 shadow-sm ${dark ? "border-zinc-800 bg-[#18181b]" : "border-gray-200 bg-white"} dark:bg-[#18181b] dark:border-zinc-800`}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -124,97 +116,92 @@ export function BookingDefaultsCard({
             dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-white"
           }`}
         > */}
-          {/* <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
             <Armchair className={`h-4 w-4 ${dark ? "text-indigo-300" : "text-indigo-600"}`} />
             <p className={`text-sm font-medium ${dark ? "text-zinc-100" : "text-gray-900"}`}>
               Seat Layout Preferences
             </p>
           </div> */}
-          <div className="mt-3 space-y-3 ">
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {seatPreferenceGroups.map((group) => {
-                const active = group.key === activeSeatCategory;
+        <div className="mt-3 space-y-3 ">
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {seatPreferenceGroups.map((group) => {
+              const active = group.key === activeSeatCategory;
 
-                return (
-                  <button
-                    key={group.key}
-                    type="button"
-                    onClick={() => setActiveSeatCategory(group.key)}
-                    disabled={!isPro}
-                    className={`inline-flex min-h-9 shrink-0 items-center gap-2 rounded-full border px-3 text-xs font-semibold transition cursor-pointer ${
-                      active
+              return (
+                <button
+                  key={group.key}
+                  type="button"
+                  onClick={() => setActiveSeatCategory(group.key)}
+                  disabled={!isPro}
+                  className={`inline-flex min-h-9 shrink-0 items-center gap-2 rounded-full border px-3 text-xs font-semibold transition cursor-pointer ${active
+                    ? dark
+                      ? "border-indigo-400 bg-indigo-400/15 text-indigo-100"
+                      : "border-gray-900 bg-gray-900 text-white"
+                    : dark
+                      ? "border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                      : "border-gray-200 bg-white text-gray-700 hover:bg-gray-100"
+                    } ${!isPro ? "cursor-not-allowed opacity-50" : ""}`}
+                  aria-pressed={active}
+                >
+                  {group.icon}
+                  {group.title}
+                </button>
+              );
+            })}
+          </div>
+
+          {activeSeatGroup ? (
+            <section
+              className={`rounded-xl border p-3 ${dark ? "border-zinc-700 bg-zinc-800/60" : "border-gray-200 bg-gray-50"
+                }`}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p
+                    className={`inline-flex items-center gap-2 text-sm font-medium ${dark ? "text-zinc-100" : "text-gray-900"
+                      }`}
+                  >
+                    {activeSeatGroup.icon}
+                    {activeSeatGroup.title}
+                  </p>
+                  <p className={`mt-0.5 text-xs ${dark ? "text-zinc-400" : "text-gray-600"}`}>
+                    {activeSeatGroup.subtitle}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                {activeSeatGroup.options.map((option) => {
+                  const selected = activeSeatGroup.value === option.value;
+
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      disabled={!isPro}
+                      onClick={() => setSeatPreferences(activeSeatGroup.key, option.value)}
+                      className={`min-h-16 rounded-lg border px-3 py-2 text-left transition cursor-pointer ${selected
                         ? dark
-                          ? "border-indigo-400 bg-indigo-400/15 text-indigo-100"
+                          ? "border-indigo-400 bg-zinc-900 text-zinc-100"
                           : "border-gray-900 bg-gray-900 text-white"
                         : dark
-                          ? "border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                          ? "border-zinc-700 bg-zinc-700 text-zinc-300 hover:bg-zinc-800"
                           : "border-gray-200 bg-white text-gray-700 hover:bg-gray-100"
-                    } ${!isPro ? "cursor-not-allowed opacity-50" : ""}`}
-                    aria-pressed={active}
-                  >
-                    {group.icon}
-                    {group.title}
-                  </button>
-                );
-              })}
-            </div>
-
-            {activeSeatGroup ? (
-              <section
-                className={`rounded-xl border p-3 ${
-                  dark ? "border-zinc-700 bg-zinc-800/60" : "border-gray-200 bg-gray-50"
-                }`}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p
-                      className={`inline-flex items-center gap-2 text-sm font-medium ${
-                        dark ? "text-zinc-100" : "text-gray-900"
-                      }`}
-                    >
-                      {activeSeatGroup.icon}
-                      {activeSeatGroup.title}
-                    </p>
-                    <p className={`mt-0.5 text-xs ${dark ? "text-zinc-400" : "text-gray-600"}`}>
-                      {activeSeatGroup.subtitle}
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
-                  {activeSeatGroup.options.map((option) => {
-                    const selected = activeSeatGroup.value === option.value;
-
-                    return (
-                      <button
-                        key={option.value}
-                        type="button"
-                        disabled={!isPro}
-                        onClick={() => setSeatPreferences(activeSeatGroup.key, option.value)}
-                        className={`min-h-16 rounded-lg border px-3 py-2 text-left transition cursor-pointer ${
-                          selected
-                            ? dark
-                              ? "border-indigo-400 bg-zinc-900 text-zinc-100"
-                              : "border-gray-900 bg-gray-900 text-white"
-                            : dark
-                              ? "border-zinc-700 bg-zinc-700 text-zinc-300 hover:bg-zinc-800"
-                              : "border-gray-200 bg-white text-gray-700 hover:bg-gray-100"
                         } ${!isPro ? "cursor-not-allowed opacity-50" : ""}`}
-                      >
-                        <span className="block text-xs font-semibold">{option.label}</span>
-                        <span
-                          className={`mt-1 block text-[11px] leading-4 ${
-                            selected ? (dark ? "text-zinc-300" : "text-gray-200") : dark ? "text-zinc-500" : "text-gray-500"
+                    >
+                      <span className="block text-xs font-semibold">{option.label}</span>
+                      <span
+                        className={`mt-1 block text-[11px] leading-4 ${selected ? (dark ? "text-zinc-300" : "text-gray-200") : dark ? "text-zinc-500" : "text-gray-500"
                           }`}
-                        >
-                          {option.description}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
-            ) : null}
-          </div>
+                      >
+                        {option.description}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          ) : null}
+        </div>
         {/* </div> */}
 
         {/* <div

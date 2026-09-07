@@ -1,59 +1,61 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown, HelpCircle, Search } from "lucide-react";
+import { ChevronDown, HelpCircle, Search, Sparkles } from "lucide-react";
 import { useThemeStore } from "@/store/themeStore";
 
 const faqItems = [
   {
     category: "Bookings",
-    question: "How do I cancel a booking?",
+    question: "How do I cancel a ticket booking?",
     answer:
-      "Open Profile > Bookings, select the booking, and click Cancel if the show is eligible for cancellation.",
+      "Navigate to Profile > My Activity, select your booking card, and click 'Cancel Booking'. If the event or show is eligible, your refund will automatically enter the refund queue.",
   },
   {
     category: "Bookings",
-    question: "How many seats can I book?",
+    question: "How many seats can I reserve per booking?",
     answer:
-      "Free users can book up to 2 seats per transaction. Pro members can book up to 5 seats.",
+      "Standard accounts can reserve up to 2 seats per checkout transaction. Verified Pro members can select up to 5 seats with realtime seat locking.",
   },
   {
     category: "Payments",
-    question: "Payment is debited but booking failed. What should I do?",
+    question: "Money was debited, but my booking failed. What should I do?",
     answer:
-      "Wait 10-15 minutes for automatic reconciliation. If not resolved, contact support with booking ID and payment reference.",
+      "Our system reconciles pending transactions every 10–15 minutes. If your booking is not created, the full amount will automatically refund to your wallet or original payment source.",
   },
   {
     category: "Payments",
-    question: "Which payment methods are supported?",
+    question: "Which payment gateways and methods are supported?",
     answer:
-      "UPI, debit or credit cards, and supported wallets are available based on your region and provider availability.",
+      "We support Razorpay (UPI, Credit/Debit cards, NetBanking) and instant wallet balance checkout for seamless 1-click transactions.",
   },
   {
     category: "Refunds",
-    question: "How long do refunds take?",
+    question: "How long does it take for refunds to reflect?",
     answer:
-      "Refunds are usually processed in 3-7 business days, depending on your payment provider and bank timelines.",
+      "Wallet refunds are processed instantly. Razorpay card/bank refunds typically take 3–5 business days to reflect in your bank account statement.",
   },
   {
     category: "Account",
-    question: "How can I update my profile details?",
+    question: "How do I update my profile or saved passengers?",
     answer:
-      "Go to Profile > Account Settings to update name, email, phone, language, and country preferences.",
+      "Go to Profile > Saved Passengers or Account Settings to manage your personal contact information, default passenger list, and security preferences.",
   },
   {
     category: "Security",
-    question: "How do I secure my account?",
+    question: "How does token session security work on EpicShow?",
     answer:
-      "Use a strong password, enable 2FA, and review active sessions regularly from Profile > Security.",
+      "We use encrypted JWT access and refresh token pairs. Changing your password or signing out invalidates all active sessions across devices.",
   },
   {
     category: "Technical",
-    question: "The app is not loading seat layout. How can I fix it?",
+    question: "Seat layout is not loading. How can I resolve it?",
     answer:
-      "Check your network, refresh the page, and retry. If it continues, clear browser cache or contact support.",
+      "Ensure you have a stable network connection, refresh the webpage, or clear browser cache. If the issue persists, contact live support via Profile > Chat.",
   },
 ];
+
+const categoryTags = ["All", "Bookings", "Payments", "Refunds", "Account", "Security", "Technical"];
 
 export default function FAQPage() {
   const mode = useThemeStore((s) => s.mode);
@@ -79,43 +81,58 @@ export default function FAQPage() {
   }, [activeTag, query]);
 
   return (
-    <div className="space-y-5 px-3 py-2 pb-6 select-none sm:px-4 lg:px-0">
-      {/* Admin-Style Top Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-b pb-4 border-slate-200 dark:border-zinc-800">
+    <div className="select-none space-y-4 px-3 py-2 pb-6 sm:px-4 lg:px-0">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3 border-slate-200 dark:border-zinc-800">
         <div>
-          <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${dark ? "text-zinc-50" : "text-slate-900"}`}>
+          <div className="flex items-center gap-2">
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${dark
+                  ? "border-indigo-400/30 bg-indigo-500/15 text-indigo-300"
+                  : "border-indigo-200 bg-indigo-50 text-indigo-700"
+                }`}
+            >
+              <Sparkles className="h-3 w-3" />
+              Help Center
+            </span>
+          </div>
+          <h1 className={`mt-1.5 text-xl font-black tracking-tight ${dark ? "text-white" : "text-slate-900"} dark:text-white`}>
             Frequently Asked Questions
           </h1>
-          <p className={`text-xs font-medium mt-0.5 ${dark ? "text-zinc-400" : "text-slate-500"}`}>
-            Quick answers to common questions about bookings, payments, refunds, and your account.
+          <p className={`text-xs font-medium ${dark ? "text-zinc-400" : "text-slate-500"} dark:text-zinc-400`}>
+            Instant answers for ticketing, train PNRs, payments, wallet top-ups, and account management.
           </p>
         </div>
       </div>
 
+      {/* Search & Tags Bar */}
       <section
-        className={`rounded-2xl border p-5 shadow-sm sm:p-6 ${
-          dark ? "border-zinc-800 bg-zinc-900" : "border-slate-200 bg-white"
-        }`}
+        className={`rounded-2xl border p-4 shadow-xs ${dark ? "border-zinc-800 bg-[#18181b]" : "border-slate-200 bg-white"
+          } dark:bg-[#18181b] dark:border-zinc-800`}
       >
         <label
-          className={`flex items-center gap-2 rounded-xl border px-3.5 py-2 transition ${
-            dark ? "border-zinc-700 bg-zinc-950/60 focus-within:border-indigo-500" : "border-slate-200 bg-slate-50 focus-within:border-indigo-500"
-          }`}
+          className={`flex h-10 items-center gap-2.5 rounded-xl border px-3 transition ${dark
+              ? "border-zinc-700 bg-zinc-900/80 focus-within:border-indigo-500"
+              : "border-slate-200 bg-slate-50 focus-within:border-indigo-400"
+            }`}
         >
           <Search className={`h-4 w-4 shrink-0 ${dark ? "text-zinc-400" : "text-slate-400"}`} />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search FAQ by keyword..."
-            className={`w-full text-sm outline-none ${
-              dark ? "bg-transparent text-zinc-100 placeholder:text-zinc-500" : "bg-transparent text-slate-800 placeholder:text-slate-400"
-            }`}
+            placeholder="Search FAQs by keywords (e.g. refund, payment, seats)..."
+            className={`w-full text-xs font-medium outline-none ${dark
+                ? "bg-transparent text-zinc-100 placeholder:text-zinc-500"
+                : "bg-transparent text-slate-800 placeholder:text-slate-400"
+              }`}
           />
         </label>
 
-        <div className="mt-4 flex flex-wrap gap-2">
-          {["All", "Bookings", "Payments", "Refunds", "Account", "Security", "Technical"].map(
-            (tag) => (
+        {/* Category Pills */}
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {categoryTags.map((tag) => {
+            const active = activeTag === tag;
+            return (
               <button
                 key={tag}
                 type="button"
@@ -123,27 +140,30 @@ export default function FAQPage() {
                   setActiveTag(tag);
                   setOpenIndex(0);
                 }}
-                className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-semibold transition ${
-                  activeTag === tag
-                    ? "border-indigo-600 bg-indigo-600 text-white"
+                className={`cursor-pointer rounded-lg border px-3 py-1 text-xs font-bold transition duration-150 ${active
+                    ? "border-indigo-600 bg-indigo-600 text-white shadow-xs"
                     : dark
-                      ? "border-zinc-700 bg-zinc-800 text-zinc-300 hover:border-zinc-600"
-                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                }`}
+                      ? "border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+                      : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                  }`}
               >
                 {tag}
               </button>
-            )
-          )}
+            );
+          })}
         </div>
       </section>
 
-      <section className="space-y-3">
+      {/* Accordion Items */}
+      <section className="space-y-2.5">
         {filteredFaq.length === 0 ? (
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm">
-            <HelpCircle className="mx-auto h-6 w-6 text-gray-500" />
-            <p className="mt-2 text-sm text-gray-700">
-              No matching FAQ found. Try a broader keyword.
+          <div
+            className={`rounded-2xl border p-6 text-center shadow-xs ${dark ? "border-zinc-800 bg-[#18181b]" : "border-slate-200 bg-white"
+              } dark:bg-[#18181b] dark:border-zinc-800`}
+          >
+            <HelpCircle className={`mx-auto h-6 w-6 ${dark ? "text-zinc-400" : "text-slate-400"}`} />
+            <p className={`mt-2 text-xs font-medium ${dark ? "text-zinc-300" : "text-slate-700"}`}>
+              No matching FAQ found. Try searching for a different keyword or select another category.
             </p>
           </div>
         ) : (
@@ -152,30 +172,44 @@ export default function FAQPage() {
             return (
               <article
                 key={`${item.category}-${item.question}`}
-                className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+                className={`overflow-hidden rounded-xl border transition-all duration-200 shadow-xs ${dark ? "border-zinc-800 bg-[#18181b]" : "border-slate-200 bg-white"
+                  } dark:bg-[#18181b] dark:border-zinc-800`}
               >
                 <button
                   onClick={() => setOpenIndex(isOpen ? null : index)}
-                  className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left sm:px-5 cursor-pointer"
+                  className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left cursor-pointer transition hover:bg-indigo-500/5"
                 >
-                  <div>
-                    <p className="mb-1 text-xs font-medium uppercase tracking-wide text-indigo-600">
+                  <div className="space-y-0.5">
+                    <span
+                      className={`inline-block rounded-md px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${dark
+                          ? "bg-indigo-500/15 text-indigo-300 border border-indigo-500/20"
+                          : "bg-indigo-50 text-indigo-700 border border-indigo-100"
+                        }`}
+                    >
                       {item.category}
-                    </p>
-                    <p className="text-sm font-medium text-gray-900 sm:text-base">
+                    </span>
+                    <h3 className={`text-xs sm:text-sm font-bold ${dark ? "text-zinc-100" : "text-slate-900"} dark:text-white`}>
                       {item.question}
-                    </p>
+                    </h3>
                   </div>
-                  <ChevronDown
-                    className={`h-4 w-4 text-gray-500 transition-transform ${
-                      isOpen ? "rotate-180" : ""
-                    }`}
-                  />
+                  <span
+                    className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg border transition-transform duration-200 ${dark
+                        ? "border-zinc-800 bg-zinc-900 text-zinc-400"
+                        : "border-slate-200 bg-slate-50 text-slate-500"
+                      } ${isOpen ? "rotate-180 bg-indigo-600 text-white border-indigo-600" : ""}`}
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </span>
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-gray-100 px-4 py-4 sm:px-5">
-                    <p className="text-sm leading-6 text-gray-600">{item.answer}</p>
+                  <div
+                    className={`border-t px-4 py-3 sm:px-5 ${dark ? "border-zinc-800/80 bg-zinc-900/40" : "border-slate-100 bg-slate-50/50"
+                      }`}
+                  >
+                    <p className={`text-xs leading-relaxed ${dark ? "text-zinc-300" : "text-slate-600"} dark:text-zinc-300`}>
+                      {item.answer}
+                    </p>
                   </div>
                 )}
               </article>

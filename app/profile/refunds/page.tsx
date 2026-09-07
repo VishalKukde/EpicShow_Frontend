@@ -148,10 +148,10 @@ export default function RefundPage() {
       {/* Admin-Style Top Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-b pb-4 border-slate-200 dark:border-zinc-800">
         <div>
-          <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${dark ? "text-zinc-50" : "text-slate-900"}`}>
+          <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${dark ? "text-zinc-50" : "text-slate-900"} dark:text-white`}>
             Refund History
           </h1>
-          <p className={`text-xs font-medium mt-0.5 ${dark ? "text-zinc-400" : "text-slate-500"}`}>
+          <p className={`text-xs font-medium mt-0.5 ${dark ? "text-zinc-400" : "text-slate-500"} dark:text-zinc-400`}>
             Track refund records processed across movies, sports, events, and gaming.
           </p>
         </div>
@@ -186,19 +186,17 @@ export default function RefundPage() {
 
       {byType.length > 0 ? (
         <section
-          className={`rounded-2xl border p-4 ${
-            dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-white"
-          }`}
+          className={`rounded-2xl border p-4 ${dark ? "border-zinc-800 bg-[#18181b]" : "border-gray-200 bg-white"
+            } dark:bg-[#18181b] dark:border-zinc-800`}
         >
           <div className="flex flex-wrap gap-2">
             {byType.map((item) => (
               <span
                 key={item.type}
-                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${
-                  dark
-                    ? "border-zinc-700 bg-zinc-800 text-zinc-200"
+                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${dark
+                    ? "border-zinc-700/60 bg-zinc-800/80 text-zinc-200"
                     : "border-indigo-100 bg-indigo-50 text-indigo-800"
-                }`}
+                  }`}
               >
                 {labelize(item.type)}
                 <span className={dark ? "text-zinc-400" : "text-indigo-500"}>
@@ -211,27 +209,25 @@ export default function RefundPage() {
       ) : null}
 
       <section
-        className={`overflow-hidden rounded-2xl border shadow-sm ${
-          dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-white"
-        }`}
+        className={`overflow-hidden rounded-2xl border shadow-sm ${dark ? "border-zinc-800 bg-[#18181b]" : "border-gray-200 bg-white"
+          } dark:bg-[#18181b] dark:border-zinc-800`}
       >
         <div
-          className={`flex flex-wrap items-center justify-between gap-3 border-b p-4 ${
-            dark ? "border-zinc-700" : "border-gray-200"
-          }`}
+          className={`flex flex-wrap items-center justify-between gap-3 border-b p-4 ${dark ? "border-zinc-800" : "border-gray-200"
+            }`}
         >
           <div>
-            <h2 className={`text-lg font-semibold ${dark ? "text-zinc-50" : "text-gray-950"}`}>
+            <h2 className={`text-lg font-bold ${dark ? "text-zinc-50" : "text-gray-950"} dark:text-white`}>
               Refund History
             </h2>
-            <p className={`text-sm ${dark ? "text-zinc-400" : "text-gray-500"}`}>
+            <p className={`text-sm ${dark ? "text-zinc-400" : "text-gray-500"} dark:text-zinc-400`}>
               Admin processed refunds across movies, sports, events, and gaming.
             </p>
           </div>
         </div>
 
         {error ? (
-          <div className="border-b border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+          <div className="border-b border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-300">
             {error}
           </div>
         ) : null}
@@ -241,18 +237,16 @@ export default function RefundPage() {
             Array.from({ length: 3 }).map((_, index) => (
               <div
                 key={`refund-skeleton-${index}`}
-                className={`h-36 animate-pulse rounded-xl ${
-                  dark ? "bg-zinc-800" : "bg-gray-100"
-                }`}
+                className={`h-36 animate-pulse rounded-xl border ${dark ? "border-zinc-800 bg-zinc-800/60" : "bg-gray-100"
+                  } dark:bg-zinc-800/60 dark:border-zinc-800`}
               />
             ))
           ) : refunds.length === 0 ? (
             <div
-              className={`rounded-xl border border-dashed p-8 text-center text-sm ${
-                dark
-                  ? "border-zinc-700 text-zinc-400"
+              className={`rounded-xl border border-dashed p-8 text-center text-sm ${dark
+                  ? "border-zinc-800 bg-zinc-900/40 text-zinc-400"
                   : "border-gray-300 text-gray-500"
-              }`}
+                } dark:bg-zinc-900/40 dark:border-zinc-800 dark:text-zinc-400`}
             >
               No refunds found for your account yet.
             </div>
@@ -268,11 +262,10 @@ export default function RefundPage() {
                 type="button"
                 disabled={loadingMore}
                 onClick={() => void fetchRefunds(page + 1, true)}
-                className={`inline-flex min-h-10 items-center gap-2 rounded-xl border px-5 text-sm font-semibold transition ${
-                  dark
-                    ? "border-zinc-700 bg-zinc-800 text-zinc-100 hover:bg-zinc-700"
+                className={`inline-flex min-h-10 items-center gap-2 rounded-xl border px-5 text-sm font-semibold transition cursor-pointer ${dark
+                    ? "border-zinc-700/70 bg-[#18181b] text-zinc-100 hover:bg-zinc-800"
                     : "border-gray-300 bg-white text-gray-900 hover:bg-gray-50"
-                } disabled:cursor-not-allowed disabled:opacity-60`}
+                  } disabled:cursor-not-allowed disabled:opacity-60`}
               >
                 {loadingMore ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 {loadingMore ? "Loading..." : "Load More"}
@@ -291,38 +284,40 @@ function RefundCard({ refund, dark }: { refund: RefundItem; dark: boolean }) {
 
   return (
     <article
-      className={`rounded-xl border p-4 ${
-        dark ? "border-zinc-700 bg-zinc-950/40" : "border-gray-200 bg-gray-50"
-      }`}
+      className={`rounded-xl border p-4 ${dark ? "border-zinc-800 bg-[#18181b]" : "border-gray-200 bg-gray-50"
+        } dark:bg-[#18181b] dark:border-zinc-800`}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <span
-              className={`rounded-full px-2.5 py-1 text-[11px] font-bold uppercase ${
-                completed
-                  ? "bg-emerald-100 text-emerald-800"
-                  : "bg-amber-100 text-amber-800"
-              }`}
+              className={`rounded-full px-2.5 py-1 text-[11px] font-bold uppercase ${completed
+                  ? dark
+                    ? "bg-emerald-950/60 text-emerald-300 border border-emerald-800/40"
+                    : "bg-emerald-100 text-emerald-800"
+                  : dark
+                    ? "bg-amber-950/60 text-amber-300 border border-amber-800/40"
+                    : "bg-amber-100 text-amber-800"
+                }`}
             >
               {completed ? "Refunded" : "Processing"}
             </span>
-            <span className={`text-xs font-semibold ${dark ? "text-zinc-400" : "text-gray-500"}`}>
+            <span className={`text-xs font-semibold ${dark ? "text-zinc-400" : "text-gray-500"} dark:text-zinc-400`}>
               {labelize(refund.bookingType)}
             </span>
           </div>
-          <h3 className={`mt-2 text-base font-semibold ${dark ? "text-zinc-50" : "text-gray-950"}`}>
+          <h3 className={`mt-2 text-base font-bold ${dark ? "text-zinc-50" : "text-gray-950"} dark:text-white`}>
             {refund.bookingTitle}
           </h3>
-          <p className={`mt-1 text-sm ${dark ? "text-zinc-400" : "text-gray-500"}`}>
+          <p className={`mt-1 text-sm ${dark ? "text-zinc-400" : "text-gray-500"} dark:text-zinc-400`}>
             {refund.bookingVenue}
           </p>
         </div>
         <div className="text-left sm:text-right">
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">
+          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
             Credited to wallet
           </p>
-          <p className={`mt-1 text-xl font-bold ${dark ? "text-zinc-50" : "text-gray-950"}`}>
+          <p className={`mt-1 text-xl font-bold ${dark ? "text-zinc-50" : "text-gray-950"} dark:text-white`}>
             {formatCurrency(refund.refundAmount)}
           </p>
         </div>
@@ -336,9 +331,8 @@ function RefundCard({ refund, dark }: { refund: RefundItem; dark: boolean }) {
       </div>
 
       <div
-        className={`mt-4 grid gap-2 rounded-xl border p-3 text-xs ${
-          dark ? "border-zinc-700 bg-zinc-900 text-zinc-300" : "border-gray-200 bg-white text-gray-600"
-        } sm:grid-cols-2 lg:grid-cols-3`}
+        className={`mt-4 grid gap-2 rounded-xl border p-3 text-xs ${dark ? "border-zinc-800 bg-zinc-900/60 text-zinc-300" : "border-gray-200 bg-white text-gray-600"
+          } dark:bg-zinc-900/60 dark:border-zinc-800 sm:grid-cols-2 lg:grid-cols-3`}
       >
         <Meta label="Booking ID" value={refund.bookingId} />
         <Meta label="Payment ID" value={refund.paymentId || "-"} />
@@ -364,23 +358,21 @@ function StatCard({
 }) {
   return (
     <div
-      className={`rounded-2xl border p-4 ${
-        dark ? "border-zinc-700 bg-zinc-900" : "border-gray-200 bg-white"
-      }`}
+      className={`rounded-2xl border p-4 ${dark ? "border-zinc-800 bg-[#18181b]" : "border-gray-200 bg-white"
+        } dark:bg-[#18181b] dark:border-zinc-800`}
     >
       <div className="flex items-center gap-3">
-        <span className={`grid h-10 w-10 place-items-center rounded-xl border ${
-                  dark
-                    ? "border-zinc-700 bg-zinc-800 text-zinc-200"
-                    : "border-indigo-200 bg-indigo-50 text-indigo-800"
-                }`}>
+        <span className={`grid h-10 w-10 place-items-center rounded-xl border ${dark
+            ? "border-zinc-700/60 bg-zinc-800/80 text-zinc-200"
+            : "border-indigo-200 bg-indigo-50 text-indigo-800"
+          }`}>
           <Icon className="h-5 w-5" />
         </span>
         <div className="min-w-0">
-          <p className={`text-xs font-semibold uppercase tracking-wide ${dark ? "text-zinc-400" : "text-gray-500"}`}>
+          <p className={`text-xs font-semibold uppercase tracking-wide ${dark ? "text-zinc-400" : "text-gray-500"} dark:text-zinc-400`}>
             {label}
           </p>
-          <p className={`mt-1 truncate text-lg font-bold ${dark ? "text-zinc-50" : "text-gray-950"}`}>
+          <p className={`mt-1 truncate text-lg font-bold ${dark ? "text-zinc-50" : "text-gray-950"} dark:text-white`}>
             {value}
           </p>
         </div>
@@ -402,12 +394,12 @@ function Detail({
 }) {
   return (
     <div className="flex min-w-0 items-start gap-2">
-      <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${dark ? "text-zinc-500" : "text-gray-400"}`} />
+      <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${dark ? "text-zinc-500" : "text-gray-400"} dark:text-zinc-500`} />
       <div className="min-w-0">
-        <p className={`text-[11px] font-semibold uppercase tracking-wide ${dark ? "text-zinc-500" : "text-gray-400"}`}>
+        <p className={`text-[11px] font-semibold uppercase tracking-wide ${dark ? "text-zinc-500" : "text-gray-400"} dark:text-zinc-500`}>
           {label}
         </p>
-        <p className={`mt-0.5 break-words text-sm font-medium ${dark ? "text-zinc-200" : "text-gray-800"}`}>
+        <p className={`mt-0.5 break-words text-sm font-medium ${dark ? "text-zinc-200" : "text-gray-800"} dark:text-zinc-200`}>
           {value}
         </p>
       </div>
@@ -423,3 +415,4 @@ function Meta({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+

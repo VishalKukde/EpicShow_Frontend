@@ -1,5 +1,4 @@
 import {
-  Award,
   BarChart3,
   Bell,
   FileSpreadsheet,
@@ -63,7 +62,6 @@ export const NAV_SECTIONS: { label: string; items: NavItem[] }[] = [
     label: "Marketing & Growth",
     items: [
       { key: "coupons", label: "Coupons & Offers", icon: Gift },
-      { key: "loyalty", label: "Loyalty & VIP", icon: Award },
       { key: "banners", label: "Hero Banners", icon: Megaphone },
     ],
   },
@@ -101,7 +99,6 @@ export const ACTIVE_PAGES = new Set<string>([
   "refunds",
   "customers",
   "coupons",
-  "loyalty",
   "banners",
   "revenue",
   "reporting",
@@ -127,7 +124,6 @@ export const ADMIN_PAGE_ROUTES: Record<ActivePage, string> = {
   refunds: "/admin/operation/refunds",
   customers: "/admin/operation/customers",
   coupons: "/admin/marketing/coupons",
-  loyalty: "/admin/marketing/loyalty",
   banners: "/admin/marketing/banners",
   revenue: "/admin/analytics/revenue",
   reporting: "/admin/analytics/reporting",
@@ -169,7 +165,6 @@ export function getActivePageFromPath(pathname: string): ActivePage {
 
   if (section === "marketing") {
     if (leaf === "coupons") return "coupons";
-    if (leaf === "loyalty") return "loyalty";
     if (leaf === "banners") return "banners";
   }
   if (section === "analytics") {
@@ -194,7 +189,7 @@ export function getActiveArea(activeItem: ActivePage) {
   if (["movies", "sports", "gaming", "trains"].includes(activeItem)) return "Bookings";
   if (["add-movie", "add-sport", "add-gaming", "add-train"].includes(activeItem)) return "Catalog";
   if (["orders", "venues", "refunds", "customers"].includes(activeItem)) return "Operations";
-  if (["coupons", "loyalty", "banners"].includes(activeItem)) return "Marketing";
+  if (["coupons", "banners"].includes(activeItem)) return "Marketing";
   if (["revenue", "reporting"].includes(activeItem)) return "Analytics";
   return "System";
 }

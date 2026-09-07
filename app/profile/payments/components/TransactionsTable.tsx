@@ -69,10 +69,15 @@ export default function TransactionsTable({
   const activeFilterCount = selectedStatuses.length + selectedShowTypes.length;
 
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm select-none">
+    <section
+      className={`rounded-2xl border p-5 shadow-sm select-none ${dark ? "border-zinc-800 bg-[#18181b]" : "border-gray-200 bg-white"
+        } dark:bg-[#18181b] dark:border-zinc-800`}
+    >
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">All Transactions</h2>
+          <h2 className={`text-lg font-bold ${dark ? "text-white" : "text-gray-900"} dark:text-white`}>
+            All Transactions
+          </h2>
         </div>
         <div className="space-x-2">
 
@@ -81,15 +86,20 @@ export default function TransactionsTable({
             type="button"
             onClick={() => setOpenFilterModal(true)}
             className={`cursor-pointer rounded-md border px-2 py-1 text-[10px] font-semibold normal-case tracking-normal ${activeFilterCount > 0
-              ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-              : "border-gray-300 bg-white text-gray-700"
+              ? "border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800"
+              : dark
+                ? "border-zinc-700 bg-zinc-800 text-zinc-200"
+                : "border-gray-300 bg-white text-gray-700"
               }`}
           >
             Filter{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
           </button>
           <button
             onClick={onBackToRecent}
-            className="cursor-pointer rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className={`cursor-pointer rounded-lg border px-3 py-1.5 text-sm font-semibold transition ${dark
+                ? "border-zinc-700 bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
+                : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+              }`}
           >
             Back to recent
           </button>
@@ -97,10 +107,10 @@ export default function TransactionsTable({
 
       </div>
 
-      <div className="max-h-[460px] overflow-auto rounded-xl border border-gray-200">
+      <div className={`max-h-[460px] overflow-auto rounded-xl border ${dark ? "border-zinc-800" : "border-gray-200"} dark:border-zinc-800`}>
         <table className="w-full min-w-[860px] text-left text-sm">
-          <thead className="sticky top-0 z-10 bg-white shadow-sm">
-            <tr className="border-b border-gray-200 text-xs uppercase tracking-[0.08em] text-gray-700">
+          <thead className={`sticky top-0 z-10 shadow-sm ${dark ? "bg-[#18181b] text-zinc-300" : "bg-white text-gray-700"}`}>
+            <tr className={`border-b text-xs uppercase tracking-[0.08em] ${dark ? "border-zinc-800 text-zinc-400" : "border-gray-200 text-gray-700"}`}>
               <th className="px-4 py-3 font-bold">Transaction ID</th>
               <th className="px-4 py-3 font-bold">Title</th>
               <th className="px-4 py-3 font-bold"> Type</th>
@@ -113,7 +123,7 @@ export default function TransactionsTable({
           <tbody>
             {filteredPayments.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-sm text-gray-500">
+                <td colSpan={7} className={`px-4 py-10 text-center text-sm ${dark ? "text-zinc-400" : "text-gray-500"} dark:text-zinc-400`}>
                   No transactions found.
                 </td>
               </tr>
@@ -121,40 +131,45 @@ export default function TransactionsTable({
             {filteredPayments.map((payment) => (
               <tr
                 key={payment.id}
-                className="border-b border-gray-100 bg-white transition hover:bg-gray-50"
+                className={`border-b transition ${dark
+                    ? "border-zinc-800/60 bg-[#18181b] hover:bg-zinc-800/40"
+                    : "border-gray-100 bg-white hover:bg-gray-50"
+                  }`}
               >
-                <td className="px-4 py-3 text-xs font-medium text-gray-700">
+                <td className={`px-4 py-3 text-xs font-medium ${dark ? "text-zinc-300" : "text-gray-700"} dark:text-zinc-300`}>
                   {payment.id}
                 </td>
-                <td className="px-4 py-3 text-gray-900">
+                <td className={`px-4 py-3 ${dark ? "text-white" : "text-gray-900"} dark:text-white`}>
                   <div className="flex flex-col">
                     <span className="font-medium">{payment.title}</span>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-gray-600">
-                  <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs text-gray-700 ring-1 ring-gray-200 uppercase">
+                <td className={`px-4 py-3 ${dark ? "text-zinc-400" : "text-gray-600"} dark:text-zinc-400`}>
+                  <span className={`rounded-full px-2.5 py-1 text-xs uppercase ${dark ? "bg-zinc-800 text-zinc-300 border border-zinc-700/60" : "bg-gray-100 text-gray-700 ring-1 ring-gray-200"
+                    }`}>
                     {payment.showType || "N/A"}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-gray-600">{payment.date}</td>
+                <td className={`px-4 py-3 ${dark ? "text-zinc-400" : "text-gray-600"} dark:text-zinc-400`}>{payment.date}</td>
                 <td className="px-4 py-3">
-                  <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs text-gray-700 ring-1 ring-gray-200 uppercase">
+                  <span className={`rounded-full px-2.5 py-1 text-xs uppercase ${dark ? "bg-zinc-800 text-zinc-300 border border-zinc-700/60" : "bg-gray-100 text-gray-700 ring-1 ring-gray-200"
+                    }`}>
                     {payment.method}
                   </span>
                 </td>
                 <td className="px-4 py-3">
                   <span
                     className={`rounded-full border px-2.5 py-1 text-xs font-medium ${payment.status === "Success"
-                      ? dark ? "border-emerald-300 text-emerald-300" : "border-emerald-500 text-emerald-900 bg-emerald-100"
+                      ? dark ? "border-emerald-800/40 bg-emerald-950/60 text-emerald-300" : "border-emerald-500 text-emerald-900 bg-emerald-100"
                       : payment.status === "Refunded"
-                        ? "border-amber-300 bg-amber-300 text-amber-900"
-                        : "border-red-300 bg-red-100 text-red-800"
+                        ? dark ? "border-amber-800/40 bg-amber-950/60 text-amber-300" : "border-amber-300 bg-amber-300 text-amber-900"
+                        : dark ? "border-rose-800/40 bg-rose-950/60 text-rose-300" : "border-red-300 bg-red-100 text-red-800"
                       }`}
                   >
                     {payment.status}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-right font-semibold text-gray-900">
+                <td className={`px-4 py-3 text-right font-semibold ${dark ? "text-white" : "text-gray-900"} dark:text-white`}>
                   ₹{payment.amount}
                 </td>
               </tr>
@@ -195,8 +210,8 @@ export default function TransactionsTable({
                   type="button"
                   onClick={() => setOpenFilterModal(false)}
                   className={`group cursor-pointer rounded-lg p-2 transition-all duration-200 hover:shadow-md ${dark
-                      ? "bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    ? "bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                 >
                   <X size={18} className="transition-transform duration-200 group-hover:rotate-90" />
