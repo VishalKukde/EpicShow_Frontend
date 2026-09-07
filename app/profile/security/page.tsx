@@ -95,7 +95,7 @@ export default function SecurityPage() {
         dark={dark}
       />
 
-      <ActiveSessionsCard sessions={activeSessions} dark={dark} />
+      <ActiveSessionsCard dark={dark} />
       <SecurityTipsGrid tips={securityTips} />
 
       <ChangePasswordModal
