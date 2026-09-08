@@ -18,6 +18,8 @@ type HeroCategoryCardsProps = {
 const DEFAULT_CARDS: HeroCategoryCardData[] = [
   {
     label: "Movies",
+    subtitle: "Cinema & Blockbusters",
+    badge: "Now Showing & Upcoming",
     accent: "#818cf8",
     Icon: Film,
     href: "/movies",
@@ -26,61 +28,34 @@ const DEFAULT_CARDS: HeroCategoryCardData[] = [
   },
   {
     label: "Sports",
-    accent: "#34d399",
+    subtitle: "Arenas & Live Matches",
+    badge: "Stadium Live Passes",
+    accent: "#10b981",
     Icon: Trophy,
     href: "/sports",
     isLive: true,
     bgImage: "/assets/category/Sport.png",
   },
-   {
+  {
     label: "Train",
-    accent: "#60a5fa",
+    subtitle: "Express Railways & Tickets",
+    badge: "Instant Seat Booking",
+    accent: "#06b6d4",
     Icon: TrainFront,
     href: "/trains",
     isLive: true,
     bgImage: "/assets/category/Train.png",
   },
- 
   {
     label: "Gaming",
-    accent: "#a78bfa",
+    subtitle: "Esports & Live Tournaments",
+    badge: "Upcoming Esports",
+    accent: "#f59e0b",
     Icon: Gamepad2,
     href: "/gaming",
     isLive: true,
     bgImage: "/assets/category/Gaming.png",
   },
-  //  {
-  //   label: "Events",
-  //   accent: "#fb7185",
-  //   Icon: CalendarDays,
-  //   href: "/events",
-  //   isLive: false,
-  //   bgImage: "/assets/category/Event.png",
-  // },
-  // {
-  //   label: "Flight",
-  //   accent: "#4ade80",
-  //   Icon: Plane,
-  //   href: "/flights",
-  //   isLive: false,
-  //   bgImage: "/assets/category/Flight.png",
-  // },
-  // {
-  //   label: "Hotel",
-  //   accent: "#fbbf24",
-  //   Icon: Hotel,
-  //   href: "/hotels",
-  //       isLive: false,
-  //   bgImage: "/assets/category/Hotel.png",
-  // },
-  // {
-  //   label: "Concerts",
-  //   accent: "#e879f9",
-  //   Icon: Music2,
-  //   href: "/concerts",
-  //   isLive: false,
-  //   bgImage: "/assets/category/Concert.png",
-  // },
 ];
 
 export default function HeroCategoryCards({
@@ -107,37 +82,41 @@ export default function HeroCategoryCards({
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  const cardHeight = isSmall ? "h-52" : "h-60 md:h-72";
+  const cardHeight = isSmall ? "h-48" : "h-52 lg:h-60";
 
   const gridCols = isSmall
-    ? "grid-flow-col auto-cols-[78%] grid-rows-1 overflow-x-auto pb-3 pl-1 pr-1 no-scrollbar snap-x snap-mandatory scroll-smooth"
-    : "grid-cols-2 md:grid-cols-4";
+    ? "grid-cols-1 sm:grid-cols-2"
+    : "grid-cols-2 lg:grid-cols-4";
 
   return (
     <div ref={containerRef} className={className}>
-      <div className="py-12 sm:py-14">
-        <div className="mb-6 text-center sm:mb-10">
-          <p
-            className={`font-black uppercase tracking-[0.28em] ${isSmall ? "text-lg" : "text-2xl"} ${
-              dark ? "text-blue-300" : "text-blue-600"
-            }`}
-          >
-            Browse by category
+      <div className="py-8 sm:py-12">
+        {/* Minimal Professional Header */}
+        <div className="mb-6 sm:mb-8 text-center space-y-1.5">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-indigo-500">
+            Categories
           </p>
+          <h2
+            className={`text-xl sm:text-2xl font-bold tracking-tight ${dark ? "text-white" : "text-slate-900"
+              }`}
+          >
+            Explore Experience Portals
+          </h2>
         </div>
 
+        {/* 4 Category Grid */}
         <div
           className={`
             grid ${gridCols}
-            mx-auto max-w-[1360px]
-            gap-3 sm:gap-4 md:gap-5
-            px-1 sm:px-0
+            mx-auto max-w-7xl
+            gap-5 lg:gap-6
+            px-2 sm:px-4
           `}
         >
           {cards.map((card, i) => (
             <div
               key={card.label}
-              className={`${isSmall ? "snap-start" : ""} ${cardHeight}`}
+              className={`${cardHeight}`}
             >
               <HeroCategoryCard
                 card={card}

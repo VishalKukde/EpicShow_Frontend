@@ -20,7 +20,7 @@ export default function AdminSidebar({ activeItem, onSelect }: AdminSidebarProps
   const { logout, user, loading } = useAuth();
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [openBookings, setOpenBookings] = useState(true);
-  const [openCatalog, setOpenCatalog] = useState(false);
+  const [openCatalog, setOpenCatalog] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 

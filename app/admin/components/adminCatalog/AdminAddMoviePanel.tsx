@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
+import { Movie } from "@/types/Movie";
 import {
     Film,
     Globe,
@@ -19,6 +20,9 @@ import {
     Check,
     Calendar,
     Rocket,
+    Trash2,
+    Database,
+    Loader2,
 } from "lucide-react";
 
 const LANGUAGE_OPTIONS = [
@@ -60,7 +64,16 @@ const REQUIRED_FIELDS = [
 ];
 
 export default function AdminAddMoviePanel() {
-    const [activeTab, setActiveTab] = useState<"tmdb" | "upcoming" | "json">("tmdb");
+    const [activeTab, setActiveTab] = useState<"database" | "tmdb" | "upcoming" | "json">("database");
+
+    // --- DB Movies State (Existing Collection in Database) ---
+    const [dbMovies, setDbMovies] = useState<Movie[]>([]);
+    const [dbStatus, setDbStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+    const [dbError, setDbError] = useState<string | null>(null);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
+    const [deleteSuccessMsg, setDeleteSuccessMsg] = useState<string | null>(null);
+    const [deleteErrorMsg, setDeleteErrorMsg] = useState<string | null>(null);
 
     // --- TMDB Explorer State (Released Movies) ---
     const [language, setLanguage] = useState("en");
@@ -89,6 +102,43 @@ export default function AdminAddMoviePanel() {
     const [jsonError, setJsonError] = useState<string | null>(null);
     const [jsonStatus, setJsonStatus] = useState<"idle" | "saving" | "success" | "error">("idle");
     const [jsonResult, setJsonResult] = useState<Record<string, unknown> | Record<string, unknown>[] | null>(null);
+
+    // Fetch movies from DB
+    const loadDbMovies = async () => {
+        setDbStatus("loading");
+        setDbError(null);
+        try {
+            const data = await apiFetch("/movies", { publicRequest: true });
+            const list = Array.isArray(data) ? data : [];
+            setDbMovies(list);
+            setDbStatus("success");
+        } catch (err) {
+            setDbStatus("error");
+            setDbError(err instanceof Error ? err.message : "Failed to load database movies");
+        }
+    };
+
+    useEffect(() => {
+        loadDbMovies();
+    }, []);
+
+    // Delete movie directly from database
+    const handleDeleteMovie = async (id: string, name: string) => {
+        setDeletingId(id);
+        setDeleteSuccessMsg(null);
+        setDeleteErrorMsg(null);
+
+        try {
+            await apiFetch(`/movies/${id}`, { method: "DELETE" });
+            setDbMovies((prev) => prev.filter((m) => m._id !== id));
+            setDeleteSuccessMsg(`Movie "${name}" was permanently deleted from the database.`);
+        } catch (err) {
+            setDeleteErrorMsg(err instanceof Error ? err.message : "Failed to delete movie");
+        } finally {
+            setDeletingId(null);
+            setConfirmingDeleteId(null);
+        }
+    };
 
     // TMDB Released Movies Loader
     const loadTmdbMovies = async () => {
@@ -136,7 +186,6 @@ export default function AdminAddMoviePanel() {
         setInsertState((prev) => ({ ...prev, [key]: "saving" }));
         setInsertError((prev) => ({ ...prev, [key]: "" }));
 
-        // For upcoming movies, fallback runtime to 120 mins if TMDB unreleased payload runtime is null
         const runtimeValue =
             movie.runtimeMinutes && !Number.isNaN(Number(movie.runtimeMinutes))
                 ? Number(movie.runtimeMinutes)
@@ -157,6 +206,8 @@ export default function AdminAddMoviePanel() {
                 }),
             });
             setInsertState((prev) => ({ ...prev, [key]: "success" }));
+            // Refresh DB collection in background
+            loadDbMovies();
         } catch (err) {
             setInsertState((prev) => ({ ...prev, [key]: "error" }));
             setInsertError((prev) => ({
@@ -222,6 +273,7 @@ export default function AdminAddMoviePanel() {
             setJsonResult(data ?? null);
             setJsonStatus("success");
             setJsonText("");
+            loadDbMovies();
         } catch (err) {
             setJsonStatus("error");
             setJsonError(err instanceof Error ? err.message : "Failed to insert movie");
@@ -246,14 +298,14 @@ export default function AdminAddMoviePanel() {
                     <div>
                         <div className="flex items-center gap-2">
                             <h2 style={{ color: "var(--admin-text)" }} className="text-lg font-black m-0">
-                                Movie Catalog Manager & TMDB Explorer
+                                Movie Catalog Manager
                             </h2>
                             <span className="rounded-full bg-indigo-500/20 px-2.5 py-0.5 text-[10px] font-black text-indigo-500 uppercase tracking-wider">
-                                Live TMDB v3 API
+                                Live Database & TMDB v3
                             </span>
                         </div>
                         <p style={{ color: "var(--admin-text-secondary)" }} className="mt-0.5 text-xs font-semibold m-0">
-                            Fetch trending or upcoming Hollywood & Bollywood movies from TMDB API and add directly to collection.
+                            Manage database movie records, delete obsolete titles directly from MongoDB, or add new movies from TMDB.
                         </p>
                     </div>
                 </div>
@@ -264,10 +316,26 @@ export default function AdminAddMoviePanel() {
                     className="p-1 flex flex-wrap items-center gap-1"
                 >
                     <button
-                        onClick={() => setActiveTab("tmdb")}
+                        onClick={() => setActiveTab("database")}
+                        className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-extrabold transition cursor-pointer ${activeTab === "database"
+                            ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                            : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                            }`}
+                    >
+                        <Database size={15} />
+                        <span>Database Movies ({dbMovies.length})</span>
+                    </button>
+
+                    <button
+                        onClick={() => {
+                            setActiveTab("tmdb");
+                            if (movies.length === 0 && status === "idle") {
+                                loadTmdbMovies();
+                            }
+                        }}
                         className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-extrabold transition cursor-pointer ${activeTab === "tmdb"
-                                ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                                : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                            ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                            : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
                             }`}
                     >
                         <Sparkles size={15} />
@@ -282,8 +350,8 @@ export default function AdminAddMoviePanel() {
                             }
                         }}
                         className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-extrabold transition cursor-pointer ${activeTab === "upcoming"
-                                ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                                : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                            ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                            : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
                             }`}
                     >
                         <Rocket size={15} />
@@ -293,8 +361,8 @@ export default function AdminAddMoviePanel() {
                     <button
                         onClick={() => setActiveTab("json")}
                         className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-extrabold transition cursor-pointer ${activeTab === "json"
-                                ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                                : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                            ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                            : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
                             }`}
                     >
                         <FileCode size={15} />
@@ -303,7 +371,220 @@ export default function AdminAddMoviePanel() {
                 </div>
             </div>
 
-            {/* Tab 1: TMDB Trending Movies Explorer */}
+            {/* TAB 1: Database Movies (Manage & Delete Movies) */}
+            {activeTab === "database" && (
+                <div className="space-y-6">
+                    {/* Banners */}
+                    {deleteSuccessMsg && (
+                        <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-4 text-xs font-black text-emerald-500 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <CheckCircle2 size={18} />
+                                <span>{deleteSuccessMsg}</span>
+                            </div>
+                            <button
+                                onClick={() => setDeleteSuccessMsg(null)}
+                                className="cursor-pointer text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    )}
+
+                    {deleteErrorMsg && (
+                        <div className="rounded-xl bg-rose-500/10 border border-rose-500/20 p-4 text-xs font-black text-rose-500 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <AlertTriangle size={18} />
+                                <span>{deleteErrorMsg}</span>
+                            </div>
+                            <button
+                                onClick={() => setDeleteErrorMsg(null)}
+                                className="cursor-pointer text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Refresh Bar */}
+                    <div
+                        style={{
+                            background: "var(--admin-surface)",
+                            border: "1px solid var(--admin-border)",
+                            borderRadius: 16,
+                        }}
+                        className="px-5 py-3 flex items-center justify-between text-xs font-semibold"
+                    >
+                        <span style={{ color: "var(--admin-text-secondary)" }}>
+                            Total <strong>{dbMovies.length}</strong> movies currently stored in MongoDB.
+                        </span>
+                        <button
+                            type="button"
+                            onClick={loadDbMovies}
+                            disabled={dbStatus === "loading"}
+                            className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-950/40 transition"
+                        >
+                            {dbStatus === "loading" ? <Loader2 size={14} className="animate-spin" /> : <Database size={14} />}
+                            <span>Refresh DB Movies</span>
+                        </button>
+                    </div>
+
+                    {/* Movie List Grid */}
+                    {dbStatus === "loading" && dbMovies.length === 0 ? (
+                        <div
+                            style={{ background: "var(--admin-surface)", border: "1px solid var(--admin-border)", borderRadius: 20 }}
+                            className="p-12 text-center"
+                        >
+                            <Loader2 className="mx-auto text-indigo-500 animate-spin" size={32} />
+                            <p style={{ color: "var(--admin-text-secondary)" }} className="mt-3 text-xs font-bold">
+                                Loading movies from database...
+                            </p>
+                        </div>
+                    ) : dbMovies.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {dbMovies.map((movie) => {
+                                const isDeleting = deletingId === movie._id;
+                                const isUpcoming = movie.releaseDate
+                                    ? new Date(movie.releaseDate).getTime() > Date.now()
+                                    : false;
+
+                                return (
+                                    <div
+                                        key={movie._id}
+                                        style={{
+                                            background: "var(--admin-surface)",
+                                            border: "1px solid var(--admin-border)",
+                                            borderRadius: 20,
+                                        }}
+                                        className="overflow-hidden shadow-lg flex flex-col justify-between transition hover:border-indigo-500/40 relative group"
+                                    >
+                                        <div>
+                                            {/* Poster Image */}
+                                            <div className="relative h-56 w-full bg-slate-900 overflow-hidden">
+                                                {movie.imageUrl ? (
+                                                    <img
+                                                        src={movie.imageUrl}
+                                                        alt={movie.name}
+                                                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                                                    />
+                                                ) : (
+                                                    <div className="grid h-full place-items-center text-slate-500 text-xs font-bold">
+                                                        No Poster Image
+                                                    </div>
+                                                )}
+                                                <div className="absolute top-3 left-3 rounded-full bg-slate-950/80 backdrop-blur-md px-2.5 py-1 text-[10px] font-black uppercase text-indigo-400 border border-indigo-500/20">
+                                                    {movie.language || "EN"}
+                                                </div>
+                                                {isUpcoming ? (
+                                                    <div className="absolute top-3 right-3 rounded-full bg-amber-500 backdrop-blur-md px-2.5 py-1 text-[10px] font-black text-slate-950 shadow-md">
+                                                        UPCOMING
+                                                    </div>
+                                                ) : (
+                                                    <div className="absolute top-3 right-3 rounded-full bg-emerald-600/90 backdrop-blur-md px-2.5 py-1 text-[10px] font-black text-white shadow-md">
+                                                        RELEASED
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Details */}
+                                            <div className="p-5 space-y-3">
+                                                <h3 style={{ color: "var(--admin-text)" }} className="text-base font-black leading-tight m-0">
+                                                    {movie.name}
+                                                </h3>
+
+                                                <p
+                                                    style={{ color: "var(--admin-text-secondary)" }}
+                                                    className="text-xs font-semibold leading-relaxed m-0 line-clamp-2"
+                                                >
+                                                    {movie.description}
+                                                </p>
+
+                                                <div className="flex flex-wrap gap-1.5 pt-1">
+                                                    {movie.genre?.map((g) => (
+                                                        <span
+                                                            key={g}
+                                                            className="rounded-lg bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 text-[10px] font-black text-indigo-500"
+                                                        >
+                                                            {g}
+                                                        </span>
+                                                    ))}
+                                                </div>
+
+                                                <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pt-2 border-t border-slate-200 dark:border-slate-800">
+                                                    <span className="flex items-center gap-1">
+                                                        <Clock size={13} /> {movie.runtimeMinutes ? `${movie.runtimeMinutes} mins` : "120 mins"}
+                                                    </span>
+                                                    <span className="flex items-center gap-1">
+                                                        <Star size={12} className="text-amber-400 fill-amber-400" />
+                                                        {movie.rating ?? "8.0"}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Action Button: Delete from DB with In-Card Confirmation */}
+                                        <div className="p-5 pt-0">
+                                            {confirmingDeleteId === movie._id ? (
+                                                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 space-y-2.5 text-center animate-in fade-in duration-200">
+                                                    <p className="text-[11px] font-black text-rose-400 m-0 flex items-center justify-center gap-1.5">
+                                                        <AlertTriangle size={14} /> Are you sure to delete this movie?
+                                                    </p>
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleDeleteMovie(movie._id, movie.name)}
+                                                            disabled={isDeleting}
+                                                            className="flex-1 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-extrabold transition cursor-pointer shadow-xs active:scale-95 flex items-center justify-center gap-1"
+                                                        >
+                                                            {isDeleting ? (
+                                                                <>
+                                                                    <Loader2 size={13} className="animate-spin" /> Deleting...
+                                                                </>
+                                                            ) : (
+                                                                "Yes, Delete DB"
+                                                            )}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setConfirmingDeleteId(null)}
+                                                            disabled={isDeleting}
+                                                            className="flex-1 py-2 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold transition cursor-pointer"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setConfirmingDeleteId(movie._id)}
+                                                    className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-extrabold transition cursor-pointer shadow-md bg-rose-600 hover:bg-rose-700 text-white active:scale-95"
+                                                >
+                                                    <Trash2 size={16} /> Delete Movie from DB
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div
+                            style={{ background: "var(--admin-surface)", border: "1px solid var(--admin-border)", borderRadius: 20 }}
+                            className="p-12 text-center space-y-3"
+                        >
+                            <Database className="mx-auto text-indigo-500" size={32} />
+                            <h3 style={{ color: "var(--admin-text)" }} className="text-base font-black m-0">
+                                No Movies Found in Database
+                            </h3>
+                            <p style={{ color: "var(--admin-text-secondary)" }} className="text-xs font-semibold m-0 max-w-md mx-auto">
+                                Switch to the "TMDB Trending" or "Upcoming Releases" tabs above to fetch and add movies to your website catalog.
+                            </p>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* TAB 2: TMDB Trending Movies Explorer */}
             {activeTab === "tmdb" && (
                 <div className="space-y-6">
                     {/* Controls Bar */}
@@ -328,8 +609,8 @@ export default function AdminAddMoviePanel() {
                                         type="button"
                                         onClick={() => setLanguage(opt.value)}
                                         className={`rounded-xl px-3 py-1.5 text-xs font-extrabold transition cursor-pointer ${language === opt.value
-                                                ? "bg-indigo-600 text-white shadow-xs"
-                                                : "border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
+                                            ? "bg-indigo-600 text-white shadow-xs"
+                                            : "border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
                                             }`}
                                     >
                                         {opt.label}
@@ -492,10 +773,10 @@ export default function AdminAddMoviePanel() {
                                                 onClick={() => handleAddToSite(movie)}
                                                 disabled={curState === "saving" || curState === "success"}
                                                 className={`w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-extrabold transition cursor-pointer shadow-md ${curState === "success"
-                                                        ? "bg-emerald-600 text-white"
-                                                        : curState === "saving"
-                                                            ? "bg-indigo-500/50 text-white cursor-wait"
-                                                            : "bg-indigo-600 hover:bg-indigo-700 text-white active:scale-95"
+                                                    ? "bg-emerald-600 text-white"
+                                                    : curState === "saving"
+                                                        ? "bg-indigo-500/50 text-white cursor-wait"
+                                                        : "bg-indigo-600 hover:bg-indigo-700 text-white active:scale-95"
                                                     }`}
                                             >
                                                 {curState === "success" ? (
@@ -538,7 +819,7 @@ export default function AdminAddMoviePanel() {
                 </div>
             )}
 
-            {/* Tab 2: TMDB Upcoming Movies Explorer */}
+            {/* TAB 3: TMDB Upcoming Movies Explorer */}
             {activeTab === "upcoming" && (
                 <div className="space-y-6">
                     {/* Controls Bar for Upcoming Movies */}
@@ -563,8 +844,8 @@ export default function AdminAddMoviePanel() {
                                         type="button"
                                         onClick={() => setUpcomingLanguage(opt.value)}
                                         className={`rounded-xl px-3.5 py-1.5 text-xs font-extrabold transition cursor-pointer ${upcomingLanguage === opt.value
-                                                ? "bg-amber-500 text-slate-950 shadow-xs font-black"
-                                                : "border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
+                                            ? "bg-amber-500 text-slate-950 shadow-xs font-black"
+                                            : "border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
                                             }`}
                                     >
                                         {opt.label}
@@ -730,10 +1011,10 @@ export default function AdminAddMoviePanel() {
                                                 onClick={() => handleAddToSite(movie)}
                                                 disabled={curState === "saving" || curState === "success"}
                                                 className={`w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-extrabold transition cursor-pointer shadow-md ${curState === "success"
-                                                        ? "bg-emerald-600 text-white"
-                                                        : curState === "saving"
-                                                            ? "bg-amber-500/50 text-slate-950 cursor-wait"
-                                                            : "bg-amber-500 hover:bg-amber-400 text-slate-950 font-black active:scale-95"
+                                                    ? "bg-emerald-600 text-white"
+                                                    : curState === "saving"
+                                                        ? "bg-amber-500/50 text-slate-950 cursor-wait"
+                                                        : "bg-amber-500 hover:bg-amber-400 text-slate-950 font-black active:scale-95"
                                                     }`}
                                             >
                                                 {curState === "success" ? (
@@ -776,7 +1057,7 @@ export default function AdminAddMoviePanel() {
                 </div>
             )}
 
-            {/* Tab 3: Manual JSON Import */}
+            {/* TAB 4: Manual JSON Import */}
             {activeTab === "json" && (
                 <div
                     style={{

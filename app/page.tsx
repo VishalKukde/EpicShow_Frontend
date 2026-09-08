@@ -177,7 +177,10 @@ export default function LandingPage() {
       <div className="relative z-10 flex flex-col pb-[calc(env(safe-area-inset-bottom)+3rem)] sm:pb-0">
         <HeroSectionNewAgain />
 
-        <div className="mx-auto w-full max-w-7xl space-y-28 px-4 pb-20 pt-12 sm:space-y-32 sm:px-6 sm:pb-24 sm:pt-16 lg:space-y-36 lg:px-2 lg:pb-28 lg:pt-20">
+        <div className="mx-auto w-full max-w-7xl space-y-20 px-4 pb-20 pt-6 sm:space-y-24 sm:px-6 sm:pb-24 sm:pt-10 lg:space-y-28 lg:px-2 lg:pb-28 lg:pt-12">
+          {/* Luxury 4-Category Portals Section */}
+          <HeroCategoryCards className="mt-2" />
+
           {latestLoading ? (
             <SectionLoader title="Latest Releases" />
           ) : (
@@ -186,7 +189,7 @@ export default function LandingPage() {
                 title="Latest Releases"
                 movies={latestReleaseItems}
                 showTitles={false}
-                showViewAll={true}
+                showViewAll={false}
                 onMovieClick={(movie) => {
                   if (!movie.id) return;
                   router.push(`/movies/${movie.id}`);
@@ -205,8 +208,6 @@ export default function LandingPage() {
               />
             )
           )}
-
-          <HeroCategoryCards className="mt-8" />
 
           <HomeTestimonials />
         </div>

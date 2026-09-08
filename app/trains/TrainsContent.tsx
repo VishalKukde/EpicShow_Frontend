@@ -7,6 +7,7 @@ import PageTransition from "../components/PageTransition";
 import CategoryHero from "../components/CategoryHero";
 import TrainGrid from "./components/TrainGrid";
 import TrainFilters, { TrainFilterOptions } from "./components/TrainFilters";
+import PnrStatusModal from "./components/PnrStatusModal";
 import { ArrowLeft, SearchCheck } from "lucide-react";
 import { Train } from "@/types/Train";
 import { apiFetch } from "@/lib/api";
@@ -26,6 +27,8 @@ export default function TrainsContent() {
   const [trains, setTrains] = useState<Train[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(getTomorrowDateString());
+  const [isPnrModalOpen, setIsPnrModalOpen] = useState(false);
+
   useEffect(() => {
     const queryDate = searchParams.get("date");
 
@@ -119,110 +122,57 @@ export default function TrainsContent() {
           subtitle="Fast routes, premium seats, and simple railway booking"
         />
 
+        {/* Top Action Bar: Back Button + Small Search + PNR Status + Filters */}
         <motion.div
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="mx-auto mb-6 flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5"
+          className="mx-auto mb-6 flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5"
         >
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => router.replace("/")}
-              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
-            >
-              <ArrowLeft size={16} />
-              Back
-            </button>
-          </div>
+          <button
+            onClick={() => router.replace("/")}
+            className="inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 text-xs font-semibold text-gray-700 shadow-xs transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
+          >
+            <ArrowLeft size={15} />
+            Back
+          </button>
 
-          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-            <button
-              onClick={() => router.push("/trains/pnrstatus")}
-              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-700 shadow-sm transition-all duration-200 hover:bg-cyan-100 hover:text-cyan-900 dark:border-cyan-900/60 dark:bg-cyan-950/40 dark:text-cyan-300 dark:hover:bg-cyan-950"
-            >
-              <SearchCheck size={16} />
-              Get PNR Status
-            </button>
-            <label className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold normal-case tracking-normal text-slate-700 shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200">
-              Journey Date
-              <input
-                type="date"
-                min={getTomorrowDateString()}
-                value={selectedDate}
-                onChange={(event) => setSelectedDate(event.target.value || getTomorrowDateString())}
-                className="bg-transparent text-sm font-bold outline-none"
-              />
-            </label>
-
-          </div>
-        </motion.div>
-
-        {/* <motion.section
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05, duration: 0.35 }}
-          className="mx-auto mb-6 grid max-w-7xl gap-3 px-5 sm:grid-cols-3"
-        >
-          <div className="rounded-2xl border border-slate-200/80 bg-white/90 p-4 shadow-[0_18px_36px_-30px_rgba(15,23,42,0.45)] dark:border-slate-800 dark:bg-slate-950/80">
-            <div className="flex items-center gap-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-cyan-50 text-cyan-700 dark:bg-cyan-950/60 dark:text-cyan-300">
-                <Route size={18} />
-              </span>
-              <div>
-                <p className="text-xl font-bold text-slate-950 dark:text-slate-50">{trains.length}</p>
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Routes available</p>
-              </div>
-            </div>
-          </div>
-          <div className="rounded-2xl border border-slate-200/80 bg-white/90 p-4 shadow-[0_18px_36px_-30px_rgba(15,23,42,0.45)] dark:border-slate-800 dark:bg-slate-950/80">
-            <div className="flex items-center gap-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
-                <IndianRupee size={18} />
-              </span>
-              <div>
-                <p className="text-xl font-bold text-slate-950 dark:text-slate-50">
-                  {lowestFare ? `₹${lowestFare.toLocaleString()}` : "₹0"}
-                </p>
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Lowest fare today</p>
-              </div>
-            </div>
-          </div>
-          <div className="rounded-2xl border border-slate-200/80 bg-white/90 p-4 shadow-[0_18px_36px_-30px_rgba(15,23,42,0.45)] dark:border-slate-800 dark:bg-slate-950/80">
-            <div className="flex items-center gap-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300">
-                <Gauge size={18} />
-              </span>
-              <div>
-                <p className="text-xl font-bold text-slate-950 dark:text-slate-50">{trainTypes.length}</p>
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Train classes</p>
-              </div>
-            </div>
-          </div>
-        </motion.section> */}
-
-        <motion.section
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.4 }}
-          className="mb-6"
-        >
           <TrainFilters
             onFilterChange={setFilters}
             trainTypes={trainTypes}
+            pnrButton={
+              <button
+                onClick={() => setIsPnrModalOpen(true)}
+                className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-cyan-200 bg-cyan-50 px-3.5 text-xs font-semibold text-cyan-700 shadow-xs transition-all duration-200 hover:bg-cyan-100 hover:text-cyan-900 dark:border-cyan-900/60 dark:bg-cyan-950/40 dark:text-cyan-300 dark:hover:bg-cyan-950"
+              >
+                <SearchCheck size={15} />
+                <span>Get PNR Status</span>
+              </button>
+            }
           />
-        </motion.section>
+        </motion.div>
 
-        {/* 📊 Results Count */}
+        {/* 📊 Results Count Row with Journey Date Selector on the Right */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.3 }}
-          className="mx-auto mb-6 flex max-w-7xl items-center justify-between px-5"
+          className="mx-auto mb-6 flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5"
         >
           <p className="text-sm text-slate-600 dark:text-slate-400">
             Showing <span className="font-semibold text-slate-950 dark:text-slate-50">{filteredTrains.length}</span> curated routes
           </p>
 
+          <label className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-semibold text-slate-700 shadow-xs dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200 cursor-pointer">
+            <span className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px]">Journey Date</span>
+            <input
+              type="date"
+              min={getTomorrowDateString()}
+              value={selectedDate}
+              onChange={(event) => setSelectedDate(event.target.value || getTomorrowDateString())}
+              className="bg-transparent text-xs font-bold outline-none cursor-pointer"
+            />
+          </label>
         </motion.div>
 
         <motion.div
@@ -237,6 +187,12 @@ export default function TrainsContent() {
           />
         </motion.div>
       </div>
+
+      {/* 🎟️ PNR Status Modal */}
+      <PnrStatusModal
+        isOpen={isPnrModalOpen}
+        onClose={() => setIsPnrModalOpen(false)}
+      />
     </PageTransition>
 
   );

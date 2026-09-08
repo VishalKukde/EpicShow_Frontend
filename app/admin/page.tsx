@@ -16,6 +16,9 @@ import AdminStaffPanel from "./components/adminSystem/staff/AdminStaffPanel";
 import AdminNotificationsPanel from "./components/adminSystem/notifications/AdminNotificationsPanel";
 import AdminSettingsPanel from "./components/adminSystem/settings/AdminSettingsPanel";
 import AdminAddMoviePanel from "./components/adminCatalog/AdminAddMoviePanel";
+import AdminAddSportPanel from "./components/adminCatalog/AdminAddSportPanel";
+import AdminAddGamingPanel from "./components/adminCatalog/AdminAddGamingPanel";
+import AdminAddTrainPanel from "./components/adminCatalog/AdminAddTrainPanel";
 import AdminComingSoonPanel from "./components/adminDashboard/AdminComingSoonPanel";
 import AdminPageTitle from "./components/adminDashboard/AdminPageTitle";
 import AdminSidebar from "./components/adminDashboard/AdminSidebar";
@@ -117,11 +120,11 @@ export default function Dashboard() {
           ) : activeItem === "add-movie" ? (
             <AdminAddMoviePanel />
           ) : activeItem === "add-sport" ? (
-            <AdminComingSoonPanel label="Add Sport Event" />
+            <AdminAddSportPanel />
           ) : activeItem === "add-gaming" ? (
-            <AdminComingSoonPanel label="Add Gaming Event" />
+            <AdminAddGamingPanel />
           ) : activeItem === "add-train" ? (
-            <AdminComingSoonPanel label="Add Train Route" />
+            <AdminAddTrainPanel />
           ) : activeItem === "orders" ? (
             <AdminOrdersTable />
           ) : activeItem === "venues" ? (

@@ -43,10 +43,10 @@ export const NAV_SECTIONS: { label: string; items: NavItem[] }[] = [
   {
     label: "Catalog & Add Content",
     items: [
-      { key: "add-movie", label: "Add Movie", icon: Film, badge: "TMDB" },
-      { key: "add-sport", label: "Add Sport", icon: Trophy },
-      { key: "add-gaming", label: "Add Gaming", icon: Gamepad2 },
-      { key: "add-train", label: "Add Train", icon: Train },
+      { key: "add-movie", label: "Manage Movie", icon: Film, badge: "TMDB" },
+      { key: "add-sport", label: "Manage Sports", icon: Trophy },
+      { key: "add-gaming", label: "Manage Gaming", icon: Gamepad2 },
+      { key: "add-train", label: "Manage Trains", icon: Train },
     ],
   },
   {

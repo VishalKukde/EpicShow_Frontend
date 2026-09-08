@@ -18,10 +18,10 @@ export function formatActiveLabel(item: string) {
   if (item === "sports") return "Sports Booking";
   if (item === "gaming") return "Gaming & Esports Booking";
   if (item === "trains") return "Transit & Trains Booking";
-  if (item === "add-movie") return "Add Movie (TMDB Explorer)";
-  if (item === "add-sport") return "Add Sport Event";
-  if (item === "add-gaming") return "Add Gaming Event";
-  if (item === "add-train") return "Add Train Route";
+  if (item === "add-movie") return "Manage Movie (Catalog & TMDB)";
+  if (item === "add-sport") return "Manage Sports Catalog";
+  if (item === "add-gaming") return "Manage Gaming Catalog";
+  if (item === "add-train") return "Manage Trains & Routes Catalog";
   if (item === "orders") return "Orders & Invoices";
   if (item === "venues") return "Venues & Seat Layouts";
   if (item === "refunds") return "Refunds & Claims";

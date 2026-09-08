@@ -4,3 +4,4 @@ export { default as TrainGrid } from "./TrainGrid";
 export { default as TrainLoader } from "./TrainLoader";
 export { default as TrainFilters } from "./TrainFilters";
 export type { TrainFilterOptions } from "./TrainFilters";
+export { default as PnrStatusModal } from "./PnrStatusModal";

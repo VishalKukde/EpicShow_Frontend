@@ -10,6 +10,25 @@ import { apiFetch } from "@/lib/api";
 import type { Gaming } from "@/types/Gaming";
 import GamingGrid from "./components/GamingGrid";
 
+const isUpcomingFromTomorrow = (dateStr?: string) => {
+  if (!dateStr) return false;
+  const eventDate = new Date(dateStr);
+  if (Number.isNaN(eventDate.getTime())) return false;
+
+  const now = new Date();
+  const endOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    23,
+    59,
+    59,
+    999
+  );
+
+  return eventDate > endOfToday;
+};
+
 export default function GamingPage() {
   const [items, setItems] = useState<Gaming[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,7 +39,9 @@ export default function GamingPage() {
       try {
         setLoading(true);
         const data = await apiFetch("/gaming");
-        setItems(Array.isArray(data) ? data : []);
+        const list: Gaming[] = Array.isArray(data) ? data : [];
+        const upcomingList = list.filter((item) => isUpcomingFromTomorrow(item.startDateTime));
+        setItems(upcomingList);
       } catch (err) {
         console.error(err);
       } finally {
@@ -44,30 +65,13 @@ export default function GamingPage() {
         >
           <button
             onClick={() => router.replace("/")}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-100 hover:text-gray-900 transition-all duration-200 sm:px-4 sm:py-2"
+            className="cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-100 hover:text-gray-900 transition-all duration-200 sm:px-4 sm:py-2"
           >
             <ArrowLeft size={16} />
             Back
           </button>
         </motion.div>
 
-        <motion.section
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.4 }}
-          className="max-w-7xl mx-auto px-5 mb-14"
-        >
-          <div className="flex gap-3 flex-wrap text-sm">
-            {["Esports", "LAN", "Tournaments", "Expo", "Trending"].map((tag) => (
-              <button
-                key={tag}
-                className="px-4 py-2 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition"
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        </motion.section>
 
         <motion.div
           initial={{ opacity: 0 }}

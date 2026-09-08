@@ -107,9 +107,6 @@ export default function UpcomingMovieRow({
                             {title}
                         </h2>
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md">
-                        Count down to the biggest upcoming releases. Bookmark your favorites and get ready!
-                    </p>
                 </div>
 
                 {/* Movies Grid */}
