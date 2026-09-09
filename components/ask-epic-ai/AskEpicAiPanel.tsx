@@ -3,28 +3,40 @@
 import type { FormEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Bot, SendHorizontal, Sparkles, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Bot,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  ExternalLink,
+  Film,
+  Github,
+  Globe,
+  Linkedin,
+  Mail,
+  RotateCcw,
+  SendHorizontal,
+  Sparkles,
+  Star,
+  Ticket,
+  Train,
+  Trophy,
+  X,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useAskEpicAiStore } from "@/store/askEpicAiStore";
 import { useThemeStore } from "@/store/themeStore";
-import {
-  detectIntentFromText,
-  getNodeById,
-  getNodeQuickReplies,
-  getNodeText,
-  intents,
-  resolveQuickReplyFromText,
-  rootNodeId,
-  type QuickReply,
-} from "@/app/profile/chat/ruleEngine";
+import { getApiBaseUrl } from "@/lib/api";
+import { getToken } from "@/lib/tokenStore";
 
-type AskMessage = {
+export type AskMessage = {
   id: string;
   role: "assistant" | "user";
   text: string;
   time: string;
-  quickReplies?: QuickReply[];
+  quickReplies?: Array<{ label: string; action?: string; href?: string }>;
 };
 
 type AskEpicAiPanelProps = {
@@ -46,6 +58,515 @@ const formatTime = () =>
 
 const createId = () => `${Date.now()}_${Math.random().toString(16).slice(2)}`;
 
+const INITIAL_SUGGESTIONS = [
+  { label: "What is EpicShow?" },
+  { label: "Who is the developer of EpicShow?" }
+];
+
+const CATEGORY_SUGGESTIONS = [
+  { label: "🎬 Movies", query: "movie" },
+  { label: "⚽ Sports", query: "sports" },
+  { label: "🎮 Gaming", query: "gaming" },
+  { label: "🚆 Trains", query: "train" },
+];
+
+interface MovieCardData {
+  title: string;
+  genre?: string;
+  language?: string;
+  runtime?: string;
+  rating?: string;
+  releaseDate?: string;
+  description?: string;
+}
+
+interface BookingCardData {
+  category?: string;
+  title: string;
+  status?: string;
+  date?: string;
+  slot?: string;
+  seats?: string;
+  amount?: string;
+  bookingId?: string;
+  pnr?: string;
+  route?: string;
+  venue?: string;
+}
+
+/**
+ * Parses key-value block content into an object
+ */
+function parseCardBlock(block: string): Record<string, string> {
+  const result: Record<string, string> = {};
+  const lines = block.split("\n");
+
+  for (const line of lines) {
+    const colonIndex = line.indexOf(":");
+    if (colonIndex > 0) {
+      const key = line.slice(0, colonIndex).trim();
+      const val = line.slice(colonIndex + 1).trim();
+      if (key && val) {
+        result[key] = val;
+      }
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Beautiful UI Card for a Movie Listing
+ */
+function MovieCard({
+  movie,
+  onExplore,
+}: {
+  movie: MovieCardData;
+  onExplore: () => void;
+}) {
+  return (
+    <div className="my-3 overflow-hidden rounded-2xl border border-indigo-200/80 bg-white/95 p-3.5 shadow-sm transition-all duration-200 hover:shadow-md dark:border-zinc-700/80 dark:bg-zinc-800/95 sm:p-4">
+      {/* Header: Title & Rating Badge */}
+      <div className="flex items-start justify-between gap-2.5">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+            <Film className="h-4 w-4" />
+          </div>
+          <h4 className="truncate text-sm font-bold tracking-tight text-slate-900 dark:text-white sm:text-[15px]">
+            {movie.title}
+          </h4>
+        </div>
+
+        {movie.rating ? (
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-xs font-bold text-amber-600 dark:text-amber-400">
+            <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+            {movie.rating}
+          </span>
+        ) : null}
+      </div>
+
+      {/* Subheader Badges: Genre, Language, Runtime */}
+      <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+        {movie.genre ? (
+          <span className="rounded-md border border-indigo-200/70 bg-indigo-50 px-2 py-0.5 text-[11px] font-medium text-indigo-700 dark:border-indigo-800/60 dark:bg-indigo-950/50 dark:text-indigo-300">
+            {movie.genre}
+          </span>
+        ) : null}
+
+        {movie.language ? (
+          <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700 dark:bg-zinc-700 dark:text-zinc-300">
+            {movie.language}
+          </span>
+        ) : null}
+
+        {movie.runtime ? (
+          <span className="flex items-center gap-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
+            <Clock className="h-3 w-3" />
+            {movie.runtime}
+          </span>
+        ) : null}
+      </div>
+
+      {/* Release Date Info */}
+      {movie.releaseDate ? (
+        <div className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+          <Calendar className="h-3.5 w-3.5" />
+          <span>Release: {movie.releaseDate}</span>
+        </div>
+      ) : null}
+
+      {/* Synopsis Description */}
+      {movie.description ? (
+        <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+          {movie.description}
+        </p>
+      ) : null}
+
+      {/* Action button */}
+      <div className="mt-3 flex justify-end">
+        <button
+          type="button"
+          onClick={onExplore}
+          className="cursor-pointer rounded-xl bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-500 active:scale-95"
+        >
+          View Showtimes
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Beautiful UI Card for a User Booking Ticket
+ */
+function BookingTicketCard({ booking }: { booking: BookingCardData }) {
+  const isTrain = booking.category?.toLowerCase().includes("train");
+  const isSports = booking.category?.toLowerCase().includes("sport");
+
+  return (
+    <div className="my-3 overflow-hidden rounded-2xl border border-indigo-200/90 bg-gradient-to-br from-indigo-50/70 via-white to-white p-3.5 shadow-sm transition hover:shadow-md dark:border-indigo-500/30 dark:from-indigo-950/20 dark:via-zinc-800 dark:to-zinc-800 sm:p-4">
+      {/* Category & Status Row */}
+      <div className="flex items-center justify-between gap-2 border-b border-indigo-100 pb-2 dark:border-zinc-700/60">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400">
+          {isTrain ? (
+            <Train className="h-3.5 w-3.5" />
+          ) : isSports ? (
+            <Trophy className="h-3.5 w-3.5" />
+          ) : (
+            <Ticket className="h-3.5 w-3.5" />
+          )}
+          <span>{booking.category || "Booking Ticket"}</span>
+        </div>
+
+        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+          <CheckCircle2 className="h-3 w-3" />
+          {booking.status || "Confirmed"}
+        </span>
+      </div>
+
+      {/* Booking Title / Movie Name */}
+      <h4 className="mt-2 text-sm font-bold text-slate-900 dark:text-white sm:text-base">
+        {booking.title}
+      </h4>
+
+      {/* Details Grid */}
+      <div className="mt-2.5 grid grid-cols-2 gap-2 text-xs">
+        {booking.date ? (
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-zinc-400">
+              Date
+            </span>
+            <span className="font-semibold text-slate-800 dark:text-zinc-200">
+              {booking.date}
+            </span>
+          </div>
+        ) : null}
+
+        {booking.slot ? (
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-zinc-400">
+              Showtime / Slot
+            </span>
+            <span className="font-semibold text-slate-800 dark:text-zinc-200">
+              {booking.slot}
+            </span>
+          </div>
+        ) : null}
+
+        {booking.seats ? (
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-zinc-400">
+              Seats / Berth
+            </span>
+            <span className="font-bold text-indigo-600 dark:text-indigo-400">
+              {booking.seats}
+            </span>
+          </div>
+        ) : null}
+
+        {booking.amount ? (
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-zinc-400">
+              Amount Paid
+            </span>
+            <span className="font-bold text-slate-900 dark:text-white">
+              {booking.amount}
+            </span>
+          </div>
+        ) : null}
+
+        {booking.pnr ? (
+          <div className="col-span-2 flex items-center justify-between rounded-lg bg-slate-50 px-2.5 py-1.5 dark:bg-zinc-700/50">
+            <span className="text-[11px] font-medium text-slate-500 dark:text-zinc-400">
+              PNR Number
+            </span>
+            <span className="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400">
+              {booking.pnr}
+            </span>
+          </div>
+        ) : null}
+
+        {booking.bookingId ? (
+          <div className="col-span-2 flex items-center justify-between text-[11px] text-slate-400 dark:text-zinc-400">
+            <span>Booking Ref:</span>
+            <span className="font-mono text-[10px] font-medium">
+              #{booking.bookingId.slice(-8)}
+            </span>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Elegant dual concentric circles rotating inside each other
+ */
+function DualCircleSpinner({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <span className={`relative inline-flex items-center justify-center shrink-0 ${className}`}>
+      {/* Outer circle rotating clockwise */}
+      <span
+        className="absolute inset-0 rounded-full border-[1.5px] border-indigo-500/25 border-t-indigo-600 dark:border-indigo-400/25 dark:border-t-indigo-400"
+        style={{ animation: "spin 1s linear infinite" }}
+      />
+      {/* Inner circle rotating counter-clockwise inside */}
+      <span
+        className="h-2 w-2 rounded-full border-[1.5px] border-indigo-500/30 border-b-indigo-500 dark:border-indigo-400/30 dark:border-b-indigo-300"
+        style={{ animation: "spin 1.2s linear infinite reverse" }}
+      />
+    </span>
+  );
+}
+
+/**
+ * Detects appropriate icon and properties for a URL or email link
+ */
+function getLinkDetails(url: string, rawLabel: string) {
+  const cleanUrl = url.trim();
+  const lowerUrl = cleanUrl.toLowerCase();
+  const isMail = lowerUrl.startsWith("mailto:") || lowerUrl.includes("@");
+  const href = isMail && !lowerUrl.startsWith("mailto:") ? `mailto:${cleanUrl}` : cleanUrl;
+
+  let Icon = ExternalLink;
+  let customStyle = "text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300";
+
+  if (lowerUrl.includes("github.com")) {
+    Icon = Github;
+    customStyle = "text-slate-800 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400";
+  } else if (lowerUrl.includes("linkedin.com")) {
+    Icon = Linkedin;
+    customStyle = "text-[#0a66c2] hover:text-[#004182] dark:text-[#388bfd]";
+  } else if (isMail) {
+    Icon = Mail;
+    customStyle = "text-rose-600 dark:text-rose-400 hover:text-rose-700";
+  } else if (lowerUrl.includes("vercel.app") || lowerUrl.includes("portfolio")) {
+    Icon = Globe;
+    customStyle = "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700";
+  }
+
+  // Label formatting
+  let displayLabel = rawLabel.trim();
+  if (displayLabel === cleanUrl) {
+    if (lowerUrl.includes("linkedin.com")) displayLabel = "LinkedIn Profile";
+    else if (lowerUrl.includes("github.com")) displayLabel = "GitHub Profile";
+    else if (lowerUrl.includes("vercel.app")) displayLabel = "Portfolio Website";
+    else if (isMail) displayLabel = cleanUrl.replace(/^mailto:/i, "");
+  }
+
+  return { href, displayLabel, isMail, Icon, customStyle };
+}
+
+/**
+ * Tokenizes and formats markdown text lines with bold (**bold**) and clickable links ([text](url), raw URLs, emails)
+ */
+function renderInlineContent(content: string, keyPrefix: string): React.ReactNode[] {
+  const tokenRegex = /(\*\*[^*]+\*\*|\[[^\]]+\]\([^\s)]+\)|https?:\/\/[^\s)<>]+|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
+  const tokens = content.split(tokenRegex);
+
+  return tokens.map((token, tokenIdx) => {
+    if (!token) return null;
+    const tokenKey = `${keyPrefix}_${tokenIdx}`;
+
+    // 1. Bold text: **text**
+    if (token.startsWith("**") && token.endsWith("**") && token.length > 4) {
+      return (
+        <strong key={tokenKey} className="font-semibold text-inherit">
+          {token.slice(2, -2)}
+        </strong>
+      );
+    }
+
+    // 2. Markdown link: [label](url)
+    if (token.startsWith("[") && token.includes("](") && token.endsWith(")")) {
+      const closeBracket = token.indexOf("](");
+      const rawLabel = token.slice(1, closeBracket);
+      const rawUrl = token.slice(closeBracket + 2, -1);
+      const { href, displayLabel, isMail, Icon, customStyle } = getLinkDetails(rawUrl, rawLabel);
+
+      return (
+        <a
+          key={tokenKey}
+          href={href}
+          target={isMail ? undefined : "_blank"}
+          rel={isMail ? undefined : "noopener noreferrer"}
+          className={`inline-flex items-center gap-1 font-semibold underline underline-offset-2 break-all transition cursor-pointer px-1 py-0.5 rounded hover:bg-indigo-500/10 ${customStyle}`}
+        >
+          <Icon className="h-3.5 w-3.5 shrink-0 inline" />
+          <span>{displayLabel}</span>
+        </a>
+      );
+    }
+
+    // 3. Raw URL: https://...
+    if (token.startsWith("http://") || token.startsWith("https://")) {
+      const { href, displayLabel, isMail, Icon, customStyle } = getLinkDetails(token, token);
+
+      return (
+        <a
+          key={tokenKey}
+          href={href}
+          target={isMail ? undefined : "_blank"}
+          rel={isMail ? undefined : "noopener noreferrer"}
+          className={`inline-flex items-center gap-1 font-semibold underline underline-offset-2 break-all transition cursor-pointer px-1 py-0.5 rounded hover:bg-indigo-500/10 ${customStyle}`}
+        >
+          <Icon className="h-3.5 w-3.5 shrink-0 inline" />
+          <span>{displayLabel}</span>
+        </a>
+      );
+    }
+
+    // 4. Raw email address
+    if (token.includes("@") && /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(token)) {
+      const { href, displayLabel, isMail, Icon, customStyle } = getLinkDetails(token, token);
+
+      return (
+        <a
+          key={tokenKey}
+          href={href}
+          className={`inline-flex items-center gap-1 font-semibold underline underline-offset-2 break-all transition cursor-pointer px-1 py-0.5 rounded hover:bg-indigo-500/10 ${customStyle}`}
+        >
+          <Icon className="h-3.5 w-3.5 shrink-0 inline" />
+          <span>{displayLabel}</span>
+        </a>
+      );
+    }
+
+    // 5. Plain text
+    return <span key={tokenKey}>{token}</span>;
+  });
+}
+
+/**
+ * Formats regular markdown text lines (bullet points, bold tags, clickable links)
+ */
+function MarkdownFormattedText({ text }: { text: string }) {
+  if (!text || !text.trim()) return null;
+
+  const lines = text.split("\n");
+
+  return (
+    <div className="space-y-1 text-sm leading-relaxed">
+      {lines.map((line, lineIdx) => {
+        const trimmed = line.trim();
+
+        if (!trimmed) {
+          return <div key={lineIdx} className="h-1" />;
+        }
+
+        const isBullet = trimmed.startsWith("* ") || trimmed.startsWith("- ");
+        const content = isBullet ? trimmed.slice(2) : line;
+
+        const renderedContent = renderInlineContent(content, `line_${lineIdx}`);
+
+        if (isBullet) {
+          return (
+            <div key={lineIdx} className="flex items-start gap-2 pl-1 my-0.5">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />
+              <span className="flex-1">{renderedContent}</span>
+            </div>
+          );
+        }
+
+        return <p key={lineIdx}>{renderedContent}</p>;
+      })}
+    </div>
+  );
+}
+
+/**
+ * Parses full message text, extracting `:::movie-card` and `:::booking-card` into UI cards
+ */
+function ParsedMessageContent({
+  text,
+  onExploreMovies,
+  onCategorySelect,
+}: {
+  text: string;
+  onExploreMovies: () => void;
+  onCategorySelect: (category: string) => void;
+}) {
+  if (!text || !text.trim()) return null;
+
+  // Split by card delimiters
+  const cardRegex = /:::(movie-card|booking-card)([\s\S]*?)(:::|$)/g;
+  const elements: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = cardRegex.exec(text)) !== null) {
+    const preText = text.slice(lastIndex, match.index);
+    if (preText.trim()) {
+      elements.push(
+        <MarkdownFormattedText key={`text_${lastIndex}`} text={preText} />
+      );
+    }
+
+    const cardType = match[1];
+    const cardContent = match[2];
+    const parsedData = parseCardBlock(cardContent);
+
+    if (cardType === "movie-card" && parsedData.title) {
+      elements.push(
+        <MovieCard
+          key={`movie_${match.index}`}
+          movie={parsedData as unknown as MovieCardData}
+          onExplore={onExploreMovies}
+        />
+      );
+    } else if (cardType === "booking-card" && parsedData.title) {
+      elements.push(
+        <BookingTicketCard
+          key={`booking_${match.index}`}
+          booking={parsedData as unknown as BookingCardData}
+        />
+      );
+    }
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  const remainingText = text.slice(lastIndex);
+  if (remainingText.trim()) {
+    elements.push(
+      <MarkdownFormattedText key={`text_end_${lastIndex}`} text={remainingText} />
+    );
+  }
+
+  // Check if message asks to choose a booking category
+  const lower = text.toLowerCase();
+  const asksCategory =
+    lower.includes("which category would you like") ||
+    lower.includes("which type of booking") ||
+    (lower.includes("movies") && lower.includes("sports") && lower.includes("trains"));
+
+  return (
+    <div>
+      {elements}
+
+      {/* Interactive Category Chips */}
+      {asksCategory ? (
+        <div className="mt-3 flex flex-wrap gap-1.5 border-t border-indigo-500/15 pt-2.5">
+          <p className="w-full text-xs font-semibold text-slate-500 dark:text-zinc-400">
+            Select a category to view:
+          </p>
+          {CATEGORY_SUGGESTIONS.map((cat) => (
+            <button
+              key={cat.label}
+              type="button"
+              onClick={() => onCategorySelect(cat.query)}
+              className="cursor-pointer rounded-full border border-indigo-200 bg-white px-3 py-1 text-xs font-semibold text-indigo-700 shadow-xs transition hover:border-indigo-400 hover:bg-indigo-50 active:scale-95 dark:border-zinc-700 dark:bg-zinc-800 dark:text-indigo-300 dark:hover:bg-zinc-700"
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function AskEpicAiPanel({
   className,
   closeHref = "/",
@@ -60,13 +581,13 @@ export default function AskEpicAiPanel({
   const closeAskEpicAi = useAskEpicAiStore((state) => state.close);
   const mode = useThemeStore((s) => s.mode);
   const dark = mode === "dark";
+
   const listRef = useRef<HTMLDivElement>(null);
-  const typingTimer = useRef<number | null>(null);
-  const historyRef = useRef<string[]>([]);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [activeNodeId, setActiveNodeId] = useState(rootNodeId);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [messages, setMessages] = useState<AskMessage[]>([]);
 
   const panelTone = useMemo(
@@ -78,171 +599,210 @@ export default function AskEpicAiPanel({
             chatBg: "bg-zinc-900",
             footer: "bg-zinc-900 border-zinc-700",
             input: "bg-zinc-800 text-zinc-100 placeholder-zinc-400 ring-1 ring-zinc-600",
-            botBubble: "bg-zinc-800 text-zinc-100",
-            userBubble: "bg-zinc-700 text-zinc-100",
+            botBubble: "bg-zinc-800 text-zinc-100 ring-1 ring-zinc-700/60",
+            userBubble: "bg-indigo-600 text-white",
             meta: "text-zinc-400",
-            quick: "border-zinc-600 bg-zinc-800 text-zinc-200 hover:bg-zinc-700",
+            quick: "border-zinc-700 bg-zinc-800/80 text-zinc-200 hover:bg-zinc-700 hover:border-zinc-600",
           }
         : {
             shell: "bg-[#eff4ff] border-[#bfcfff]",
-            header: "bg-[#2563eb] border-[#1d4ed8]",
+            header: "bg-indigo-600 border-indigo-700",
             chatBg:
-              "bg-[#f5f8ff] bg-[linear-gradient(rgba(59,130,246,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.08)_1px,transparent_1px)] bg-[size:22px_22px]",
+              "bg-[#f5f8ff] bg-[linear-gradient(rgba(99,102,241,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.06)_1px,transparent_1px)] bg-[size:22px_22px]",
             footer: "bg-[#eff4ff] border-[#bfcfff]",
             input: "bg-white text-[#0f172a] placeholder-[#64748b] ring-1 ring-[#c7d7ff]",
             botBubble: "bg-white text-[#0f172a] ring-1 ring-[#d7e4ff]",
-            userBubble: "bg-[#dbeafe] text-[#1e3a8a]",
+            userBubble: "bg-indigo-600 text-white",
             meta: "text-[#64748b]",
-            quick: "border-[#bfdbfe] bg-[#eef4ff] text-[#1d4ed8] hover:bg-[#e0ecff]",
+            quick: "border-[#bfdbfe] bg-[#eef4ff] text-indigo-600 hover:bg-[#e0ecff] hover:border-indigo-300",
           },
-    [dark],
+    [dark]
   );
 
-  const scrollToBottom = (behavior: ScrollBehavior = "auto") => {
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
     if (!listRef.current) return;
     listRef.current.scrollTo({ top: listRef.current.scrollHeight, behavior });
   };
 
-  const pushAssistantNode = (nodeId: string, pushHistory = false) => {
-    const node = getNodeById(nodeId);
-
-    if (pushHistory) {
-      historyRef.current = [...historyRef.current, activeNodeId];
-    }
-
-    setActiveNodeId(node.id);
-    setIsTyping(true);
-
-    if (typingTimer.current) {
-      window.clearTimeout(typingTimer.current);
-    }
-
-    typingTimer.current = window.setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: createId(),
-          role: "assistant",
-          text: getNodeText(node.id, { userName: user?.name }),
-          time: formatTime(),
-          quickReplies: getNodeQuickReplies(node.id, { hideBack: true, includeFeedback: true }),
-        },
-      ]);
-      setIsTyping(false);
-    }, 380);
-  };
+  const getInitialGreeting = (): AskMessage => ({
+    id: "welcome_message",
+    role: "assistant",
+    text: `Hi${user?.name ? ` ${user.name}` : ""}! I am your EpicShow AI assistant.\nAsk me about movie showtimes, sports, gaming zones, train bookings, cancellation rules, or your personal tickets!`,
+    time: formatTime(),
+    quickReplies: [],
+  });
 
   const resetConversation = () => {
-    historyRef.current = [];
-    setActiveNodeId(rootNodeId);
-    setMessages([]);
-    pushAssistantNode(rootNodeId);
-  };
-
-  const clearConversation = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    setIsStreaming(false);
+    setIsTyping(false);
     setInput("");
-    historyRef.current = [];
-    setActiveNodeId(rootNodeId);
     setMessages([]);
-    pushAssistantNode(rootNodeId);
   };
 
-  const processQuickAction = (reply: QuickReply) => {
-    const action = reply.action;
+  const handleExploreMovies = () => {
+    closeAskEpicAi();
+    router.push("/movies");
+  };
 
-    if (action.type === "node") {
-      pushAssistantNode(action.target, true);
-      return;
-    }
+  /**
+   * Sends user query to the Gemini RAG streaming endpoint
+   */
+  const sendMessage = async (raw?: string) => {
+    const value = (raw ?? input).trim();
+    if (!value || isStreaming) return;
 
-    if (action.type === "intent") {
-      const intent = intents.find((item) => item.id === action.intentId);
-      pushAssistantNode(intent ? intent.nodeId : "fallback", true);
-      return;
-    }
-
-    if (action.type === "reset") {
+    // Handle quick client actions
+    const normalized = value.toLowerCase();
+    if (normalized === "reset" || normalized === "clear") {
       resetConversation();
       return;
     }
 
-    if (action.type === "clear") {
-      clearConversation();
-      return;
-    }
+    // Append user message
+    const userMsg: AskMessage = {
+      id: createId(),
+      role: "user",
+      text: value,
+      time: formatTime(),
+    };
 
-    if (action.type === "categories") {
-      pushAssistantNode(rootNodeId, true);
-      return;
-    }
+    const assistantMsgId = createId();
 
-    if (action.type === "escalate") {
-      pushAssistantNode("escalation", true);
-      return;
-    }
-
-    if (action.type === "navigate") {
-      closeAskEpicAi();
-      router.push(action.href);
-      return;
-    }
-
-    if (action.type === "back") {
-      const previousNodeId = historyRef.current.pop();
-      if (previousNodeId) {
-        pushAssistantNode(previousNodeId, false);
-      } else {
-        pushAssistantNode(rootNodeId, false);
-      }
-    }
-  };
-
-  const sendMessage = (raw?: string, quickReply?: QuickReply) => {
-    const value = (raw ?? input).trim();
-    if (!value) return;
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: createId(),
-        role: "user",
-        text: value,
-        time: formatTime(),
-      },
-    ]);
-
+    // Add ONLY user message initially; typing indicator will show while server generates
+    setMessages((prev) => [...prev, userMsg]);
     setInput("");
+    setIsTyping(true);
+    setIsStreaming(true);
+
     requestAnimationFrame(() => scrollToBottom("smooth"));
 
-    if (quickReply) {
-      processQuickAction(quickReply);
-      return;
-    }
+    // Prepare history for backend
+    const historyPayload = messages
+      .filter((m) => m.id !== "welcome_message" && m.text.trim())
+      .slice(-6)
+      .map((m) => ({ role: m.role, text: m.text }));
 
-    const normalized = value.toLowerCase();
-    if (normalized === "reset") {
-      resetConversation();
-      return;
-    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
-    if (normalized === "clear") {
-      clearConversation();
-      return;
-    }
+    try {
+      const token = getToken();
+      const baseUrl = getApiBaseUrl();
 
-    const currentQuick = resolveQuickReplyFromText(activeNodeId, value);
-    if (currentQuick) {
-      processQuickAction(currentQuick);
-      return;
-    }
+      const response = await fetch(`${baseUrl}/user-ai/chat/stream`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          message: value,
+          history: historyPayload,
+        }),
+        signal: controller.signal,
+      });
 
-    const intent = detectIntentFromText(value);
-    if (intent) {
-      pushAssistantNode(intent.nodeId, true);
-      return;
-    }
+      if (!response.ok) {
+        throw new Error(`Server returned HTTP ${response.status}`);
+      }
 
-    pushAssistantNode("fallback", true);
+      if (!response.body) {
+        throw new Error("No response body received from stream.");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let buffer = "";
+      let hasReceivedFirstChunk = false;
+
+      while (true) {
+        const { done, value: streamChunk } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(streamChunk, { stream: true });
+        const lines = buffer.split("\n\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          const trimmedLine = line.trim();
+          if (!trimmedLine.startsWith("data: ")) continue;
+
+          const dataPayload = trimmedLine.slice(6).trim();
+          if (dataPayload === "[DONE]") {
+            break;
+          }
+
+          try {
+            const parsed = JSON.parse(dataPayload);
+            if (parsed.chunk) {
+              if (!hasReceivedFirstChunk) {
+                hasReceivedFirstChunk = true;
+                setIsTyping(false);
+
+                // Add assistant message with first real chunk
+                setMessages((prev) => [
+                  ...prev,
+                  {
+                    id: assistantMsgId,
+                    role: "assistant",
+                    text: parsed.chunk,
+                    time: formatTime(),
+                  },
+                ]);
+              } else {
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === assistantMsgId
+                      ? { ...msg, text: msg.text + parsed.chunk }
+                      : msg
+                  )
+                );
+              }
+              scrollToBottom("auto");
+            }
+          } catch {
+            // Non-JSON or malformed chunk, ignore
+          }
+        }
+      }
+    } catch (err: unknown) {
+      if ((err as Error)?.name !== "AbortError") {
+        console.error("[AskEpicAiPanel] Streaming error:", err);
+        setMessages((prev) => {
+          const exists = prev.some((msg) => msg.id === assistantMsgId);
+          if (exists) {
+            return prev.map((msg) =>
+              msg.id === assistantMsgId
+                ? {
+                    ...msg,
+                    text:
+                      msg.text ||
+                      "I am currently having trouble retrieving that information. Please try asking again in a moment.",
+                  }
+                : msg
+            );
+          }
+          return [
+            ...prev,
+            {
+              id: assistantMsgId,
+              role: "assistant",
+              text: "I am currently having trouble retrieving that information. Please try asking again in a moment.",
+              time: formatTime(),
+            },
+          ];
+        });
+      }
+    } finally {
+      setIsTyping(false);
+      setIsStreaming(false);
+      abortControllerRef.current = null;
+      requestAnimationFrame(() => scrollToBottom("smooth"));
+    }
   };
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -250,29 +810,22 @@ export default function AskEpicAiPanel({
     sendMessage();
   };
 
+  // Abort on unmount
   useEffect(() => {
-    if (!messages.length) {
-      pushAssistantNode(rootNodeId);
-    }
-
     return () => {
-      if (typingTimer.current) {
-        window.clearTimeout(typingTimer.current);
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    requestAnimationFrame(() => scrollToBottom("auto"));
-  }, [messages, isTyping]);
 
   return (
     <section
       className={`relative flex h-full min-h-0 w-full flex-col overflow-hidden overscroll-y-none border ${panelTone.shell} ${className ?? ""}`}
     >
+      {/* Header */}
       <header
-        className={`sticky top-0 z-30 flex shrink-0 items-center gap-2 border-b px-3 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 text-white sm:px-4 ${panelTone.header}`}
+        className={`sticky top-0 z-30 flex shrink-0 items-center gap-2 border-b px-3 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2.5 text-white sm:px-4 ${panelTone.header}`}
       >
         {showMobileBack ? (
           onMobileBack ? (
@@ -294,101 +847,148 @@ export default function AskEpicAiPanel({
             </Link>
           )
         ) : null}
+
         <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15">
           <Bot className="h-4 w-4" />
         </span>
 
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold">Ask Epic AI</p>
-          <p className="truncate text-[11px] text-blue-100">Online now</p>
+          <p className="truncate text-sm font-semibold flex items-center gap-1.5">
+            Ask Epic AI <Sparkles className="h-3.5 w-3.5 text-indigo-200" />
+          </p>
         </div>
 
-        {showDesktopClose ? (
-          onDesktopClose ? (
-            <button
-              type="button"
-              onClick={onDesktopClose}
-              className="ml-auto inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white/15 transition hover:bg-white/25"
-              aria-label="Close"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          ) : (
-            <Link
-              href={closeHref}
-              className="ml-auto inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15 transition hover:bg-white/25"
-              aria-label="Close"
-            >
-              <X className="h-4 w-4" />
-            </Link>
-          )
-        ) : null}
+        <div className="ml-auto flex items-center gap-1">
+          {/* Reset / Clear chat */}
+          <button
+            type="button"
+            onClick={resetConversation}
+            title="Reset Conversation"
+            className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/15 transition hover:bg-white/25"
+            aria-label="Reset Conversation"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+          </button>
+
+          {showDesktopClose ? (
+            onDesktopClose ? (
+              <button
+                type="button"
+                onClick={onDesktopClose}
+                className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/15 transition hover:bg-white/25"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            ) : (
+              <Link
+                href={closeHref}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/15 transition hover:bg-white/25"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </Link>
+            )
+          ) : null}
+        </div>
       </header>
 
+      {/* Message List */}
       <div
         ref={listRef}
         className={`chat-scroll min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-3 sm:px-4 sm:py-4 ${panelTone.chatBg}`}
       >
-        <div className="space-y-2.5">
-          {messages.map((message) => {
-            const isUser = message.role === "user";
-            return (
-              <div key={message.id} className={`flex w-full ${isUser ? "justify-end" : "justify-start"}`}>
-                <div className={`flex max-w-[84%] flex-col ${isUser ? "items-end" : "items-start"}`}>
-                  <article
-                    className={`w-fit rounded-2xl px-3 py-2 text-sm leading-6 shadow-sm ${isUser ? `rounded-br-md ${panelTone.userBubble}` : `rounded-bl-md ${panelTone.botBubble}`}`}
-                  >
-                    {message.text}
+        {messages.length === 0 ? (
+          <div className="flex h-full flex-col items-center justify-center text-center px-4 py-8 select-none">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-600/15 text-indigo-600 dark:text-indigo-400 mb-3 shadow-inner">
+              <Bot className="h-7 w-7" />
+            </div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+              Ask Epic AI <Sparkles className="h-4 w-4 text-indigo-500" />
+            </h3>
+            <p className="mt-1 max-w-xs text-xs text-slate-500 dark:text-zinc-400">
+              {user?.name ? `Welcome, ${user.name}! ` : ""}Explore movies, live sports, gaming zones, train travel, and your bookings.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {messages
+              .filter(
+                (message) =>
+                  message.text.trim().length > 0 ||
+                  (message.quickReplies && message.quickReplies.length > 0)
+              )
+              .map((message) => {
+                const isUser = message.role === "user";
+                return (
+                  <div key={message.id} className={`flex w-full ${isUser ? "justify-end" : "justify-start"}`}>
+                    <div className={`flex max-w-[92%] sm:max-w-[88%] flex-col ${isUser ? "items-end" : "items-start"}`}>
+                      <article
+                        className={`w-fit rounded-2xl px-3.5 py-2.5 text-sm leading-6 shadow-xs ${
+                          isUser
+                            ? `rounded-br-md ${panelTone.userBubble}`
+                            : `rounded-bl-md ${panelTone.botBubble}`
+                        }`}
+                      >
+                        <ParsedMessageContent
+                          text={message.text}
+                          onExploreMovies={handleExploreMovies}
+                          onCategorySelect={(category) => sendMessage(category)}
+                        />
 
-                    {!isUser && message.quickReplies?.length ? (
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {message.quickReplies.map((reply) => (
-                          <button
-                            key={`${message.id}_${reply.label}`}
-                            type="button"
-                            onClick={() => sendMessage(reply.label, reply)}
-                            className={`cursor-pointer rounded-full border px-2.5 py-1 text-[11px] transition ${panelTone.quick}`}
-                          >
-                            {reply.label}
-                          </button>
-                        ))}
-                      </div>
-                    ) : null}
-                  </article>
-                  <p className={`mt-1 px-1 text-[10px] ${panelTone.meta}`}>{message.time}</p>
+                        {/* Quick Suggestions Chips */}
+                        {!isUser && message.quickReplies?.length ? (
+                          <div className="mt-3 flex flex-wrap gap-1.5 border-t border-indigo-500/15 pt-2">
+                            {message.quickReplies.map((reply) => (
+                              <button
+                                key={`${message.id}_${reply.label}`}
+                                type="button"
+                                onClick={() => sendMessage(reply.label)}
+                                className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-medium transition ${panelTone.quick}`}
+                              >
+                                {reply.label}
+                              </button>
+                            ))}
+                          </div>
+                        ) : null}
+                      </article>
+                      <p className={`mt-1 px-1 text-[10px] ${panelTone.meta}`}>{message.time}</p>
+                    </div>
+                  </div>
+                );
+              })}
+
+            {/* Typing/Thinking indicator */}
+            {isTyping ? (
+              <div className="flex justify-start">
+                <div className={`inline-flex items-center gap-2 rounded-2xl rounded-bl-md px-3.5 py-2 text-xs ${panelTone.botBubble}`}>
+                  <DualCircleSpinner className="h-4 w-4" />
+                  <span className="text-zinc-500 dark:text-zinc-400 font-medium">Thinking...</span>
                 </div>
               </div>
-            );
-          })}
-
-          {isTyping ? (
-            <div className="flex justify-start">
-              <div className={`inline-flex items-center gap-2 rounded-2xl rounded-bl-md px-3 py-2 text-xs ${panelTone.botBubble}`}>
-                <Sparkles className="h-3.5 w-3.5" />
-                <span className="inline-flex gap-1">
-                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.2s]" />
-                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.1s]" />
-                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current" />
-                </span>
-              </div>
-            </div>
-          ) : null}
-        </div>
+            ) : null}
+          </div>
+        )}
       </div>
 
+      {/* Input Footer */}
       <footer
-        className={`sticky bottom-0 z-20 shrink-0 border-t px-3 pt-2 pb-[calc(env(safe-area-inset-bottom)+0.55rem)] sm:px-4 ${panelTone.footer}`}
+        className={`sticky bottom-0 z-20 shrink-0 border-t px-3 pt-2.5 pb-[calc(env(safe-area-inset-bottom)+0.65rem)] sm:px-4 ${panelTone.footer}`}
       >
-        <form onSubmit={onSubmit} className={`flex items-center gap-2 rounded-xl px-1.5 py-1.5 shadow-xl ${panelTone.input}`}>
+        <form onSubmit={onSubmit} className={`flex items-center gap-2 rounded-xl px-2 py-1.5 shadow-md ${panelTone.input}`}>
           <input
             value={input}
             onChange={(event) => setInput(event.target.value)}
-            placeholder="Type your issue (example: payment failed)"
-            className="hero-search-input min-w-0 flex-1 rounded-xl bg-transparent px-2 py-2 text-sm outline-none"
+            disabled={isStreaming}
+            placeholder={
+              isStreaming ? "EpicShow AI is replying..." : "Ask anything (e.g. upcoming movies, my tickets)..."
+            }
+            className="hero-search-input min-w-0 flex-1 rounded-xl bg-transparent px-2 py-1.5 text-sm outline-none disabled:opacity-60"
           />
           <button
             type="submit"
-            className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#1d4ed8] text-white transition hover:bg-[#1e40af]"
+            disabled={!input.trim() || isStreaming}
+            className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-indigo-600 text-white transition hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
             aria-label="Send message"
           >
             <SendHorizontal className="h-4 w-4" />
