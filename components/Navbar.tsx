@@ -137,7 +137,7 @@ export default function Navbar() {
           {/* Logo */}
           <div
             onClick={handleHome}
-            className="text-xl sm:text-2xl font-bold tracking-tight lg:pl-2 text-gray-900 cursor-pointer transition-transform duration-300 hover:scale-110 hover:-rotate-1"
+            className="text-xl sm:text-2xl font-bold tracking-tight lg:pl-1 text-gray-900 cursor-pointer transition-transform duration-300 hover:scale-110 hover:-rotate-1"
           >
             EpicShow
           </div>

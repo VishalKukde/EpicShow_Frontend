@@ -110,7 +110,7 @@ export default function HeroCategoryCards({
             grid ${gridCols}
             mx-auto max-w-7xl
             gap-5 lg:gap-6
-            px-2 sm:px-4
+            px-2 sm:px-1
           `}
         >
           {cards.map((card, i) => (

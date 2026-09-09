@@ -10,7 +10,6 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 import AskEpicAiOverlay from "@/components/AskEpicAiOverlay";
 import GlobalErrorToastBridge from "@/components/GlobalErrorToastBridge";
 
-import { FeatureShowcaseProvider } from "@/components/FeatureShowcaseProvider";
 import NotificationBridge from "./components/NotificationBridge";
 import SmoothScroll from "@/components/SmoothScroll";
 
@@ -129,21 +128,19 @@ export default function RootLayout({
         className="antialiased"
       >
         <AuthProvider>
-          <FeatureShowcaseProvider>
-            <GlobalErrorToastBridge />
-            <NotificationBridge />
-            {/* <BackendWarmup /> */}
-            <ThemeBridge />
-            <SmoothScroll>
-            <Navbar />
-            {/* <FloatingChatButton /> */}
-            <MobileBottomNav />
-            <ScrollToTop />
-            {children}
-            {modal}
-            <AskEpicAiOverlay />
-            </SmoothScroll>
-          </FeatureShowcaseProvider>
+          <GlobalErrorToastBridge />
+          <NotificationBridge />
+          {/* <BackendWarmup /> */}
+          <ThemeBridge />
+          <SmoothScroll>
+          <Navbar />
+          {/* <FloatingChatButton /> */}
+          <MobileBottomNav />
+          <ScrollToTop />
+          {children}
+          {modal}
+          <AskEpicAiOverlay />
+          </SmoothScroll>
         </AuthProvider>
       </body>
     </html>

@@ -21,6 +21,7 @@ import {
     Copy,
     Clock,
 } from "lucide-react";
+import AdminDeleteConfirmModal from "../shared/AdminDeleteConfirmModal";
 
 export type GamingEvent = {
     _id: string;
@@ -81,7 +82,7 @@ export default function AdminAddGamingPanel() {
     const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
     const [deletingId, setDeletingId] = useState<string | null>(null);
-    const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
     const [deleteSuccessMsg, setDeleteSuccessMsg] = useState<string | null>(null);
     const [deleteErrorMsg, setDeleteErrorMsg] = useState<string | null>(null);
 
@@ -126,11 +127,11 @@ export default function AdminAddGamingPanel() {
             await apiFetch(`/gaming/${id}`, { method: "DELETE" });
             setGamingEvents((prev) => prev.filter((item) => item._id !== id));
             setDeleteSuccessMsg(`Gaming event "${title}" deleted successfully from database.`);
+            setDeleteTarget(null);
         } catch (err) {
             setDeleteErrorMsg(err instanceof Error ? err.message : "Failed to delete gaming event");
         } finally {
             setDeletingId(null);
-            setConfirmingDeleteId(null);
         }
     };
 
@@ -543,59 +544,27 @@ export default function AdminAddGamingPanel() {
                                                 </div>
                                             </div>
 
-                                            {/* Action Button with In-Card Confirmation */}
-                                            {confirmingDeleteId === item._id ? (
-                                                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 space-y-2.5 text-center animate-in fade-in duration-200">
-                                                    <p className="text-[11px] font-black text-rose-400 m-0 flex items-center justify-center gap-1.5">
-                                                        <AlertTriangle size={14} /> Are you sure to delete this event?
-                                                    </p>
-                                                    <div className="flex items-center gap-2">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleDeleteGaming(item._id, item.title)}
-                                                            disabled={isDeleting}
-                                                            className="flex-1 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-extrabold transition cursor-pointer shadow-xs active:scale-95 flex items-center justify-center gap-1"
-                                                        >
-                                                            {isDeleting ? (
-                                                                <>
-                                                                    <Loader2 size={13} className="animate-spin" /> Deleting...
-                                                                </>
-                                                            ) : (
-                                                                "Yes, Delete DB"
-                                                            )}
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setConfirmingDeleteId(null)}
-                                                            disabled={isDeleting}
-                                                            className="flex-1 py-2 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold transition cursor-pointer"
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center gap-2">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleCloneGaming(item)}
-                                                        className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-extrabold transition cursor-pointer border active:scale-95 shadow-xs ${isExpired
-                                                            ? "border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 dark:text-amber-300"
-                                                            : "border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 dark:text-purple-300"
-                                                            }`}
-                                                        title={isExpired ? "Re-create new upcoming event from this expired event" : "Clone event details into Form Builder"}
-                                                    >
-                                                        <Copy size={14} /> {isExpired ? "Reuse & Re-create" : "Copy Event"}
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setConfirmingDeleteId(item._id)}
-                                                        className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-extrabold transition cursor-pointer shadow-md bg-rose-600 hover:bg-rose-700 text-white active:scale-95"
-                                                    >
-                                                        <Trash2 size={14} /> Delete DB
-                                                    </button>
-                                                </div>
-                                            )}
+                                            {/* Action Buttons */}
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleCloneGaming(item)}
+                                                    className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-extrabold transition cursor-pointer border active:scale-95 shadow-xs ${isExpired
+                                                        ? "border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 dark:text-amber-300"
+                                                        : "border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 dark:text-purple-300"
+                                                        }`}
+                                                    title={isExpired ? "Re-create new upcoming event from this expired event" : "Clone event details into Form Builder"}
+                                                >
+                                                    <Copy size={14} /> {isExpired ? "Reuse & Re-create" : "Copy Event"}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setDeleteTarget({ id: item._id, name: item.title })}
+                                                    className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-extrabold transition cursor-pointer shadow-md bg-rose-600 hover:bg-rose-700 text-white active:scale-95"
+                                                >
+                                                    <Trash2 size={14} /> Delete DB
+                                                </button>
+                                            </div>
                                         </div>
                                     );
                                 })}
@@ -1157,6 +1126,23 @@ export default function AdminAddGamingPanel() {
                     </div>
                 </div>
             )}
+
+            <AdminDeleteConfirmModal
+                isOpen={!!deleteTarget}
+                itemType="Gaming Event"
+                itemName={deleteTarget?.name || ""}
+                isDeleting={deletingId === deleteTarget?.id}
+                onConfirm={() => {
+                    if (deleteTarget) {
+                        handleDeleteGaming(deleteTarget.id, deleteTarget.name);
+                    }
+                }}
+                onClose={() => {
+                    if (!deletingId) {
+                        setDeleteTarget(null);
+                    }
+                }}
+            />
         </div>
     );
 }

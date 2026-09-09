@@ -24,6 +24,7 @@ import {
     Database,
     Loader2,
 } from "lucide-react";
+import AdminDeleteConfirmModal from "../shared/AdminDeleteConfirmModal";
 
 const LANGUAGE_OPTIONS = [
     { label: "Hollywood (EN)", value: "en" },
@@ -71,7 +72,7 @@ export default function AdminAddMoviePanel() {
     const [dbStatus, setDbStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
     const [dbError, setDbError] = useState<string | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
-    const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
     const [deleteSuccessMsg, setDeleteSuccessMsg] = useState<string | null>(null);
     const [deleteErrorMsg, setDeleteErrorMsg] = useState<string | null>(null);
 
@@ -132,11 +133,11 @@ export default function AdminAddMoviePanel() {
             await apiFetch(`/movies/${id}`, { method: "DELETE" });
             setDbMovies((prev) => prev.filter((m) => m._id !== id));
             setDeleteSuccessMsg(`Movie "${name}" was permanently deleted from the database.`);
+            setDeleteTarget(null);
         } catch (err) {
             setDeleteErrorMsg(err instanceof Error ? err.message : "Failed to delete movie");
         } finally {
             setDeletingId(null);
-            setConfirmingDeleteId(null);
         }
     };
 
@@ -523,45 +524,13 @@ export default function AdminAddMoviePanel() {
 
                                         {/* Action Button: Delete from DB with In-Card Confirmation */}
                                         <div className="p-5 pt-0">
-                                            {confirmingDeleteId === movie._id ? (
-                                                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 space-y-2.5 text-center animate-in fade-in duration-200">
-                                                    <p className="text-[11px] font-black text-rose-400 m-0 flex items-center justify-center gap-1.5">
-                                                        <AlertTriangle size={14} /> Are you sure to delete this movie?
-                                                    </p>
-                                                    <div className="flex items-center gap-2">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleDeleteMovie(movie._id, movie.name)}
-                                                            disabled={isDeleting}
-                                                            className="flex-1 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-extrabold transition cursor-pointer shadow-xs active:scale-95 flex items-center justify-center gap-1"
-                                                        >
-                                                            {isDeleting ? (
-                                                                <>
-                                                                    <Loader2 size={13} className="animate-spin" /> Deleting...
-                                                                </>
-                                                            ) : (
-                                                                "Yes, Delete DB"
-                                                            )}
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setConfirmingDeleteId(null)}
-                                                            disabled={isDeleting}
-                                                            className="flex-1 py-2 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold transition cursor-pointer"
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setConfirmingDeleteId(movie._id)}
-                                                    className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-extrabold transition cursor-pointer shadow-md bg-rose-600 hover:bg-rose-700 text-white active:scale-95"
-                                                >
-                                                    <Trash2 size={16} /> Delete Movie from DB
-                                                </button>
-                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={() => setDeleteTarget({ id: movie._id, name: movie.name })}
+                                                className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-extrabold transition cursor-pointer shadow-md bg-rose-600 hover:bg-rose-700 text-white active:scale-95"
+                                            >
+                                                <Trash2 size={16} /> Delete Movie from DB
+                                            </button>
                                         </div>
                                     </div>
                                 );
@@ -1140,6 +1109,23 @@ export default function AdminAddMoviePanel() {
                     </form>
                 </div>
             )}
+
+            <AdminDeleteConfirmModal
+                isOpen={!!deleteTarget}
+                itemType="Movie"
+                itemName={deleteTarget?.name || ""}
+                isDeleting={deletingId === deleteTarget?.id}
+                onConfirm={() => {
+                    if (deleteTarget) {
+                        handleDeleteMovie(deleteTarget.id, deleteTarget.name);
+                    }
+                }}
+                onClose={() => {
+                    if (!deletingId) {
+                        setDeleteTarget(null);
+                    }
+                }}
+            />
         </div>
     );
 }

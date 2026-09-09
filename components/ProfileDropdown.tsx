@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useThemeStore } from "@/store/themeStore";
-import { useFeatureShowcase } from "@/components/FeatureShowcaseProvider";
 import {
   User,
   Settings,
@@ -14,7 +13,6 @@ import {
   Ticket,
   Crown,
   BadgeCheck,
-  House,
 } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
 import Image from "next/image";
@@ -32,14 +30,12 @@ const MENU_ACTIONS: NavAction[] = [
   { icon: Ticket, label: "My Bookings", href: "/profile/bookings/movies" },
   { icon: Crown, label: "Subscription", href: "/profile/subscription" },
   { icon: Settings, label: "Settings", href: "/profile/account-settings" },
-  { icon: House, label: "Inside App", href: "/", highlight: true },
 ];
 
 export default function ProfileDropdown() {
   const { user } = useAuth();
   const mode = useThemeStore((s) => s.mode);
   const router = useRouter();
-  const { openShowcase } = useFeatureShowcase();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<NodeJS.Timeout | null>(null);
@@ -81,20 +77,8 @@ export default function ProfileDropdown() {
 
   if (!user) return null;
 
-  const handleNavigate = (href: string, label?: string) => {
+  const handleNavigate = (href: string) => {
     setOpen(false);
-
-    if (label === "Inside App") {
-      if (window.location.pathname !== "/") {
-        router.push("/");
-        window.setTimeout(() => openShowcase(), 80);
-        return;
-      }
-
-      openShowcase();
-      return;
-    }
-
     router.push(href);
   };
 
@@ -204,7 +188,7 @@ export default function ProfileDropdown() {
                   dark={dark}
                   icon={<item.icon className="h-4 w-4" />}
                   label={item.label}
-                  onClick={() => handleNavigate(item.href, item.label)}
+                  onClick={() => handleNavigate(item.href)}
                   highlight={item.highlight}
                 />
               ))}

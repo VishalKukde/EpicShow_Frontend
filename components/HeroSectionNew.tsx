@@ -4,8 +4,6 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useThemeStore } from "@/store/themeStore"; // adjust path if needed
 import { HERO_PAGE_BG } from "@/components/heroTheme";
-import { Sparkles } from "lucide-react";
-import { useAskEpicAiStore } from "@/store/askEpicAiStore";
 
 const posters = ["/dummy.webp", "/dummy.webp", "/dummy.webp", "/dummy.webp"];
 const TAGS = ["Trending now", "Top rated", "Coming soon", "IMAX"];
@@ -26,7 +24,6 @@ export default function CinematicHeroSpotlightNew() {
   const [query, setQuery] = useState("");
   const [statCounts, setStatCounts] = useState<number[]>(() => STATS.map(() => 1));
   const mode = useThemeStore((s) => s.mode);
-  const openAskEpicAi = useAskEpicAiStore((state) => state.open);
   const dark = mode === "dark";
 
   useEffect(() => {
@@ -222,68 +219,7 @@ export default function CinematicHeroSpotlightNew() {
           ))}
         </div>
 
-        <div className="mt-8 flex justify-center">
-          <svg width="0" height="0" aria-hidden="true" className="absolute pointer-events-none">
-            <defs>
-              <linearGradient id="ask-epic-sparkle-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#60A5FA">
-                  <animate
-                    attributeName="stop-color"
-                    values="#60A5FA;#22D3EE;#A78BFA;#60A5FA"
-                    dur="3.6s"
-                    repeatCount="indefinite"
-                  />
-                </stop>
-                <stop offset="50%" stopColor="#A78BFA">
-                  <animate
-                    attributeName="stop-color"
-                    values="#A78BFA;#60A5FA;#22D3EE;#A78BFA"
-                    dur="3.6s"
-                    repeatCount="indefinite"
-                  />
-                </stop>
-                <stop offset="100%" stopColor="#22D3EE">
-                  <animate
-                    attributeName="stop-color"
-                    values="#22D3EE;#A78BFA;#60A5FA;#22D3EE"
-                    dur="3.6s"
-                    repeatCount="indefinite"
-                  />
-                </stop>
-              </linearGradient>
-            </defs>
-          </svg>
 
-          <button
-            type="button"
-            onClick={openAskEpicAi}
-            className="group inline-flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 cursor-pointer"
-            style={
-              dark
-                ? {
-                  background: "rgba(13,21,37,0.86)",
-                  borderColor: "rgba(59,130,246,0.45)",
-                  color: "#BFDBFE",
-                  boxShadow: "0 12px 28px rgba(2,6,23,0.5)",
-                }
-                : {
-                  background: "rgba(255,255,255,0.84)",
-                  borderColor: "rgba(59,130,246,0.35)",
-                  color: "#1E40AF",
-                  boxShadow: "0 10px 22px rgba(30,64,175,0.13)",
-                }
-            }
-          >
-            <Sparkles
-              className="h-4 w-4 transition-transform duration-200 group-hover:rotate-6"
-              style={{
-                stroke: "url(#ask-epic-sparkle-gradient)",
-                filter: "drop-shadow(0 0 6px rgba(96,165,250,0.45))",
-              }}
-            />
-            Ask Epic AI
-          </button>
-        </div>
 
         {/* ── Stats ── */}
         <div

@@ -16,6 +16,7 @@ import {
     Sparkles,
     FileCode,
 } from "lucide-react";
+import AdminDeleteConfirmModal from "../shared/AdminDeleteConfirmModal";
 
 export type SportEvent = {
     _id: string;
@@ -82,7 +83,7 @@ export default function AdminAddSportPanel() {
     const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
     const [deletingId, setDeletingId] = useState<string | null>(null);
-    const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
     const [deleteSuccessMsg, setDeleteSuccessMsg] = useState<string | null>(null);
     const [deleteErrorMsg, setDeleteErrorMsg] = useState<string | null>(null);
 
@@ -121,11 +122,11 @@ export default function AdminAddSportPanel() {
             await apiFetch(`/sports/${id}`, { method: "DELETE" });
             setSports((prev) => prev.filter((item) => item._id !== id));
             setDeleteSuccessMsg(`Match "${matchName}" deleted successfully from database.`);
+            setDeleteTarget(null);
         } catch (err) {
             setDeleteErrorMsg(err instanceof Error ? err.message : "Failed to delete sport match");
         } finally {
             setDeletingId(null);
-            setConfirmingDeleteId(null);
         }
     };
 
@@ -373,46 +374,14 @@ export default function AdminAddSportPanel() {
                                             )}
                                         </div>
 
-                                        {/* Action Button with In-Card Confirmation */}
-                                        {confirmingDeleteId === item._id ? (
-                                            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 space-y-2.5 text-center animate-in fade-in duration-200">
-                                                <p className="text-[11px] font-black text-rose-400 m-0 flex items-center justify-center gap-1.5">
-                                                    <AlertTriangle size={14} /> Delete this match from database?
-                                                </p>
-                                                <div className="flex items-center gap-2">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleDeleteSport(item._id, title)}
-                                                        disabled={isDeleting}
-                                                        className="flex-1 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-extrabold transition cursor-pointer shadow-xs active:scale-95 flex items-center justify-center gap-1"
-                                                    >
-                                                        {isDeleting ? (
-                                                            <>
-                                                                <Loader2 size={13} className="animate-spin" /> Deleting...
-                                                            </>
-                                                        ) : (
-                                                            "Yes, Delete DB"
-                                                        )}
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setConfirmingDeleteId(null)}
-                                                        disabled={isDeleting}
-                                                        className="flex-1 py-2 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold transition cursor-pointer"
-                                                    >
-                                                        Cancel
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <button
-                                                type="button"
-                                                onClick={() => setConfirmingDeleteId(item._id)}
-                                                className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-extrabold transition cursor-pointer shadow-md bg-rose-600 hover:bg-rose-700 text-white active:scale-95"
-                                            >
-                                                <Trash2 size={16} /> Delete Match from DB
-                                            </button>
-                                        )}
+                                        {/* Action Button: Delete from DB */}
+                                        <button
+                                            type="button"
+                                            onClick={() => setDeleteTarget({ id: item._id, name: title })}
+                                            className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-extrabold transition cursor-pointer shadow-md bg-rose-600 hover:bg-rose-700 text-white active:scale-95"
+                                        >
+                                            <Trash2 size={16} /> Delete Match from DB
+                                        </button>
                                     </div>
                                 );
                             })}
@@ -819,6 +788,23 @@ export default function AdminAddSportPanel() {
                     )}
                 </div>
             )}
+
+            <AdminDeleteConfirmModal
+                isOpen={!!deleteTarget}
+                itemType="Sport Match"
+                itemName={deleteTarget?.name || ""}
+                isDeleting={deletingId === deleteTarget?.id}
+                onConfirm={() => {
+                    if (deleteTarget) {
+                        handleDeleteSport(deleteTarget.id, deleteTarget.name);
+                    }
+                }}
+                onClose={() => {
+                    if (!deletingId) {
+                        setDeleteTarget(null);
+                    }
+                }}
+            />
         </div>
     );
 }

@@ -9,6 +9,7 @@ import HomeTestimonials from "./components/HomeTestimonials";
 import PinterestMovieHero from "@/components/hero/PinterestMovieHero";
 import { apiFetch } from "@/lib/api";
 import HeroSectionNewAgain from "@/components/HeroSectionNewAgain";
+import LandingFloatingAiButton from "@/components/LandingFloatingAiButton";
 
 function SectionLoader({ title }: { title: string }) {
   return (
@@ -204,7 +205,10 @@ export default function LandingPage() {
             upcomingItems.length > 0 && (
               <UpcomingMovieRow
                 title="Upcoming Movies"
-                movies={upcomingItems}
+                movies={upcomingItems.slice(0, 5)}
+                limit={5}
+                showViewAll={true}
+                viewAllHref="/movies"
               />
             )
           )}
@@ -214,6 +218,7 @@ export default function LandingPage() {
 
         <TrendingFooter />
       </div>
+      <LandingFloatingAiButton />
     </div>
   );
 }

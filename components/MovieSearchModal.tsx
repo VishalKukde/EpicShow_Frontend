@@ -43,6 +43,22 @@ function filterMovies(movies: Movie[], query: string) {
   });
 }
 
+const MAX_PANEL_WIDTH = 580;
+const MAX_PANEL_HEIGHT = 520;
+
+function getPanelBounds(origin?: SearchOrigin | null) {
+  const panelWidth = Math.min(window.innerWidth - 32, MAX_PANEL_WIDTH);
+  const panelHeight = Math.min(window.innerHeight - 48, MAX_PANEL_HEIGHT);
+  const startX = origin?.x ?? window.innerWidth / 2 - 60;
+  const startY = origin?.y ?? window.innerHeight / 2 - 24;
+  const startW = origin?.width ?? 120;
+  const startH = origin?.height ?? 42;
+  const finalX = (window.innerWidth - panelWidth) / 2;
+  const finalY = (window.innerHeight - panelHeight) / 2;
+
+  return { panelWidth, panelHeight, startX, startY, startW, startH, finalX, finalY };
+}
+
 export default function MovieSearchModal({ open, onClose, origin }: MovieSearchModalProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -144,21 +160,15 @@ export default function MovieSearchModal({ open, onClose, origin }: MovieSearchM
       return;
     }
 
-    const panelWidth = Math.min(window.innerWidth - 32, 760);
-    const panelHeight = Math.min(window.innerHeight - 32, 760);
-    const startX = origin?.x ?? window.innerWidth / 2 - 60;
-    const startY = origin?.y ?? window.innerHeight / 2 - 24;
-    const startW = origin?.width ?? 120;
-    const startH = origin?.height ?? 42;
-    const finalX = (window.innerWidth - panelWidth) / 2;
-    const finalY = (window.innerHeight - panelHeight) / 2;
+    const { panelWidth, panelHeight, startX, startY, startW, startH, finalX, finalY } =
+      getPanelBounds(origin);
 
     gsap.set(panel, {
       left: startX,
       top: startY,
       width: startW,
       height: startH,
-      borderRadius: 18,
+      borderRadius: 16,
       opacity: 0,
       x: 0,
       y: 0,
@@ -172,7 +182,7 @@ export default function MovieSearchModal({ open, onClose, origin }: MovieSearchM
       top: finalY,
       width: panelWidth,
       height: panelHeight,
-      borderRadius: 28,
+      borderRadius: 24,
       opacity: 1,
       scale: 1,
       duration: 0.28,
@@ -190,21 +200,15 @@ export default function MovieSearchModal({ open, onClose, origin }: MovieSearchM
       return;
     }
 
-    const panelWidth = Math.min(window.innerWidth - 32, 760);
-    const panelHeight = Math.min(window.innerHeight - 32, 760);
-    const startX = origin?.x ?? window.innerWidth / 2 - 60;
-    const startY = origin?.y ?? window.innerHeight / 2 - 24;
-    const startW = origin?.width ?? 120;
-    const startH = origin?.height ?? 42;
-    const finalX = (window.innerWidth - panelWidth) / 2;
-    const finalY = (window.innerHeight - panelHeight) / 2;
+    const { panelWidth, panelHeight, startX, startY, startW, startH, finalX, finalY } =
+      getPanelBounds(origin);
 
     gsap.to(panel, {
       left: startX,
       top: startY,
       width: startW,
       height: startH,
-      borderRadius: 18,
+      borderRadius: 16,
       opacity: 0,
       scale: 0.98,
       duration: 0.22,
@@ -249,25 +253,33 @@ export default function MovieSearchModal({ open, onClose, origin }: MovieSearchM
               borderRadius: 18,
             }}
           >
-            <div className="flex items-center justify-between border-b border-slate-200/70 px-4 py-3 sm:px-6">
+            <div className="flex items-center justify-between border-b border-slate-200/70 px-4 py-3 sm:px-5">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
                   Search
                 </p>
-                <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">Find your movie</h2>
+                <h2 className="text-base font-semibold text-slate-900 sm:text-lg">Find your movie</h2>
               </div>
-              <button
-                type="button"
-                aria-label="Close"
-                onClick={closePanel}
-                className="cursor-pointer inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
-              >
-                <X className="h-4 w-4" />
-              </button>
+              <div className="flex flex-col items-center gap-0.5">
+                <button
+                  type="button"
+                  aria-label="Close (Esc)"
+                  onClick={closePanel}
+                  className="cursor-pointer inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+                <span
+                  onClick={closePanel}
+                  className="cursor-pointer text-[10px] font-semibold tracking-wider text-slate-400 hover:text-slate-600 transition select-none"
+                >
+                  ESC
+                </span>
+              </div>
             </div>
 
-            <div className="border-b border-slate-200/70 px-4 py-3 sm:px-6">
-              <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <div className="border-b border-slate-200/70 px-4 py-3 sm:px-5">
+              <div className="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5">
                 <Search className="h-4 w-4 text-slate-400" />
                 <input
                   ref={inputRef}
@@ -277,44 +289,43 @@ export default function MovieSearchModal({ open, onClose, origin }: MovieSearchM
                   className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
                 />
               </div>
-              <p className="mt-2 text-xs text-slate-400">Press Esc to close</p>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-4 pb-6 pt-4 sm:px-6">
+            <div className="flex-1 overflow-y-auto px-4 pb-5 pt-3 sm:px-5">
               {loading ? (
-                <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
+                <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-500" />
                   Searching movies...
                 </div>
               ) : null}
 
               {error ? (
-                <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
+                <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
                   {error}
                 </div>
               ) : null}
 
               {!loading && !error && !debouncedQuery ? (
-                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
+                <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
                   Start typing to search movies.
                 </div>
               ) : null}
 
               {showEmptyState ? (
-                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
+                <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
                   No movies match your search.
                 </div>
               ) : null}
 
-              <div className="mt-4 grid gap-3">
+              <div className="mt-3 grid gap-2.5">
                 {results.map((movie) => (
                   <button
                     key={movie._id}
                     type="button"
                     onClick={() => handleSelect(movie._id)}
-                    className=" cursor-pointer group flex w-full items-center gap-4 rounded-2xl border border-slate-200 bg-white p-3 text-left transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_20px_40px_-24px_rgba(15,23,42,0.35)]"
+                    className="cursor-pointer group flex w-full items-center gap-3.5 rounded-xl border border-slate-200 bg-white p-2.5 sm:p-3 text-left transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_16px_32px_-20px_rgba(15,23,42,0.35)]"
                   >
-                    <div className="relative h-16 w-12 overflow-hidden rounded-xl bg-slate-100">
+                    <div className="relative h-14 w-11 shrink-0 overflow-hidden rounded-lg bg-slate-100 sm:h-16 sm:w-12 sm:rounded-xl">
                       <Image
                         src={movie.imageUrl || "/dummy.webp"}
                         alt={movie.name}
@@ -325,7 +336,7 @@ export default function MovieSearchModal({ open, onClose, origin }: MovieSearchM
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold text-slate-900">{movie.name}</p>
-                      <p className="mt-1 truncate text-xs text-slate-500">
+                      <p className="mt-0.5 truncate text-xs text-slate-500">
                         {Array.isArray(movie.genre) && movie.genre.length > 0
                           ? movie.genre.slice(0, 2).join(" / ")
                           : "Genre"}
@@ -333,7 +344,7 @@ export default function MovieSearchModal({ open, onClose, origin }: MovieSearchM
                         {movie.language || "Language"}
                       </p>
                     </div>
-                    <div className="text-right text-xs text-slate-500">
+                    <div className="text-right text-xs text-slate-500 shrink-0">
                       <p className="font-semibold text-slate-700">⭐ {movie.rating ?? "N/A"}</p>
                       <p>{movie.runtimeMinutes ? `${movie.runtimeMinutes} mins` : "Runtime"}</p>
                     </div>

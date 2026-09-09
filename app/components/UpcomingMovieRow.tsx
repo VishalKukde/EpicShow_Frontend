@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import UpcomingMovieCard from "./UpcomingMovieCard";
 import UpcomingMovieModal from "./UpcomingMovieModal";
@@ -12,16 +13,33 @@ import { toast } from "@/lib/toast";
 interface UpcomingMovieRowProps {
     title?: string;
     movies: MovieRowItem[];
+    limit?: number;
+    showViewAll?: boolean;
+    viewAllHref?: string;
+    onViewAll?: () => void;
 }
 
 export default function UpcomingMovieRow({
     title = "Upcoming Movies",
     movies,
+    limit = 5,
+    showViewAll = true,
+    viewAllHref = "/movies",
+    onViewAll,
 }: UpcomingMovieRowProps) {
+    const router = useRouter();
     const { user } = useAuth();
     const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set());
     const [selectedMovie, setSelectedMovie] = useState<MovieRowItem | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleViewAll = () => {
+        if (onViewAll) {
+            onViewAll();
+        } else if (viewAllHref) {
+            router.push(viewAllHref);
+        }
+    };
 
     useEffect(() => {
         if (!user) {
@@ -83,7 +101,9 @@ export default function UpcomingMovieRow({
         }
     };
 
-    if (!movies || movies.length === 0) return null;
+    const displayedMovies = typeof limit === "number" && limit > 0 ? movies.slice(0, limit) : movies;
+
+    if (!displayedMovies || displayedMovies.length === 0) return null;
 
     return (
         <>
@@ -95,7 +115,7 @@ export default function UpcomingMovieRow({
                 className="relative z-10 mx-auto mb-16 max-w-7xl sm:mb-24"
             >
                 {/* Header */}
-                <div className="mb-6 flex flex-col items-start gap-2 text-left sm:flex-row sm:items-end sm:justify-between">
+                <div className="mb-6 flex items-end justify-between gap-3 text-left">
                     <div>
                         <div className="flex items-center gap-2 mb-1">
                             <span className="inline-block h-2 w-2 rounded-full bg-amber-500 animate-ping" />
@@ -107,6 +127,17 @@ export default function UpcomingMovieRow({
                             {title}
                         </h2>
                     </div>
+
+                    {showViewAll && (
+                        <button
+                            type="button"
+                            onClick={handleViewAll}
+                            className="group cursor-pointer inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200 dark:hover:text-white shadow-xs backdrop-blur-sm hover:shadow-sm shrink-0"
+                        >
+                            View all
+                            <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+                        </button>
+                    )}
                 </div>
 
                 {/* Movies Grid */}
@@ -120,7 +151,7 @@ export default function UpcomingMovieRow({
             "
                         style={{ WebkitOverflowScrolling: "touch" }}
                     >
-                        {movies.map((m, i) => {
+                        {displayedMovies.map((m, i) => {
                             const movieId = String(m.id || m.tmdbId || m.title);
                             const isWishlisted = wishlistIds.has(movieId);
 
