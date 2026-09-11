@@ -11,10 +11,12 @@ import {
   Clock,
   ExternalLink,
   Film,
+  Gamepad2,
   Github,
   Globe,
   Linkedin,
   Mail,
+  MapPin,
   RotateCcw,
   SendHorizontal,
   Sparkles,
@@ -92,6 +94,53 @@ interface BookingCardData {
   pnr?: string;
   route?: string;
   venue?: string;
+}
+
+interface SportCardData {
+  league?: string;
+  matchNo?: string;
+  teams: string;
+  venue?: string;
+  city?: string;
+  date?: string;
+  time?: string;
+  price?: string;
+  priceRange?: string;
+  rating?: string;
+  description?: string;
+}
+
+interface TrainCardData {
+  trainNumber?: string;
+  trainName: string;
+  route?: string;
+  fromStation?: string;
+  toStation?: string;
+  departure?: string;
+  departureTime?: string;
+  arrival?: string;
+  arrivalTime?: string;
+  duration?: string;
+  price?: string;
+  seats?: string;
+  availableSeats?: string;
+  type?: string;
+  trainType?: string;
+  rating?: string;
+}
+
+interface GamingCardData {
+  title: string;
+  venue?: string;
+  city?: string;
+  date?: string;
+  time?: string;
+  price?: string;
+  seats?: string;
+  availableSeats?: string;
+  totalSeats?: string;
+  organizer?: string;
+  description?: string;
 }
 
 /**
@@ -301,6 +350,267 @@ function BookingTicketCard({ booking }: { booking: BookingCardData }) {
 }
 
 /**
+ * Beautiful UI Card for a Sports Match Listing
+ */
+function SportCard({
+  match,
+  onExplore,
+}: {
+  match: SportCardData;
+  onExplore: () => void;
+}) {
+  return (
+    <div className="my-3 overflow-hidden rounded-2xl border border-emerald-200/80 bg-white/95 p-3.5 shadow-sm transition-all duration-200 hover:shadow-md dark:border-emerald-800/60 dark:bg-zinc-800/95 sm:p-4">
+      {/* Header: League & Rating */}
+      <div className="flex items-start justify-between gap-2.5">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
+            <Trophy className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <span className="inline-block rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
+              {match.league || "Sports League"}
+            </span>
+          </div>
+        </div>
+
+        {match.rating ? (
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-xs font-bold text-amber-600 dark:text-amber-400">
+            <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+            {match.rating}
+          </span>
+        ) : null}
+      </div>
+
+      {/* Match Title / Teams */}
+      <h4 className="mt-2.5 text-sm font-bold tracking-tight text-slate-900 dark:text-white sm:text-[15px]">
+        {match.teams}
+      </h4>
+
+      {/* Venue & Timing */}
+      <div className="mt-2 flex flex-col gap-1.5 text-xs text-slate-600 dark:text-zinc-300">
+        {match.venue ? (
+          <div className="flex items-center gap-1.5">
+            <MapPin className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+            <span className="truncate">{match.venue}</span>
+          </div>
+        ) : null}
+
+        <div className="flex flex-wrap items-center gap-3">
+          {match.date ? (
+            <div className="flex items-center gap-1.5 font-medium">
+              <Calendar className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+              <span>{match.date}</span>
+            </div>
+          ) : null}
+
+          {match.time ? (
+            <div className="flex items-center gap-1.5 font-medium">
+              <Clock className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+              <span>{match.time}</span>
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      {/* Footer: Price & Action */}
+      <div className="mt-3 flex items-center justify-between border-t border-emerald-100 pt-2.5 dark:border-zinc-700/60">
+        <span className="text-xs font-bold text-slate-900 dark:text-white">
+          {match.priceRange || match.price || "₹300 onwards"}
+        </span>
+        <button
+          type="button"
+          onClick={onExplore}
+          className="cursor-pointer rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-emerald-500 active:scale-95"
+        >
+          View Match
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Beautiful UI Card for a Train Schedule / Route
+ */
+function TrainCard({
+  train,
+  onExplore,
+}: {
+  train: TrainCardData;
+  onExplore: () => void;
+}) {
+  const departure = train.departure || train.departureTime;
+  const arrival = train.arrival || train.arrivalTime;
+  const seats = train.seats || train.availableSeats;
+
+  return (
+    <div className="my-3 overflow-hidden rounded-2xl border border-sky-200/80 bg-white/95 p-3.5 shadow-sm transition-all duration-200 hover:shadow-md dark:border-sky-800/60 dark:bg-zinc-800/95 sm:p-4">
+      {/* Header: Train Name & Number Badge */}
+      <div className="flex items-start justify-between gap-2.5">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600 dark:bg-sky-500/20 dark:text-sky-400">
+            <Train className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <h4 className="truncate text-sm font-bold tracking-tight text-slate-900 dark:text-white sm:text-[15px]">
+              {train.trainName}
+            </h4>
+            <span className="text-[11px] font-mono text-slate-500 dark:text-zinc-400">
+              #{train.trainNumber}
+            </span>
+          </div>
+        </div>
+
+        {train.price ? (
+          <span className="rounded-full bg-sky-50 px-2.5 py-0.5 text-xs font-bold text-sky-700 dark:bg-sky-950/50 dark:text-sky-300">
+            {train.price}
+          </span>
+        ) : null}
+      </div>
+
+      {/* Route */}
+      {train.route ? (
+        <div className="mt-2.5 rounded-lg bg-sky-50/70 px-2.5 py-1.5 text-xs font-semibold text-sky-900 dark:bg-sky-950/40 dark:text-sky-200">
+          {train.route}
+        </div>
+      ) : null}
+
+      {/* Timings & Duration */}
+      <div className="mt-2.5 grid grid-cols-3 gap-2 text-center text-xs">
+        {departure ? (
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-zinc-400">
+              Departure
+            </span>
+            <span className="font-bold text-slate-800 dark:text-zinc-200">
+              {departure}
+            </span>
+          </div>
+        ) : null}
+
+        {train.duration ? (
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-zinc-400">
+              Duration
+            </span>
+            <span className="font-medium text-slate-500 dark:text-zinc-400">
+              {train.duration}
+            </span>
+          </div>
+        ) : null}
+
+        {arrival ? (
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-zinc-400">
+              Arrival
+            </span>
+            <span className="font-bold text-slate-800 dark:text-zinc-200">
+              {arrival}
+            </span>
+          </div>
+        ) : null}
+      </div>
+
+      {/* Footer: Seats & Action */}
+      <div className="mt-3 flex items-center justify-between border-t border-sky-100 pt-2.5 dark:border-zinc-700/60">
+        <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+          {seats ? `${seats} Seats Available` : "Seats Available"}
+        </span>
+        <button
+          type="button"
+          onClick={onExplore}
+          className="cursor-pointer rounded-xl bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-sky-500 active:scale-95"
+        >
+          Book Train
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Beautiful UI Card for a Gaming Event / Zone
+ */
+function GamingCard({
+  game,
+  onExplore,
+}: {
+  game: GamingCardData;
+  onExplore: () => void;
+}) {
+  const seats = game.seats || game.availableSeats;
+
+  return (
+    <div className="my-3 overflow-hidden rounded-2xl border border-purple-200/80 bg-white/95 p-3.5 shadow-sm transition-all duration-200 hover:shadow-md dark:border-purple-800/60 dark:bg-zinc-800/95 sm:p-4">
+      {/* Header: Title & Price */}
+      <div className="flex items-start justify-between gap-2.5">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400">
+            <Gamepad2 className="h-4 w-4" />
+          </div>
+          <h4 className="truncate text-sm font-bold tracking-tight text-slate-900 dark:text-white sm:text-[15px]">
+            {game.title}
+          </h4>
+        </div>
+
+        {game.price ? (
+          <span className="shrink-0 rounded-full bg-purple-50 px-2.5 py-0.5 text-xs font-bold text-purple-700 dark:bg-purple-950/50 dark:text-purple-300">
+            {game.price}
+          </span>
+        ) : null}
+      </div>
+
+      {/* Venue & Details */}
+      <div className="mt-2.5 flex flex-col gap-1.5 text-xs text-slate-600 dark:text-zinc-300">
+        {game.venue ? (
+          <div className="flex items-center gap-1.5">
+            <MapPin className="h-3.5 w-3.5 shrink-0 text-purple-600 dark:text-purple-400" />
+            <span className="truncate">{game.venue}</span>
+          </div>
+        ) : null}
+
+        <div className="flex flex-wrap items-center gap-3">
+          {game.date ? (
+            <div className="flex items-center gap-1.5 font-medium">
+              <Calendar className="h-3.5 w-3.5 shrink-0 text-purple-600 dark:text-purple-400" />
+              <span>{game.date}</span>
+            </div>
+          ) : null}
+
+          {game.time ? (
+            <div className="flex items-center gap-1.5 font-medium">
+              <Clock className="h-3.5 w-3.5 shrink-0 text-purple-600 dark:text-purple-400" />
+              <span>{game.time}</span>
+            </div>
+          ) : null}
+        </div>
+
+        {game.organizer ? (
+          <span className="text-[11px] text-slate-400 dark:text-zinc-400">
+            Organizer: {game.organizer}
+          </span>
+        ) : null}
+      </div>
+
+      {/* Footer: Seats & Action */}
+      <div className="mt-3 flex items-center justify-between border-t border-purple-100 pt-2.5 dark:border-zinc-700/60">
+        <span className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400">
+          {seats ? `${seats} slots open` : "Pass Available"}
+        </span>
+        <button
+          type="button"
+          onClick={onExplore}
+          className="cursor-pointer rounded-xl bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-purple-500 active:scale-95"
+        >
+          Explore Gaming
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/**
  * Elegant dual concentric circles rotating inside each other
  */
 function DualCircleSpinner({ className = "h-4 w-4" }: { className?: string }) {
@@ -476,21 +786,27 @@ function MarkdownFormattedText({ text }: { text: string }) {
 }
 
 /**
- * Parses full message text, extracting `:::movie-card` and `:::booking-card` into UI cards
+ * Parses full message text, extracting `:::movie-card`, `:::booking-card`, `:::sport-card`, `:::train-card`, and `:::gaming-card` into UI cards
  */
 function ParsedMessageContent({
   text,
   onExploreMovies,
+  onExploreSports,
+  onExploreTrains,
+  onExploreGaming,
   onCategorySelect,
 }: {
   text: string;
   onExploreMovies: () => void;
+  onExploreSports?: () => void;
+  onExploreTrains?: () => void;
+  onExploreGaming?: () => void;
   onCategorySelect: (category: string) => void;
 }) {
   if (!text || !text.trim()) return null;
 
   // Split by card delimiters
-  const cardRegex = /:::(movie-card|booking-card)([\s\S]*?)(:::|$)/g;
+  const cardRegex = /:::(movie-card|booking-card|sport-card|train-card|gaming-card)([\s\S]*?)(:::|$)/g;
   const elements: React.ReactNode[] = [];
   let lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -520,6 +836,30 @@ function ParsedMessageContent({
         <BookingTicketCard
           key={`booking_${match.index}`}
           booking={parsedData as unknown as BookingCardData}
+        />
+      );
+    } else if (cardType === "sport-card" && (parsedData.teams || parsedData.league)) {
+      elements.push(
+        <SportCard
+          key={`sport_${match.index}`}
+          match={parsedData as unknown as SportCardData}
+          onExplore={onExploreSports || onExploreMovies}
+        />
+      );
+    } else if (cardType === "train-card" && (parsedData.trainName || parsedData.trainNumber)) {
+      elements.push(
+        <TrainCard
+          key={`train_${match.index}`}
+          train={parsedData as unknown as TrainCardData}
+          onExplore={onExploreTrains || onExploreMovies}
+        />
+      );
+    } else if (cardType === "gaming-card" && parsedData.title) {
+      elements.push(
+        <GamingCard
+          key={`gaming_${match.index}`}
+          game={parsedData as unknown as GamingCardData}
+          onExplore={onExploreGaming || onExploreMovies}
         />
       );
     }
@@ -645,6 +985,21 @@ export default function AskEpicAiPanel({
   const handleExploreMovies = () => {
     closeAskEpicAi();
     router.push("/movies");
+  };
+
+  const handleExploreSports = () => {
+    closeAskEpicAi();
+    router.push("/sports");
+  };
+
+  const handleExploreTrains = () => {
+    closeAskEpicAi();
+    router.push("/trains");
+  };
+
+  const handleExploreGaming = () => {
+    closeAskEpicAi();
+    router.push("/gaming");
   };
 
   /**
@@ -854,7 +1209,7 @@ export default function AskEpicAiPanel({
 
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold flex items-center gap-1.5">
-            Ask Epic AI <Sparkles className="h-3.5 w-3.5 text-indigo-200" />
+            Epic AI <Sparkles className="h-3.5 w-3.5 text-indigo-200" />
           </p>
         </div>
 
@@ -904,10 +1259,13 @@ export default function AskEpicAiPanel({
               <Bot className="h-7 w-7" />
             </div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-              Ask Epic AI <Sparkles className="h-4 w-4 text-indigo-500" />
+              Epic AI <Sparkles className="h-4 w-4 text-indigo-500" />
             </h3>
             <p className="mt-1 max-w-xs text-xs text-slate-500 dark:text-zinc-400">
-              {user?.name ? `Welcome, ${user.name}! ` : ""}Explore movies, live sports, gaming zones, train travel, and your bookings.
+              {user?.name ? `Welcome, ${user.name}! ` : ""}
+            </p>
+             <p className="mt-1 max-w-xs text-xs text-slate-500 dark:text-zinc-400">
+              Explore movies, live sports, gaming zones, train travel, and your bookings.
             </p>
           </div>
         ) : (
@@ -933,6 +1291,9 @@ export default function AskEpicAiPanel({
                         <ParsedMessageContent
                           text={message.text}
                           onExploreMovies={handleExploreMovies}
+                          onExploreSports={handleExploreSports}
+                          onExploreTrains={handleExploreTrains}
+                          onExploreGaming={handleExploreGaming}
                           onCategorySelect={(category) => sendMessage(category)}
                         />
 
@@ -981,7 +1342,7 @@ export default function AskEpicAiPanel({
             onChange={(event) => setInput(event.target.value)}
             disabled={isStreaming}
             placeholder={
-              isStreaming ? "EpicShow AI is replying..." : "Ask anything (e.g. upcoming movies, my tickets)..."
+              isStreaming ? "Epic AI is replying..." : "Ask anything (e.g. upcoming movies, my tickets)..."
             }
             className="hero-search-input min-w-0 flex-1 rounded-xl bg-transparent px-2 py-1.5 text-sm outline-none disabled:opacity-60"
           />

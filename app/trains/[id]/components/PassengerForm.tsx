@@ -61,7 +61,7 @@ export default function PassengerForm({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.2 }}
-      className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950"
+      className="no-gradient overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950"
     >
       <div className="flex items-center justify-between gap-4 border-b border-slate-200 bg-slate-50/80 p-5 dark:border-slate-800 dark:bg-slate-900/60">
         <div className="flex items-center gap-3">
@@ -184,7 +184,7 @@ export default function PassengerForm({
 
         <button
           type="submit"
-          className="inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-slate-950 to-cyan-700 px-4 text-sm font-bold text-white transition hover:shadow-lg dark:from-white dark:to-cyan-300 dark:text-slate-950"
+          className="no-gradient inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-cyan-600 px-4 text-sm font-bold text-white transition-colors duration-200 hover:bg-cyan-500 dark:bg-cyan-600 dark:hover:bg-cyan-500 dark:text-white shadow-xs"
         >
           <Save size={17} />
           Save Passenger Details

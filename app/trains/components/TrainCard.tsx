@@ -94,7 +94,7 @@ export default function TrainCard({ train, selectedDate }: TrainCardProps) {
               {train.price.toLocaleString()}
             </p>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-950 px-4 py-2 text-xs font-bold text-white transition-colors group-hover:bg-cyan-600 dark:bg-white dark:text-slate-950 dark:group-hover:bg-cyan-400 dark:group-hover:text-slate-950">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-950 px-4 py-2 text-xs font-bold text-white transition-colors group-hover:bg-cyan-600 dark:bg-cyan-600 dark:text-white dark:group-hover:bg-cyan-500">
             Book Ticket
             <ArrowRight size={14} />
           </span>

@@ -258,7 +258,7 @@ export default function PassengerDetailsPage() {
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
                     transition={{ duration: 0.5 }}
-                    className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-emerald-500"
+                    className="h-full rounded-full bg-cyan-600 dark:bg-cyan-500"
                   />
                 </div>
               </motion.div>

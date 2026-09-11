@@ -409,6 +409,12 @@ html.theme-dark :is(section, article, aside, div, form):is(.rounded-xl, .rounded
     filter 220ms ease;
 }
 
+html.theme-dark .no-gradient,
+html.theme-dark :is(section, article, aside, div, form).no-gradient,
+.no-gradient {
+  background-image: none !important;
+}
+
 @media (hover: hover) and (pointer: fine) {
 
   html.theme-dark :is(section, article, aside, div, form):is(.rounded-xl, .rounded-2xl, .rounded-3xl).border.bg-white:hover,

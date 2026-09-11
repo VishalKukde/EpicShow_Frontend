@@ -39,7 +39,7 @@ export default function LandingFloatingAiButton() {
 
         {/* Hover expanding text: "Ask EpicShow" */}
         <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs sm:text-sm font-semibold tracking-tight opacity-0 transition-all duration-300 ease-out group-hover:max-w-[130px] group-hover:pl-2.5 group-hover:pr-1 group-hover:opacity-100">
-          Ask EpicShow
+          Epic AI
         </span>
       </button>
     </div>
